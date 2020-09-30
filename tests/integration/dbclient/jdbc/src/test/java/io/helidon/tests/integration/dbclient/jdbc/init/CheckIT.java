@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class CheckIT {
 
-    /** Local logger instance. */
+    /* Local logger instance. */
     private static final Logger LOGGER = Logger.getLogger(CheckIT.class.getName());
 
     /** Test configuration. */

@@ -150,6 +150,7 @@
                                 <include>io.helidon.tests.integration.dbclient.common.tests.mapping.*IT</include>
                                 <include>io.helidon.tests.integration.dbclient.common.tests.health.*IT</include>
                                 <include>io.helidon.tests.integration.dbclient.common.tests.metrics.*IT</include>
+                                <include>io.helidon.tests.integration.dbclient.common.tests.bugs.*IT</include>
                             </includes>
                         </configuration>
                     </execution>
