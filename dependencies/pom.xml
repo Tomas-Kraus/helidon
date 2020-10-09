@@ -79,7 +79,7 @@
         <version.lib.jsonp-impl>1.1.6</version.lib.jsonp-impl>
         <version.lib.junit>5.6.2</version.lib.junit>
         <version.lib.junit4>4.13.1</version.lib.junit4>
-        <version.lib.mariadb-java-client>2.6.2</version.lib.mariadb-java-client>
+        <version.lib.mariadb-java-client>2.7.0</version.lib.mariadb-java-client>
         <version.lib.maven-wagon>2.10</version.lib.maven-wagon>
         <version.lib.microprofile-config>1.4</version.lib.microprofile-config>
         <version.lib.microprofile-health>2.2</version.lib.microprofile-health>
@@ -105,7 +105,7 @@
         <version.lib.opentracing.grpc>0.2.1</version.lib.opentracing.grpc>
         <version.lib.opentracing.tracerresolver>0.1.8</version.lib.opentracing.tracerresolver>
         <version.lib.persistence-api>2.2.3</version.lib.persistence-api>
-        <version.lib.postgresql>42.2.16</version.lib.postgresql>
+        <version.lib.postgresql>42.2.17</version.lib.postgresql>
         <version.lib.prometheus>0.9.0</version.lib.prometheus>
         <version.lib.reactivestreams>1.0.3</version.lib.reactivestreams>
         <version.lib.slf4j>1.7.26</version.lib.slf4j>
