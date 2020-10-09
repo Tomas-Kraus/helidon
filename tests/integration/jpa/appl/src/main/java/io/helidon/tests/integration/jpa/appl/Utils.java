@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Oracle and/or its affiliates.
+ * Copyright (c) 2019, 2020 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,36 +15,33 @@
  */
 package io.helidon.tests.integration.jpa.appl;
 
-import java.util.logging.Level;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 /**
- * Exits JPA MP application after short delay.
+ * Test utilities.
  */
-public class ExitThread implements Runnable {
+public class Utils {
 
     /* Local logger instance. */
-    private static final Logger LOGGER = Logger.getLogger(ExitThread.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
 
-    /**
-     * Starts application exit thread.
-     */
-    public static final void start() {
-        new Thread(new ExitThread()).start();
+    private Utils() {
+        throw new IllegalStateException("No instances of this class are allowed!");
     }
 
     /**
-     * Wait few seconds and terminate Java VM.
+     * Close database connection.
+     *
+     * @param connection database connection
      */
-    @Override
-    public void run() {
+    public static void closeConnection(final Connection connection) {
         try {
-            Thread.sleep(3000);
-        } catch (InterruptedException ie) {
-            LOGGER.log(Level.WARNING, ie, () -> String.format("Thread was interrupted: %s", ie.getMessage()));
-        } finally {
-            System.exit(0);
+            connection.close();
+        } catch (SQLException ex) {
+            LOGGER.warning(() -> String.format("Could not close database connection: %s", ex.getMessage()));
         }
     }
-    
+
 }

@@ -53,7 +53,6 @@
    <cpe>cpe:/a:java-websocket_project:java-websocket</cpe>
 </suppress>
 
-
 <!-- GraalVM -->
 <!-- JDK CVE for remote code execution in Java Web Start and applets running untrusted code.
      Does not apply to our use of GraalVM -->
@@ -122,5 +121,4 @@
    <packageUrl regex="true">^pkg:maven/junit/junit@.*$</packageUrl>
    <vulnerabilityName>CVE-2020-15250</vulnerabilityName>
 </suppress>
-
 </suppressions>
