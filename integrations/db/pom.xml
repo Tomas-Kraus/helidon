@@ -37,6 +37,7 @@
         <module>mysql</module>
         <module>mariadb</module>
         <module>pgsql</module>
+        <module>mssql</module>
         <module>ojdbc</module>
     </modules>
 </project>

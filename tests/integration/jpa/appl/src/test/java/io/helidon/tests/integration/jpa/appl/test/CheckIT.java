@@ -15,9 +15,12 @@
  */
 package io.helidon.tests.integration.jpa.appl.test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,11 +56,7 @@ public class CheckIT {
     private static final WebTarget TARGET = CLIENT.target("http://localhost:7001/test");
 
     @SuppressWarnings("SleepWhileInLoop")
-    public static void waitForDatabase() {
-        final String dbUser = System.getProperty("db.user");
-        final String dbPassword = System.getProperty("db.password");
-        final String dbUrl = System.getProperty("db.url");
-        boolean connected = false;
+    public static void waitForDatabase(final String dbUrl, final String dbUser, final String dbPassword) {
         if (dbUser == null) {
             throw new IllegalStateException("Database user name was not set!");
         }
@@ -71,7 +70,6 @@ public class CheckIT {
         while (true) {
             try {
                 Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-                connected = true;
                 Utils.closeConnection(conn);
                 return;
             } catch (SQLException ex) {
@@ -112,10 +110,121 @@ public class CheckIT {
         }
     }
 
+    /**
+     * Check whether database URL contains MsSQL connection information.
+     *
+     * @param dbUrl database URL
+     * @return value of {@code true} when URL contains MsSQL connection information
+     *         or {@code false} otherwise
+     */
+    private static boolean isMsSQL(final String dbUrl) {
+        return dbUrl != null && dbUrl.startsWith("jdbc:sqlserver");
+    }
+
+    /**
+     * Strip query parameters from MsSQL URL to get SA connection URL.
+     *
+     * @param dbUrl database URL
+     * @return database URL without query parameters
+     */
+    private static String saUrlOfMsSQL(final String dbUrl) {
+        final int semiColonPos = dbUrl.indexOf(';');
+        return semiColonPos > 0 ? dbUrl.substring(0, semiColonPos) : dbUrl;
+    }
+
+    /**
+     * Initialize MsSQL database.
+     * Database name is retrieved from connection URL.
+     *
+     * @param dbUrl MsSQL database connection URL with database name
+     * @param dbUser MsSQL database connection user name
+     * @param dbPassword MsSQL database connection user password
+     */
+    private static void initMsSQL(final String dbUrl, final String dbUser, final String dbPassword) {
+        String database = null;
+        final int semiColonPos = dbUrl.indexOf(';');
+        if (semiColonPos < 0) {
+            throw new IllegalArgumentException("MsSQL URL Query does not contain query parameters");
+        }
+        final String urlQuery = dbUrl.substring(semiColonPos + 1);
+        LOGGER.fine(() -> String.format("URL %s has query part %s", dbUrl, urlQuery));
+        final int pos = urlQuery.indexOf("databaseName=");
+        if (pos < 0) {
+            throw new IllegalArgumentException("MsSQL URL Query does not contain databaseName parameter");
+        }
+        if (urlQuery.length() < (pos + 14)) {
+            throw new IllegalArgumentException("MsSQL URL Query dose not contain databaseName parameter value");
+        }
+        final int end = urlQuery.indexOf(dbUser, pos + 13);
+        database = end > 0 ? urlQuery.substring(pos + 13, end) : urlQuery.substring(pos + 13);
+        if (database == null) {
+            throw new IllegalStateException("Missing database name!");
+        }
+        final String dbSaPassword = System.getProperty("db.sa.password");
+        try (Connection conn = DriverManager.getConnection(saUrlOfMsSQL(dbUrl), "sa", dbSaPassword)) {    
+            try {
+                Statement stmt = conn.createStatement();
+                final int dbCount = stmt.executeUpdate(String.format("EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION', 1", database));
+                LOGGER.log(Level.INFO, () -> String.format("Executed EXEC statement. %d records modified.", dbCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not configure database:", ex);
+            } try {
+                Statement stmt = conn.createStatement();
+                final int dbCount = stmt.executeUpdate(String.format("RECONFIGURE", database));
+                LOGGER.log(Level.INFO, () -> String.format("Executed RECONFIGURE statement. %d records modified.", dbCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not reconfigure database:", ex);
+            } try {
+                Statement stmt = conn.createStatement();
+                final int dbCount = stmt.executeUpdate(String.format("CREATE DATABASE %s CONTAINMENT = PARTIAL", database));
+                LOGGER.log(Level.INFO, () -> String.format("Executed CREATE DATABASE statement. %d records modified.", dbCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not create database:", ex);
+            } try {
+                Statement stmt = conn.createStatement();
+                final int useCount = stmt.executeUpdate(String.format("USE %s", database));
+                LOGGER.log(Level.INFO, () -> String.format("Executed USE statement. %d records modified.", useCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not use database:", ex);
+            } try {
+                Statement stmt = conn.createStatement();//"CREATE USER ? WITH PASSWORD = ?");
+                final int userCount = stmt.executeUpdate(String.format("CREATE USER %s WITH PASSWORD = '%s'", dbUser, dbPassword));
+                LOGGER.log(Level.INFO, () -> String.format("Executed CREATE USER statement. %d records modified.", userCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not create database user:", ex);
+            } try {
+                Statement stmt = conn.createStatement();//"CREATE USER ? WITH PASSWORD = ?");
+                final int userCount = stmt.executeUpdate(String.format("GRANT ALL TO %s", dbUser));
+                LOGGER.log(Level.INFO, () -> String.format("Executed GRANT statement. %d records modified.", userCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not grant database privilegs to user:", ex);
+            } try {
+                Statement stmt = conn.createStatement();//"CREATE USER ? WITH PASSWORD = ?");
+                final int userCount = stmt.executeUpdate(String.format("GRANT CONTROL ON SCHEMA::dbo TO %s", dbUser));
+                LOGGER.log(Level.INFO, () -> String.format("Executed GRANT statement. %d records modified.", userCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not grant database privilegs to user:", ex);
+            }
+        } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not open database connection:", ex);
+        }
+    }
+
     @BeforeAll
     public static void init() {
-        waitForDatabase();
+        final String dbUser = System.getProperty("db.user");
+        final String dbPassword = System.getProperty("db.password");
+        final String dbUrl = System.getProperty("db.url");
+        if (isMsSQL(dbUrl)) {
+            final String dbSaPassword = System.getProperty("db.sa.password");
+            waitForDatabase(saUrlOfMsSQL(dbUrl), "sa", dbSaPassword);
+        } else {
+            waitForDatabase(dbUrl, dbUser, dbPassword);
+        }
         waitForServer();
+        if (isMsSQL(dbUrl)) {
+            initMsSQL(dbUrl, dbUser, dbPassword);
+        }
         ClientUtils.callJdbcTest("/setup");
     }
 
