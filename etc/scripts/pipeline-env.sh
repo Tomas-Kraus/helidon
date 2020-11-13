@@ -23,7 +23,8 @@ require_env() {
 }
 if [ -n "${JENKINS_HOME}" ] ; then
     export JAVA_HOME="/tools/jdk11"
-    export GRAALVM_HOME="${GRAALVM_HOME}:-/tools/graalvm-ce-java11-20.2.0"
+    export GRAALVM_HOME="${GRAALVM_HOME:-/tools/graalvm-ce-java11-20.2.0}"
+
     MAVEN_OPTS="${MAVEN_OPTS} -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
     MAVEN_OPTS="${MAVEN_OPTS} -Dorg.slf4j.simpleLogger.showDateTime=true"
     MAVEN_OPTS="${MAVEN_OPTS} -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS"
