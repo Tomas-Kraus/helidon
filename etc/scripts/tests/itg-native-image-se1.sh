@@ -35,31 +35,49 @@ else
 fi
 
 # Path to the root of the workspace
-readonly WS_DIR=$(cd $(dirname -- "${SCRIPT_PATH}") ; cd ../.. ; pwd -P)
+readonly WS_DIR=$(cd $(dirname -- "${SCRIPT_PATH}") ; cd ../../.. ; pwd -P)
 
-source ${WS_DIR}/etc/scripts/pipeline-env.sh
+source "${WS_DIR}"/etc/scripts/pipeline-env.sh
 
-mvn ${MAVEN_ARGS} --version
+mvn "${MAVEN_ARGS}" --version
 
-mvn ${MAVEN_ARGS} -f ${WS_DIR}/pom.xml \
+# Build static content
+cd "${WS_DIR}"/tests/integration/native-image/static-content
+
+echo '*******************************'
+echo '** Building SE static content'
+echo '*******************************'
+
+mvn ${MAVEN_ARGS} \
     clean install -e \
-    -Dmaven.test.failure.ignore=true \
-    -Pexamples,archetypes,spotbugs,javadoc,sources,tck,tests,pipeline
+    -Dmaven.test.failure.ignore=true -Ppipeline
 
-# native image integration test
-# for now part of build, will be a separate step
-# this will make the `test-runtime.sh` scripts below obsolete
-# as it support testing classpath, module path and native image
-etc/scripts/tests/itg-native-image-se1.sh
+echo '*******************************'
+echo '** Building SE native image'
+echo '*******************************'
+cd "${WS_DIR}"/tests/integration/native-image/se-1
 
-#
-# test running from jar file, and then from module path
-#
-# The first integration test tests all MP features except for JPA/JTA
-# with multiple JAX-RS applications including security
-tests/integration/native-image/mp-1/test-runtime.sh
-# The third integration test tests Helidon Quickstart MP
-tests/integration/native-image/mp-3/test-runtime.sh
+mvn ${MAVEN_ARGS} \
+    clean package -e \
+    -Pnative-image,pipeline
 
-# Build site and agregated javadocs
-mvn ${MAVEN_ARGS} -f ${WS_DIR}/pom.xml site
+echo '*******************************'
+echo '** Tests on hotspot'
+echo '*******************************'
+mvn ${MAVEN_ARGS} \
+    test -e \
+    -Pclass-path,pipeline
+
+echo '*******************************'
+echo '** Tests on native'
+echo '*******************************'
+mvn ${MAVEN_ARGS} \
+    test -e \
+    -Pnative-tests,pipeline
+
+echo '*******************************'
+echo '** Tests on hotspot using module path'
+echo '*******************************'
+mvn ${MAVEN_ARGS} \
+    test -e \
+    -Pmodule-path,pipeline
