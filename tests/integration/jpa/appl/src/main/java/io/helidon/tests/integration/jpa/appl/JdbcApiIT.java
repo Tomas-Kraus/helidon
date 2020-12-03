@@ -114,4 +114,30 @@ public class JdbcApiIT {
         return result;
     }
 
+
+    /**
+     * Test simple ping query on Oracle Database.
+     *
+     * @param result test execution result
+     * @return test execution result
+     */
+    @MPTest
+    public TestResult pingOraDb(TestResult result) throws SQLException {
+        if (conn == null) {
+            return result.fail("No database connection is available!");
+        }
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery("SELECT 1 FROM DUAL")) {
+                result.assertTrue(rs.next(), "Is 1st result available?");
+                Integer value = rs.getInt(1);
+                result.assertNotNull(value);
+                result.assertEquals(1, value);
+            }
+        } catch (SQLException e) {
+            LOGGER.warning(() -> String.format("Simple ping query failed: ", e.getMessage()));
+            result.throwed(e);
+        }
+        return result;
+    }
+
 }

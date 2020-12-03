@@ -1,6 +1,11 @@
 {
     "classes": [
         "org.hibernate.dialect.Oracle10gDialect",
+        "org.hibernate.dialect.Oracle12cDialect",
+        "org.hibernate.dialect.Oracle8iDialect",
+        "org.hibernate.dialect.Oracle9Dialect",
+        "org.hibernate.dialect.Oracle9iDialect",
+        "org.hibernate.dialect.OracleDialect",
         "oracle.jdbc.logging.annotations.Supports",
         "oracle.jdbc.logging.annotations.Feature"
     ]
