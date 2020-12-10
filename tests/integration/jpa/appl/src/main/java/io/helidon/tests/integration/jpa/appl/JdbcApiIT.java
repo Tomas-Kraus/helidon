@@ -80,7 +80,7 @@ public class JdbcApiIT {
      * @return test execution result
      */
     @MPTest
-    public TestResult destroy(TestResult result) {
+    public TestResult destroy(final TestResult result) {
         if (conn != null) {
             Utils.closeConnection(conn);
         }
@@ -88,19 +88,12 @@ public class JdbcApiIT {
     }
 
 
-    /**
-     * Test simple ping query.
-     *
-     * @param result test execution result
-     * @return test execution result
-     */
-    @MPTest
-    public TestResult ping(TestResult result) throws SQLException {
+    private TestResult testPingStatement(final TestResult result, final String sql) throws SQLException {
         if (conn == null) {
             return result.fail("No database connection is available!");
         }
         try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery("SELECT 1")) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
                 result.assertTrue(rs.next(), "Is 1st result available?");
                 Integer value = rs.getInt(1);
                 result.assertNotNull(value);
@@ -111,6 +104,28 @@ public class JdbcApiIT {
             result.throwed(e);
         }
         return result;
+    }
+
+    /**
+     * Test default simple ping query.
+     *
+     * @param result test execution result
+     * @return test execution result
+     */
+    @MPTest
+    public TestResult ping(final TestResult result) throws SQLException {
+        return testPingStatement(result, "SELECT 1");
+    }
+
+    /**
+     * Test simple ping query on Oracle Database.
+     *
+     * @param result test execution result
+     * @return test execution result
+     */
+    @MPTest
+    public TestResult pingOraDb(final TestResult result) throws SQLException {
+        return testPingStatement(result, "SELECT 1 FROM DUAL");
     }
 
 }
