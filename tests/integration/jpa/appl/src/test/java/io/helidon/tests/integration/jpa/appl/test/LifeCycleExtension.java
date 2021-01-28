@@ -18,6 +18,7 @@ package io.helidon.tests.integration.jpa.appl.test;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,12 +42,35 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL;
  */
 public class LifeCycleExtension implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
 
-    private static final Logger LOGGER = Logger.getLogger(LifeCycleExtension.class.getName());
+   private static enum DbType {
+
+        DEFAULT,
+        ORADB;
+
+        /**
+         * Get database type based on provided URL.
+         *
+         * @param dbUrl database URL to check
+         * @return database type retrieved from URL
+         */
+        private static DbType get(final String dbUrl) {
+            if (dbUrl == null) {
+                throw new IllegalStateException("Database URL is null!");
+            }
+            if (dbUrl.startsWith("jdbc:oracle:thin")) {
+                return ORADB;
+            }
+            return DEFAULT;
+        }
+
+    }
+
+   private static final Logger LOGGER = Logger.getLogger(LifeCycleExtension.class.getName());
 
     private static final String STORE_KEY = LifeCycleExtension.class.getName();
 
     /* Startup timeout in seconds for both database and web server. */
-    private static final int TIMEOUT = 60;
+    private static final int TIMEOUT = 300;
 
     /* Thread sleep time in miliseconds while waiting for database or appserver to come up. */
     private static final int SLEEP_MILIS = 250;
@@ -54,6 +78,8 @@ public class LifeCycleExtension implements BeforeAllCallback, ExtensionContext.S
     private static final Client CLIENT = ClientBuilder.newClient();
 
     private static final WebTarget TARGET = CLIENT.target("http://localhost:7001/test");
+
+    private static DbType DB_TYPE = DbType.DEFAULT;
 
     /**
      * Test setup.
@@ -79,10 +105,34 @@ public class LifeCycleExtension implements BeforeAllCallback, ExtensionContext.S
      */
     private void setup() {
         LOGGER.fine("Running JPA application test setup()");
-        waitForDatabase();
+       final String dbUrl = System.getProperty("db.url");
+        String dbUser;
+        String dbPassword;
+        DB_TYPE = DbType.get(dbUrl);
+        switch (DB_TYPE) {
+            case ORADB:
+                dbPassword = System.getProperty("db.syspw");
+                dbUser = "sys as sysdba";
+                break;
+            default:
+                dbUser = System.getProperty("db.user");
+                dbPassword = System.getProperty("db.password");
+        }
+        waitForDatabase(dbUrl, dbUser, dbPassword);
         waitForServer();
+        switch (DB_TYPE) {
+            case ORADB:
+                initOraDB(dbUrl, dbUser, dbPassword);
+                break;
+        }
         ClientUtils.callJdbcTest("/setup");
-        ClientUtils.callJdbcTest("/test/JdbcApiIT.ping");
+        switch (DB_TYPE) {
+            case ORADB:
+                ClientUtils.callJdbcTest("/test/JdbcApiIT.pingOraDb");
+                break;
+            default:
+                ClientUtils.callJdbcTest("/test/JdbcApiIT.ping");
+        }
         init();
         testBeans();
     }
@@ -97,29 +147,24 @@ public class LifeCycleExtension implements BeforeAllCallback, ExtensionContext.S
     }
 
     @SuppressWarnings("SleepWhileInLoop")
-    public static void waitForDatabase() {
-        final String dbUser = System.getProperty("db.user");
-        final String dbPassword = System.getProperty("db.password");
-        final String dbUrl = System.getProperty("db.url");
-        boolean connected = false;
+    public static void waitForDatabase(final String dbUrl, final String dbUser, final String dbPassword) {
+        if (dbUrl == null) {
+            throw new IllegalStateException("Database URL was not set!");
+        }
         if (dbUser == null) {
             throw new IllegalStateException("Database user name was not set!");
         }
         if (dbPassword == null) {
             throw new IllegalStateException("Database user password was not set!");
         }
-        if (dbUrl == null) {
-            throw new IllegalStateException("Database URL was not set!");
-        }
         long endTm = 1000 * TIMEOUT + System.currentTimeMillis();
         while (true) {
             try {
                 Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-                connected = true;
                 Utils.closeConnection(conn);
                 return;
             } catch (SQLException ex) {
-                LOGGER.fine(() -> String.format("Connection check: %s", ex.getMessage()));
+                LOGGER.info(() -> String.format("Connection check: %s", ex.getMessage()));
                 if (System.currentTimeMillis() > endTm) {
                     throw new IllegalStateException(String.format("Database is not ready within %d seconds", TIMEOUT));
                 }
@@ -140,7 +185,7 @@ public class LifeCycleExtension implements BeforeAllCallback, ExtensionContext.S
         boolean retry = true;
         while (retry) {
             try {
-                Response response = status.request().get();
+                status.request().get();
                 retry = false;
             } catch (Exception ex) {
                 LOGGER.fine(() -> String.format("Connection check: %s", ex.getMessage()));
@@ -183,5 +228,39 @@ public class LifeCycleExtension implements BeforeAllCallback, ExtensionContext.S
         Response response = exit.request().get();
         LOGGER.info(() -> String.format("Status: %s", response.readEntity(String.class)));
     }
+
+    // Specific database initialization code
+
+    /**
+     * Initialize Oracle database.
+     * Database name is retrieved from connection URL.
+     *
+     * @param dbUrl MsSQL database connection URL with database name
+     * @param dbUser MsSQL database connection user name
+     * @param dbPassword MsSQL database connection user password
+     */
+    private static void initOraDB(final String dbUrl, final String dbSysUser, final String dbSysPassword) {
+        final String dbUser = System.getProperty("db.user");
+        final String dbPassword = System.getProperty("db.password");
+        try (Connection conn = DriverManager.getConnection(dbUrl, dbSysUser, dbSysPassword)) {
+            try {
+                Statement stmt = conn.createStatement();
+                final int dbCount = stmt.executeUpdate(String.format("CREATE USER %s IDENTIFIED BY %s", dbUser, dbPassword));
+                LOGGER.log(Level.INFO, () -> String.format("Executed EXEC statement. %d records modified.", dbCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not create database user:", ex);
+            }
+            try {
+                Statement stmt = conn.createStatement();
+                final int dbCount = stmt.executeUpdate(String.format("GRANT ALL PRIVILEGES TO %s", dbUser));
+                LOGGER.log(Level.INFO, () -> String.format("Executed EXEC statement. %d records modified.", dbCount));
+            } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not grant privileges to user:", ex);
+            }
+        } catch (SQLException ex) {
+                LOGGER.log(Level.WARNING, "Could not open database connection:", ex);
+        }
+    }
+
 
 }
