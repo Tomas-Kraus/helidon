@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2021 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.helidon.dbclient.jsonp;
 
 import java.math.BigDecimal;
@@ -37,7 +38,7 @@ import io.helidon.dbclient.DbRow;
 /**
  * Json processing mapper.
  */
-public final class JsonProcessingMapper implements DbMapper<JsonObject> {
+public final class JsonProcessingDbMapper implements DbMapper<JsonObject> {
     private static final JsonBuilderFactory JSON = Json.createBuilderFactory(Collections.emptyMap());
     private static final Map<Class<?>, DbJsonWriter> JSON_WRITERS = new IdentityHashMap<>();
     private static final DbJsonWriter NUMBER_WRITER = (builder, name, value) -> builder.add(name, ((Number) value).longValue());
@@ -65,7 +66,7 @@ public final class JsonProcessingMapper implements DbMapper<JsonObject> {
         JSON_WRITERS.put(boolean.class, JSON_WRITERS.get(Boolean.class));
     }
 
-    private JsonProcessingMapper() {
+    private JsonProcessingDbMapper() {
     }
 
     /**
@@ -74,8 +75,8 @@ public final class JsonProcessingMapper implements DbMapper<JsonObject> {
      *
      * @return a new mapper
      */
-    public static JsonProcessingMapper create() {
-        return new JsonProcessingMapper();
+    public static JsonProcessingDbMapper create() {
+        return new JsonProcessingDbMapper();
     }
 
     /**

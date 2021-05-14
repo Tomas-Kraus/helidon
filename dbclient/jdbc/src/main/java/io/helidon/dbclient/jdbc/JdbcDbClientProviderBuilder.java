@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2020 Oracle and/or its affiliates.
+ * Copyright (c) 2019, 2021 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.helidon.dbclient.jdbc;
 
 import java.util.LinkedList;
@@ -51,8 +52,11 @@ public final class JdbcDbClientProviderBuilder implements DbClientProviderBuilde
     private DbMapperManager dbMapperManager;
     private Supplier<ExecutorService> executorService;
     private ConnectionPool connectionPool;
+    private boolean caseSensitive;
 
     JdbcDbClientProviderBuilder() {
+        // Default case sensitivity value.
+        caseSensitive = false;
     }
 
     /**
@@ -98,6 +102,7 @@ public final class JdbcDbClientProviderBuilder implements DbClientProviderBuilde
 
         config.get("statements").as(DbStatements::create).ifPresent(this::statements);
         config.get("executor-service").as(ThreadPoolSupplier::create).ifPresent(this::executorService);
+        config.get("case-sensitive").asBoolean().ifPresent(this::caseSensitive);
         return this;
     }
 
@@ -145,6 +150,19 @@ public final class JdbcDbClientProviderBuilder implements DbClientProviderBuilde
     @Override
     public JdbcDbClientProviderBuilder statements(DbStatements statements) {
         this.statements = statements;
+        return this;
+    }
+
+    // This shall be added into API too.
+    /**
+     * Set DbClient instance case sensitivity (for column names, table names, etc.).
+     * Default value is {@code false}.
+     *
+     * @param caseSensitive whether DbClient instance should be case sensitive or not
+     * @return updated builder instance
+     */
+    public JdbcDbClientProviderBuilder caseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
         return this;
     }
 
@@ -223,6 +241,10 @@ public final class JdbcDbClientProviderBuilder implements DbClientProviderBuilde
 
     ConnectionPool connectionPool() {
         return connectionPool;
+    }
+
+    boolean isCaseSensitive() {
+        return caseSensitive;
     }
 
 }
