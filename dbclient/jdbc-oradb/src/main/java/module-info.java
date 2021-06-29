@@ -20,7 +20,6 @@
 module io.helidon.dbclient.jdbc.oradb {
     requires java.logging;
     requires java.sql;
-    requires java.json;
     requires ojdbc11;
 
     requires transitive io.helidon.common;
