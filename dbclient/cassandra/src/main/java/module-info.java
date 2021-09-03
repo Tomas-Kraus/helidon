@@ -26,6 +26,8 @@ module io.helidon.dbclient.cassandra {
     requires transitive io.helidon.dbclient;
     requires transitive io.helidon.dbclient.common;
 
+    requires com.datastax.oss.driver.core;
+
     exports io.helidon.dbclient.cassandra;
 
     //provides io.helidon.dbclient.spi.DbClientProvider with io.helidon.dbclient.jdbc.JdbcDbClientProvider;

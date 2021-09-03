@@ -15,9 +15,48 @@
  */
 package io.helidon.dbclient.cassandra;
 
+import com.datastax.oss.driver.api.core.CqlSession;
+import java.util.function.Function;
+
+import io.helidon.common.reactive.Single;
+import io.helidon.common.reactive.Subscribable;
+import io.helidon.dbclient.DbClient;
+import io.helidon.dbclient.DbExecute;
+import io.helidon.dbclient.DbTransaction;
+
 /**
- * MongoDB driver handler.
+ * Cassandra driver handler.
  */
-public class CassandraDbClient {
+public class CassandraDbClient implements DbClient {
+
+    private final CqlSession session;
+    /**
+     * Creates an instance of Cassandra driver handler.
+     *
+     * @param builder builder for Cassandra database
+     */
+    CassandraDbClient(CassandraDbClientProviderBuilder builder) {
+        session = null;
+    }
+    
+    @Override
+    public <U, T extends Subscribable<U>> T inTransaction(Function<DbTransaction, T> executor) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <U, T extends Subscribable<U>> T execute(Function<DbExecute, T> executor) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String dbType() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <C> Single<C> unwrap(Class<C> cls) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }
