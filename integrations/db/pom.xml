@@ -41,5 +41,6 @@
         <module>mysql</module>
         <module>ojdbc</module>
         <module>pgsql</module>
+        <module>cassandra</module>
     </modules>
 </project>

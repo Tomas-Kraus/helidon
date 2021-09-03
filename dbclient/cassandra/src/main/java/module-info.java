@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-import io.helidon.dbclient.jdbc.spi.HikariCpExtensionProvider;
-
 /**
- * Helidon DB Client JDBC.
+ * Helidon DB Client Cassandra.
  */
-module io.helidon.dbclient.jdbc {
-    uses HikariCpExtensionProvider;
+module io.helidon.dbclient.cassandra {
     requires java.logging;
     requires java.sql;
-    requires com.zaxxer.hikari;
 
     requires transitive io.helidon.common;
     requires transitive io.helidon.common.configurable;
     requires transitive io.helidon.dbclient;
     requires transitive io.helidon.dbclient.common;
 
-    exports io.helidon.dbclient.jdbc;
-    exports io.helidon.dbclient.jdbc.spi;
+    exports io.helidon.dbclient.cassandra;
 
-    provides io.helidon.dbclient.spi.DbClientProvider with io.helidon.dbclient.jdbc.JdbcDbClientProvider;
+    //provides io.helidon.dbclient.spi.DbClientProvider with io.helidon.dbclient.jdbc.JdbcDbClientProvider;
 }

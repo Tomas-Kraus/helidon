@@ -15,7 +15,7 @@
  */
 
 /**
- * Helidon Common Mapper.
+ * Helidon DB Client MongoDB.
  */
 module io.helidon.dbclient.mongodb {
     requires java.logging;

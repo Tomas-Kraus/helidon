@@ -37,6 +37,7 @@
         <module>common</module>
         <module>jdbc</module>
         <module>mongodb</module>
+        <module>cassandra</module>
         <module>tracing</module>
         <module>metrics</module>
         <module>metrics-jdbc</module>
