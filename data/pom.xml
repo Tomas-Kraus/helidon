@@ -34,5 +34,6 @@
 
     <modules>
         <module>data</module>
+        <module>common</module>
     </modules>
 </project>

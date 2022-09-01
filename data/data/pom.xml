@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>helidon-data</artifactId>
-    <name>Helidon Data Repository</name>
+    <name>Helidon Data Repository API</name>
 
     <dependencies>
         <dependency>
@@ -36,6 +36,11 @@
         <dependency>
             <groupId>io.helidon.common</groupId>
             <artifactId>helidon-common-reactive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <!--version>3.1.0</1version-->
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

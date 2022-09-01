@@ -15,6 +15,7 @@
  */
 package io.helidon.data.model;
 
+//import io.micronaut.core.annotation.NonNull;
 import io.helidon.core.utils.ReflectionUtils;
 import io.helidon.core.utils.CollectionUtils;
 import io.helidon.data.annotation.TypeDef;
@@ -34,7 +35,7 @@ import java.util.*;
  *
  * @author graemerocher
  * @since 1.0.0
- * @see PersistentProperty#getDataType()
+ * See {@code PersistentProperty#getDataType()}
  */
 public enum DataType {
     /**
@@ -94,7 +95,7 @@ public enum DataType {
      */
     OBJECT,
     /**
-     * A class annotated with {@link io.helidon.data.annotation.MappedEntity}.
+     * A class annotated with {@code io.micronaut.data.annotation.MappedEntity}.
      */
     ENTITY,
     /**

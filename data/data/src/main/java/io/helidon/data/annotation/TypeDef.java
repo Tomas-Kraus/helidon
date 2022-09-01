@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 
 /**
  * Type definitions allow associating existing types with a specific {@link DataType}. Can be applied
- * as a stereotype (meta-annotation) to other {@link Repository} and/or {@link MappedEntity} to provide
+ * as a stereotype (meta-annotation) to other {@code Repository} and/or {@code MappedEntity} to provide
  * additional type information for custom types.
  *
  * @author graemerocher
