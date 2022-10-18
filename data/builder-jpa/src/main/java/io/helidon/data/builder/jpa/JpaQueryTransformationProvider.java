@@ -13,7 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Helidon dynamic finder query abstract syntax tree.
- */
-package io.helidon.data.builder.query;
+package io.helidon.data.builder.jpa;
+
+import io.helidon.data.builder.query.transform.QueryTransformation;
+import io.helidon.data.builder.query.transform.QueryTransformationProvider;
+
+public class JpaQueryTransformationProvider implements QueryTransformationProvider {
+
+    // Name of the JPA transformation provider
+    private static final String PROVIDER_NAME = "jpa";
+
+    @Override
+    public String name() {
+        return PROVIDER_NAME;
+    }
+
+    @Override
+    public QueryTransformation newInstance() {
+        return new JpaQueryTransformation();
+    }
+}

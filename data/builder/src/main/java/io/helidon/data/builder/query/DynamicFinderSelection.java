@@ -37,10 +37,13 @@ public class DynamicFinderSelection {
      */
     public static class Projection {
 
+        /** Class constant for TOP method parameter. */
+        public static final Class<Integer> TOP_PARAM_CLASS = Integer.class;
+
          /**
           * Projection methods.
           */
-         enum Method {
+         public enum Method {
              /** Return count of the values. */
              COUNT("Count", Void.class),
              /** Return count of the distinct values. */
@@ -56,26 +59,17 @@ public class DynamicFinderSelection {
              /** Return the average of all values. */
              AVG("Avg", Void.class),
              /** Return first N of all values. N is integer value. */
-             TOP("Top", Integer.class);
+             TOP("Top", TOP_PARAM_CLASS);
 
              //  Supported method keyword.
-             private String keyword;
+             public final String keyword;
              // Type of the projection parameter.
-             private Class<?> type;
+             public final Class<?> type;
 
              // Creates an instance of projection method.
              Method(final String keyword, final Class<?> type) {
                  this.keyword = keyword;
                  this.type = type;
-             }
-
-             /**
-              * Type of the projection parameter.
-              *
-              * @return class of the projection parameter.
-              */
-             public Class<?> type() {
-                 return type;
              }
 
          }
@@ -104,7 +98,7 @@ public class DynamicFinderSelection {
           * Projection method parameter.
           *
           * @return optional finder query projection method parameter
-          * @param <T> type of the finder query projection method parameter, matches {@link Method#type()}
+          * @param <T> type of the finder query projection method parameter, matches {@link Method#type}
           */
          @SuppressWarnings("unchecked")
          public <T> Optional<T> parameter() {
@@ -117,11 +111,14 @@ public class DynamicFinderSelection {
     private final Method method;
     // Query selection projection.
     private final Optional<Projection> projection;
+    // Query selection property.
+    final Optional<String> property;
 
     // Creates an instance of selection part of the Helidon dynamic finder query.
-    private DynamicFinderSelection(final Method method, final Optional<Projection> projection) {
+    private DynamicFinderSelection(final Method method, final Optional<Projection> projection, final Optional<String> property) {
         this.method = method;
         this.projection = projection;
+        this.property = property;
     }
 
     /**
@@ -143,9 +140,18 @@ public class DynamicFinderSelection {
     }
 
     /**
+     * Query selection property.
+     *
+     * @return property of the query selection
+     */
+    public Optional<String> property() {
+        return property;
+    }
+
+    /**
      * Helidon dynamic finder query selection builder.
      */
-    public static class Builder implements BuilderLastStage {
+    public static class Builder implements BuilderPropertyStage {
 
         // Parent class builder where all parts are put together.
         private final DynamicFinder.Builder builder;
@@ -153,20 +159,23 @@ public class DynamicFinderSelection {
         private Method method;
         // Query selection projection.
         private Projection projection;
+        // Query selection property.
+        private String property;
 
         // Creqates an instanceof query selection builder.
         Builder(final DynamicFinder.Builder builder) {
             this.builder = builder;
             this.method = null;
             this.projection = null;
+            this.property = null;
         }
 
         /**
          * Select query projection: {@code Count}.
          *
-         * @return builder with query projection set as {@code Count}.
+         * @return builder with query projection set as {@code Count}
          */
-        public DynamicFinderSelection.BuilderLastStage count() {
+        public DynamicFinderSelection.BuilderPropertyStage count() {
             projection = new Projection(
                     Projection.Method.COUNT, Optional.empty());
             return this;
@@ -175,9 +184,9 @@ public class DynamicFinderSelection {
         /**
          * Select query projection: {@code CountDistinct}.
          *
-         * @return builder with query projection set as {@code CountDistinct}.
+         * @return builder with query projection set as {@code CountDistinct}
          */
-        public DynamicFinderSelection.BuilderLastStage countDistinct() {
+        public DynamicFinderSelection.BuilderPropertyStage countDistinct() {
             projection = new Projection(
                     Projection.Method.COUNT_DISTINCT, Optional.empty());
             return this;
@@ -186,9 +195,9 @@ public class DynamicFinderSelection {
         /**
          * Select query projection: {@code Distinct}.
          *
-         * @return builder with query projection set as {@code Distinct}.
+         * @return builder with query projection set as {@code Distinct}
          */
-        public DynamicFinderSelection.BuilderLastStage distinct() {
+        public DynamicFinderSelection.BuilderPropertyStage distinct() {
             projection = new Projection(
                     Projection.Method.DISTINCT, Optional.empty());
             return this;
@@ -197,9 +206,9 @@ public class DynamicFinderSelection {
         /**
          * Select query projection: {@code Max}.
          *
-         * @return builder with query projection set as {@code Max}.
+         * @return builder with query projection set as {@code Max}
          */
-        public DynamicFinderSelection.BuilderLastStage max() {
+        public DynamicFinderSelection.BuilderPropertyStage max() {
             projection = new Projection(
                     Projection.Method.MAX, Optional.empty());
             return this;
@@ -208,9 +217,9 @@ public class DynamicFinderSelection {
         /**
          * Select query projection: {@code Min}.
          *
-         * @return builder with query projection set as {@code Min}.
+         * @return builder with query projection set as {@code Min}
          */
-        public DynamicFinderSelection.BuilderLastStage min() {
+        public DynamicFinderSelection.BuilderPropertyStage min() {
             projection = new Projection(
                     Projection.Method.MIN, Optional.empty());
             return this;
@@ -219,9 +228,9 @@ public class DynamicFinderSelection {
         /**
          * Select query projection: {@code Sum}.
          *
-         * @return builder with query projection set as {@code Sum}.
+         * @return builder with query projection set as {@code Sum}
          */
-        public DynamicFinderSelection.BuilderLastStage sum() {
+        public DynamicFinderSelection.BuilderPropertyStage sum() {
             projection = new Projection(
                     Projection.Method.SUM, Optional.empty());
             return this;
@@ -230,9 +239,9 @@ public class DynamicFinderSelection {
         /**
          * Select query projection: {@code Avg}.
          *
-         * @return builder with query projection set as {@code Avg}.
+         * @return builder with query projection set as {@code Avg}
          */
-        public DynamicFinderSelection.BuilderLastStage avg() {
+        public DynamicFinderSelection.BuilderPropertyStage avg() {
             projection = new Projection(
                     Projection.Method.AVG, Optional.empty());
             return this;
@@ -242,11 +251,28 @@ public class DynamicFinderSelection {
          * Select query projection: {@code Top(Integer)}.
          *
          * @param count number of results to return
-         * @return builder with query projection set as {@code Top(Integer)}.
+         * @return builder with query projection set as {@code Top(Integer)}
          */
-        public DynamicFinderSelection.BuilderLastStage top(final int count) {
+        public DynamicFinderSelection.BuilderPropertyStage top(final int count) {
             projection = new Projection(
                     Projection.Method.TOP, Optional.of(count));
+            return this;
+        }
+
+        /**
+         * Set query property
+         *
+         * @param property name of the entity property
+         * @return builder with query property set
+         */
+        public DynamicFinderSelection.BuilderLastStage property(final String property) {
+            if (property == null) {
+                throw new IllegalArgumentException("Query selection property shall not be null");
+            }
+            if (property.isEmpty()) {
+                throw new IllegalArgumentException("Query selection property shall not be empty value");
+            }
+            this.property = property;
             return this;
         }
 
@@ -259,15 +285,16 @@ public class DynamicFinderSelection {
             // Finalize selection first.
             builder.setSelection(
                     new DynamicFinderSelection(
-                            method,
-                            projection != null ? Optional.of(projection) : Optional.empty()));
+                            this.method,
+                            this.projection != null ? Optional.of(this.projection) : Optional.empty(),
+                            this.property != null ? Optional.of(this.property) : Optional.empty()));
             // Return criteria builder.
             return new DynamicFinderCriteria.Builder(builder).by(property);
         }
 
         /**
          * Build Helidon dynamic finder query criteria.
-         * This is a shortcut to add default {@link DynamicFinderCriteria.Expression.Condition.Method.EQUALS} condition
+         * This is a shortcut to add default {@link DynamicFinderCriteria.Expression.Condition.Operator.EQUALS} condition
          * for provided property.
          *
          * @param property criteria expression parameter: Entity property name
@@ -277,8 +304,9 @@ public class DynamicFinderSelection {
             // Finalize selection first.
             builder.setSelection(
                     new DynamicFinderSelection(
-                            method,
-                            projection != null ? Optional.of(projection) : Optional.empty()));
+                            this.method,
+                            this.projection != null ? Optional.of(this.projection) : Optional.empty(),
+                            this.property != null ? Optional.of(this.property) : Optional.empty()));
             // Return criteria builder.
             return new DynamicFinderCriteria.Builder(builder).by(property, conditionValue);
         }
@@ -292,8 +320,9 @@ public class DynamicFinderSelection {
             // Finalize selection first.
             builder.setSelection(
                     new DynamicFinderSelection(
-                            method,
-                            projection != null ? Optional.of(projection) : Optional.empty()));
+                            this.method,
+                            this.projection != null ? Optional.of(this.projection) : Optional.empty(),
+                            this.property != null ? Optional.of(this.property) : Optional.empty()));
             // Return order builder.
             return new DynamicFinderOrder.Builder(builder).orderBy(property);
         }
@@ -308,7 +337,8 @@ public class DynamicFinderSelection {
             builder.setSelection(
                     new DynamicFinderSelection(
                             method,
-                            projection != null ? Optional.of(projection) : Optional.empty()));
+                            projection != null ? Optional.of(projection) : Optional.empty(),
+                            property != null ? Optional.of(property) : Optional.empty()));
             // Return finished AST.
             return builder.build();
         }
@@ -334,6 +364,15 @@ public class DynamicFinderSelection {
         }
 
     }
+    public interface BuilderPropertyStage extends BuilderLastStage {
+        /**
+         * Set query property
+         *
+         * @param property name of the entity property
+         * @return builder with query property set
+         */
+        DynamicFinderSelection.BuilderLastStage property(final String property);
+    }
 
     /**
      * Helidon dynamic finder query selection builder: last stage interface.
@@ -350,7 +389,7 @@ public class DynamicFinderSelection {
 
         /**
          * Build Helidon dynamic finder query criteria.
-         * This is a shortcut to add default {@link DynamicFinderCriteria.Expression.Condition.Method.EQUALS} condition
+         * This is a shortcut to add default {@link DynamicFinderCriteria.Expression.Condition.Operator.EQUALS} condition
          * for provided property.
          *
          * @param property criteria expression parameter: Entity property name

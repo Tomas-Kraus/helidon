@@ -348,11 +348,10 @@ public class DynamicFinderBuilderTest {
         assertThat(query.criteria().get().first(), is(notNullValue()));
         assertThat(query.criteria().get().first().property(), is(parameter));
         assertThat(query.criteria().get().first().not(), is(false));
-        assertThat(query.criteria().get().first().condition().isPresent(), is(true));
         assertThat(
-                query.criteria().get().first().condition().get().method(),
-                is(DynamicFinderCriteria.Expression.Condition.Method.EQUALS));
-        assertThat(query.criteria().get().first().condition().get().values().get(0), is(parameterValue));
+                query.criteria().get().first().condition().operator(),
+                is(DynamicFinderCriteria.Expression.Condition.Operator.EQUALS));
+        assertThat(query.criteria().get().first().condition().values().get(0), is(parameterValue));
         assertThat(query.criteria().get().next().isEmpty(), is(true));
     }
 
@@ -395,16 +394,15 @@ public class DynamicFinderBuilderTest {
             final DynamicFinder query,
             String parameter,
             final boolean not,
-            final DynamicFinderCriteria.Expression.Condition.Method conditionMethod,
+            final DynamicFinderCriteria.Expression.Condition.Operator conditionOperator,
             final String conditionValue
     ) {
         assertThat(query.criteria().isPresent(), is(true));
         assertThat(query.criteria().get().first(), is(notNullValue()));
         assertThat(query.criteria().get().first().property(), is(parameter));
         assertThat(query.criteria().get().first().not(), is(not));
-        assertThat(query.criteria().get().first().condition().isPresent(), is(true));
-        assertThat(query.criteria().get().first().condition().get().method(), is(conditionMethod));
-        List<String> values = query.criteria().get().first().condition().get().values();
+        assertThat(query.criteria().get().first().condition().operator(), is(conditionOperator));
+        List<String> values = query.criteria().get().first().condition().values();
         assertThat(values.size(), is(1));
         assertThat(values.get(0), is(conditionValue));
         assertThat(query.criteria().get().next().isEmpty(), is(true));
@@ -421,7 +419,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.AFTER, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.AFTER, "nameValue");
     }
 
     // Builder use-cae with negated After condition
@@ -436,7 +434,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.AFTER, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.AFTER, "nameValue");
     }
 
     // Builder use-cae with Before condition
@@ -450,7 +448,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.BEFORE, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.BEFORE, "nameValue");
     }
 
     // Builder use-cae with negated Before condition
@@ -465,7 +463,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.BEFORE, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.BEFORE, "nameValue");
     }
 
     // Builder use-cae with Contains condition
@@ -479,7 +477,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.CONTAINS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.CONTAINS, "nameValue");
     }
 
     // Builder use-cae with negated Contains condition
@@ -494,7 +492,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.CONTAINS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.CONTAINS, "nameValue");
     }
 
     // Builder use-cae with Starts condition
@@ -508,7 +506,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.STARTS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.STARTS, "nameValue");
     }
 
     // Builder use-cae with negated Starts condition
@@ -523,7 +521,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.STARTS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.STARTS, "nameValue");
     }
 
     // Builder use-cae with Ends condition
@@ -537,7 +535,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.ENDS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.ENDS, "nameValue");
     }
 
     // Builder use-cae with negated Ends condition
@@ -552,7 +550,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.ENDS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.ENDS, "nameValue");
     }
 
     // Builder use-cae with Equals condition
@@ -566,7 +564,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.EQUALS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.EQUALS, "nameValue");
     }
 
     // Builder use-cae with negated Equals condition
@@ -581,7 +579,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.EQUALS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.EQUALS, "nameValue");
     }
 
     // Builder use-cae with GreaterThan condition
@@ -595,7 +593,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.GREATER_THAN, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.GREATER_THAN, "nameValue");
     }
 
     // Builder use-cae with negated GreaterThan condition
@@ -610,7 +608,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.GREATER_THAN, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.GREATER_THAN, "nameValue");
     }
     // Builder use-cae with GreaterThanEquals condition
     @Test
@@ -623,7 +621,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.GREATER_THAN_EQUALS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.GREATER_THAN_EQUALS, "nameValue");
     }
 
     // Builder use-cae with negated GreaterThanEquals condition
@@ -638,7 +636,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.GREATER_THAN_EQUALS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.GREATER_THAN_EQUALS, "nameValue");
     }
 
     // Builder use-cae with LessThan condition
@@ -652,7 +650,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.LESS_THAN, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN, "nameValue");
     }
 
     // Builder use-cae with negated LessThan condition
@@ -667,7 +665,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.LESS_THAN, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN, "nameValue");
     }
     // Builder use-cae with LessThanEquals condition
     @Test
@@ -680,7 +678,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.LESS_THAN_EQUALS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN_EQUALS, "nameValue");
     }
 
     // Builder use-cae with negated LessThanEquals condition
@@ -695,7 +693,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.LESS_THAN_EQUALS, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN_EQUALS, "nameValue");
     }
 
     @Test
@@ -708,7 +706,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.LIKE, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.LIKE, "nameValue");
     }
 
     // Builder use-cae with negated Like condition
@@ -723,7 +721,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.LIKE, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.LIKE, "nameValue");
     }
 
     // Builder use-cae with Ilike condition
@@ -737,7 +735,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.ILIKE, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.ILIKE, "nameValue");
     }
 
     // Builder use-cae with negated Ilike condition
@@ -752,7 +750,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.ILIKE, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.ILIKE, "nameValue");
     }
 
     // Builder use-cae with In condition
@@ -766,7 +764,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.IN, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.IN, "nameValue");
     }
 
     // Builder use-cae with negated In condition
@@ -781,7 +779,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.IN, "nameValue");
+                DynamicFinderCriteria.Expression.Condition.Operator.IN, "nameValue");
     }
 
     // Helper method to evaluate use-cae criteria with single condition with two values.
@@ -789,16 +787,15 @@ public class DynamicFinderBuilderTest {
             final DynamicFinder query,
             String parameter,
             final boolean not,
-            final DynamicFinderCriteria.Expression.Condition.Method conditionMethod,
+            final DynamicFinderCriteria.Expression.Condition.Operator conditionOperator,
             final String[] conditionValues
     ) {
         assertThat(query.criteria().isPresent(), is(true));
         assertThat(query.criteria().get().first(), is(notNullValue()));
         assertThat(query.criteria().get().first().property(), is(parameter));
         assertThat(query.criteria().get().first().not(), is(not));
-        assertThat(query.criteria().get().first().condition().isPresent(), is(true));
-        assertThat(query.criteria().get().first().condition().get().method(), is(conditionMethod));
-        List<String> values = query.criteria().get().first().condition().get().values();
+        assertThat(query.criteria().get().first().condition().operator(), is(conditionOperator));
+        List<String> values = query.criteria().get().first().condition().values();
         assertThat(values.size(), is(2));
         assertThat(values.get(0), is(conditionValues[0]));
         assertThat(values.get(1), is(conditionValues[1]));
@@ -816,7 +813,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.BETWEEN, new String[] {"from", "to"});
+                DynamicFinderCriteria.Expression.Condition.Operator.BETWEEN, new String[] {"from", "to"});
     }
 
     // Builder use-cae with negated Between condition
@@ -831,7 +828,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.BETWEEN, new String[] {"from", "to"});
+                DynamicFinderCriteria.Expression.Condition.Operator.BETWEEN, new String[] {"from", "to"});
     }
 
     // Helper method to evaluate use-cae criteria with single condition with no values.
@@ -839,15 +836,14 @@ public class DynamicFinderBuilderTest {
             final DynamicFinder query,
             String parameter,
             final boolean not,
-            final DynamicFinderCriteria.Expression.Condition.Method conditionMethod
+            final DynamicFinderCriteria.Expression.Condition.Operator conditionOperator
     ) {
         assertThat(query.criteria().isPresent(), is(true));
         assertThat(query.criteria().get().first(), is(notNullValue()));
         assertThat(query.criteria().get().first().property(), is(parameter));
         assertThat(query.criteria().get().first().not(), is(not));
-        assertThat(query.criteria().get().first().condition().isPresent(), is(true));
-        assertThat(query.criteria().get().first().condition().get().method(), is(conditionMethod));
-        List<String> values = query.criteria().get().first().condition().get().values();
+        assertThat(query.criteria().get().first().condition().operator(), is(conditionOperator));
+        List<String> values = query.criteria().get().first().condition().values();
         assertThat(values.size(), is(0));
         assertThat(query.criteria().get().next().isEmpty(), is(true));
     }
@@ -863,7 +859,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.NULL);
+                DynamicFinderCriteria.Expression.Condition.Operator.NULL);
     }
 
     // Builder use-cae with negated Null condition
@@ -878,7 +874,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.NULL);
+                DynamicFinderCriteria.Expression.Condition.Operator.NULL);
     }
 
     // Builder use-cae with Empty condition
@@ -892,7 +888,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.EMPTY);
+                DynamicFinderCriteria.Expression.Condition.Operator.EMPTY);
     }
 
     // Builder use-cae with negated Empty condition
@@ -907,7 +903,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", true,
-                DynamicFinderCriteria.Expression.Condition.Method.EMPTY);
+                DynamicFinderCriteria.Expression.Condition.Operator.EMPTY);
     }
 
     // Builder use-cae with True condition
@@ -921,7 +917,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.TRUE);
+                DynamicFinderCriteria.Expression.Condition.Operator.TRUE);
     }
 
     // Builder use-cae with negated True condition
@@ -935,9 +931,10 @@ public class DynamicFinderBuilderTest {
                 .not()
                 .isTrue()
                 .build();
+        // Not True must be optimized as False
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.FALSE);
+                DynamicFinderCriteria.Expression.Condition.Operator.FALSE);
     }
 
     // Builder use-cae with False condition
@@ -951,7 +948,7 @@ public class DynamicFinderBuilderTest {
                 .build();
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.FALSE);
+                DynamicFinderCriteria.Expression.Condition.Operator.FALSE);
     }
 
     // Builder use-cae with negated False condition
@@ -965,9 +962,10 @@ public class DynamicFinderBuilderTest {
                 .not()
                 .isFalse()
                 .build();
+        // Not False must be optimized as True
         evaluateResultByCondition(
                 query, "name", false,
-                DynamicFinderCriteria.Expression.Condition.Method.TRUE);
+                DynamicFinderCriteria.Expression.Condition.Operator.TRUE);
     }
 
     // Builder use-cae with multiple expressions
@@ -992,11 +990,10 @@ public class DynamicFinderBuilderTest {
         assertThat(criteria.first(), is(notNullValue()));
         assertThat(criteria.first().property(), is("name"));
         assertThat(criteria.first().not(), is(false));
-        assertThat(criteria.first().condition().isPresent(), is(true));
         assertThat(
-                criteria.first().condition().get().method(),
-                is(DynamicFinderCriteria.Expression.Condition.Method.EQUALS));
-        List<String> firstValues = criteria.first().condition().get().values();
+                criteria.first().condition().operator(),
+                is(DynamicFinderCriteria.Expression.Condition.Operator.EQUALS));
+        List<String> firstValues = criteria.first().condition().values();
         assertThat(firstValues.size(), is(1));
         assertThat(firstValues.get(0), is("nameValue"));
         // Check that next expressions exist.
@@ -1006,11 +1003,10 @@ public class DynamicFinderBuilderTest {
         assertThat(expression2, is(notNullValue()));
         assertThat(expression2.property(), is("nick"));
         assertThat(expression2.not(), is(true));
-        assertThat(expression2.condition().isPresent(), is(true));
         assertThat(
-                expression2.condition().get().method(),
-                is(DynamicFinderCriteria.Expression.Condition.Method.LIKE));
-        List<String> secondValues = expression2.condition().get().values();
+                expression2.condition().operator(),
+                is(DynamicFinderCriteria.Expression.Condition.Operator.LIKE));
+        List<String> secondValues = expression2.condition().values();
         assertThat(secondValues.size(), is(1));
         assertThat(secondValues.get(0), is("nickPattern"));
         // 3rd expression
@@ -1018,11 +1014,10 @@ public class DynamicFinderBuilderTest {
         assertThat(expression3, is(notNullValue()));
         assertThat(expression3.property(), is("age"));
         assertThat(expression3.not(), is(false));
-        assertThat(expression3.condition().isPresent(), is(true));
         assertThat(
-                expression3.condition().get().method(),
-                is(DynamicFinderCriteria.Expression.Condition.Method.BETWEEN));
-        List<String> thirdValues = expression3.condition().get().values();
+                expression3.condition().operator(),
+                is(DynamicFinderCriteria.Expression.Condition.Operator.BETWEEN));
+        List<String> thirdValues = expression3.condition().values();
         assertThat(thirdValues.size(), is(2));
         assertThat(thirdValues.get(0), is("fromValue"));
         assertThat(thirdValues.get(1), is("toValue"));
@@ -1045,11 +1040,10 @@ public class DynamicFinderBuilderTest {
         assertThat(criteria.first(), is(notNullValue()));
         assertThat(criteria.first().property(), is(criteriaProperty));
         assertThat(criteria.first().not(), is(false));
-        assertThat(criteria.first().condition().isPresent(), is(true));
         assertThat(
-                criteria.first().condition().get().method(),
-                is(DynamicFinderCriteria.Expression.Condition.Method.EQUALS));
-        assertThat(criteria.first().condition().get().values().get(0), is(criteriaValue));
+                criteria.first().condition().operator(),
+                is(DynamicFinderCriteria.Expression.Condition.Operator.EQUALS));
+        assertThat(criteria.first().condition().values().get(0), is(criteriaValue));
         // Order
         assertThat(query.order().isPresent(), is(true));
         assertThat(query.order().get().orders().size(), is(1));

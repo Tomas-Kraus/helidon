@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2022 Oracle and/or its affiliates.
+ * Copyright (c) 2022 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import io.helidon.data.builder.query.transform.QueryTransformationProvider;
+
 /**
- * Helidon data repository common module.
+ * Helidon Data Repository Builder module.
  *
  * @see io.helidon.data
  */
 module io.helidon.data.builder {
     requires java.logging;
     requires io.helidon.data;
+    requires io.helidon.common;
 
     exports io.helidon.data.builder.query;
+    exports io.helidon.data.builder.query.transform;
+
+    uses QueryTransformationProvider;
 }

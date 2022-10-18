@@ -35,5 +35,6 @@
     <modules>
         <module>data</module>
         <module>builder</module>
+        <module>builder-jpa</module>
     </modules>
 </project>

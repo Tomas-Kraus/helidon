@@ -23,10 +23,10 @@ import java.util.Optional;
  * matching defined query builder rules: <ul>
  *
  * <li>{@code query ::= <selection> <criteria> [<order>]                                          }</li>
- * <li>{@code selection ::= <method> [<projection>]                                               }</li>
+ * <li>{@code selection ::= <method> [<projection>] [ <property> ]                                }</li>
  * <li>{@code method ::= get | find                                                               }</li>
  * <li>{@code projection::= Count | CountDistinct | Distinct | Max | Min | Sum | Avg | <top>      }</li>
- * <li>{@code top ::= Top <number>                                                                }</li>
+ * <li>{@code top ::= Top<number>                                                                }</li>
  * <li>{@code criteria ::= By <expression> { <operator> <expression> }                            }</li>
  * <li>{@code operator ::= And | Or                                                               }</li>
  * <li>{@code expression ::=  <property> [ Not | IsNot ] <condition>                                }

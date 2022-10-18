@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Helidon dynamic finder query abstract syntax tree.
- */
-package io.helidon.data.builder.query;
+package io.helidon.data.builder.query.transform;
+
+public interface QueryTransformationProvider {
+
+    /**
+     * Name of this provider.
+     * Allows to specify transformation provider selection in configuration file.
+     */
+    String name();
+
+    /**
+     * Creates new instance of Query Transformation API.
+     *
+     * @return fresh instance of Query Transformation API.
+     */
+    QueryTransformation newInstance();
+
+}

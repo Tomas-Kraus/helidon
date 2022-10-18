@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import io.helidon.data.builder.jpa.JpaQueryTransformationProvider;
+
 /**
- * Helidon dynamic finder query abstract syntax tree.
+ * Helidon Data Repository JPA Builder module.
+ *
+ * @see io.helidon.data
  */
-package io.helidon.data.builder.query;
+module io.helidon.data.builder.jpa {
+    requires java.logging;
+    requires io.helidon.data;
+    requires io.helidon.common;
+    requires io.helidon.data.builder;
+
+    exports io.helidon.data.builder.jpa;
+
+    provides io.helidon.data.builder.query.transform.QueryTransformationProvider with JpaQueryTransformationProvider;
+}

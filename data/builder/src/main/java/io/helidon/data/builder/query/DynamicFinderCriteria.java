@@ -15,7 +15,10 @@
  */
 package io.helidon.data.builder.query;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Criteria part of the Helidon dynamic finder query.
@@ -33,11 +36,11 @@ public class DynamicFinderCriteria {
         public static class Condition {
 
             /**
-             * Condition methods with supported keywords.
+             * Condition operators with supported keywords.
              * Numbers of parameters are used to assign method parameters to statement {@code setParameter} calls.
              * Keywords are used to initialize related part of dynamic finder query method name parser.
              */
-            public enum Method {
+            public enum Operator {
                 AFTER(1, "After"),
                 BEFORE(1, "Before"),
                 CONTAINS(1, "Contains"),
@@ -63,7 +66,7 @@ public class DynamicFinderCriteria {
                 private String[] keywords;
 
                 // Creates an instance of
-                private Method(final int paramCount, final String... keywords) {
+                private Operator(final int paramCount, final String... keywords) {
                     if (keywords == null || keywords.length == 0) {
                         throw new IllegalArgumentException("At least one keyword is required!");
                     }
@@ -81,9 +84,9 @@ public class DynamicFinderCriteria {
                 }
 
                 /**
-                 * Number of method parameters.
+                 * Number of operator parameters.
                  *
-                 * @return number of method parameters required from dynamic finder query method
+                 * @return number of operator parameters required from dynamic finder query method
                  */
                 public int paramCount() {
                     return paramCount;
@@ -91,24 +94,24 @@ public class DynamicFinderCriteria {
 
             }
 
-            // Condition method.
-            private final Method method;
+            // Condition operator.
+            private final Operator operator;
             // Condition values: dynamic finder query method parameters names assigned to condition
             private final List<String> values;
 
             // Creates an instance of expression condition.
-            private Condition(final Method method, final List<String> values) {
-                this.method = method;
+            private Condition(final Operator operator, final List<String> values) {
+                this.operator = operator;
                 this.values = values;
             }
 
             /**
-             * Condition method.
+             * Condition operator.
              *
              * @return method of the expression condition
              */
-            public Method method() {
-                return method;
+            public Operator operator() {
+                return operator;
             }
 
             /**
@@ -123,24 +126,27 @@ public class DynamicFinderCriteria {
 
         }
 
-        // Criteria expression parameter.
+        // Criteria expression property.
         private final String property;
         // Negated expression.
         private final boolean not;
         // Criteria expression condition.
-        private final Optional<Condition> condition;
+        private final Condition condition;
 
         // Creates an instance of query criteria expression.
-        private Expression(final String property, final boolean not, final Optional<Condition> condition) {
+        private Expression(final String property, final boolean not, final Condition condition) {
+            if (condition == null) {
+                throw new IllegalArgumentException("Expression condition shal not be null");
+            }
             this.property = property;
             this.not = not;
             this.condition = condition;
         }
 
         /**
-         * Criteria expression parameter.
+         * Criteria expression property.
          *
-         * @return name of the parameter
+         * @return name of the property
          */
         public String property() {
             return property;
@@ -160,7 +166,7 @@ public class DynamicFinderCriteria {
          *
          * @return condition of the expression
          */
-        public Optional<Condition> condition() {
+        public Condition condition() {
             return condition;
         }
 
@@ -175,7 +181,7 @@ public class DynamicFinderCriteria {
          * Expression logical operators.
          * Used to connect with previous expression in the query criteria.
          */
-        enum Operator {
+        public enum Operator {
             AND,
             OR
         }
@@ -185,7 +191,7 @@ public class DynamicFinderCriteria {
 
         // Creates an instance of query criteria expression.
         private NextExpression(
-                final Operator operator, final String parameter, final boolean not, final Optional<Condition> condition) {
+                final Operator operator, final String parameter, final boolean not, final Condition condition) {
             super(parameter, not, condition);
             this.operator = operator;
         }
@@ -247,7 +253,7 @@ public class DynamicFinderCriteria {
         // Criteria expression builder.
         private static class ExpressionBuilder {
 
-            // Criteria expression parameter.
+            // Criteria expression property.
             final String property;
             // Negated expression.
             boolean not;
@@ -265,35 +271,25 @@ public class DynamicFinderCriteria {
                 not = true;
             }
 
-            private void condition(final Expression.Condition condition) {
+            void condition(final Expression.Condition condition) {
                 this.condition = condition;
             }
 
             private Expression build() {
                 // Optimize logical values on AST building level.
                 if (not) {
-                    switch (condition.method) {
+                    switch (condition.operator) {
                         // Convert NotTrue to False
                         case TRUE:
-                            return new Expression(
-                                    property,
-                                    false,
-                                    Optional.of(new Expression.Condition(Expression.Condition.Method.FALSE, condition.values))
-                            );
+                            return new Expression(property, false,
+                                    new Expression.Condition(Expression.Condition.Operator.FALSE, condition.values));
                         // Convert NotFalse to True
                         case FALSE:
-                            return new Expression(
-                                    property,
-                                    false,
-                                    Optional.of(new Expression.Condition(Expression.Condition.Method.TRUE, condition.values))
-                            );
+                            return new Expression(property, false,
+                                    new Expression.Condition(Expression.Condition.Operator.TRUE, condition.values));
                     }
                 }
-                return new Expression(
-                        property,
-                        not,
-                        condition != null ? Optional.of(condition) : Optional.empty()
-                );
+                return new Expression(property, not, condition);
             }
 
         }
@@ -310,12 +306,7 @@ public class DynamicFinderCriteria {
             }
 
             private NextExpression build() {
-                return new NextExpression(
-                        operator,
-                        property,
-                        not,
-                        condition != null ? Optional.of(condition) : Optional.empty()
-                );
+                return new NextExpression(operator, property, not, condition);
             }
 
         }
@@ -344,7 +335,7 @@ public class DynamicFinderCriteria {
         /**
          * Build Helidon dynamic finder query criteria.
          *
-         * @param property criteria expression parameter: Entity property name
+         * @param property criteria expression property: Entity property name
          */
         BuilderNext by(final String property) {
             expressionBuilder = new ExpressionBuilder(property);
@@ -353,7 +344,7 @@ public class DynamicFinderCriteria {
 
         /**
          * Build Helidon dynamic finder query criteria.
-         * This is a shortcut to add default {@link Expression.Condition.Method.EQUALS} condition
+         * This is a shortcut to add default {@link Expression.Condition.Operator.EQUALS} condition
          * for provided property.
          *
          * @param property criteria expression parameter: Entity property name
@@ -362,20 +353,20 @@ public class DynamicFinderCriteria {
         BuilderBy by(final String property, final String conditionValue) {
             expressionBuilder = new ExpressionBuilder(property);
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.EQUALS,
+                    Expression.Condition.Operator.EQUALS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
         }
 
-        public DynamicFinderCriteria.BuilderByNot not() {
+        public DynamicFinderCriteria.BuilderBy not() {
             expressionBuilder.not();
             return this;
         }
 
         public DynamicFinderCriteria.BuilderNextOperator after(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.AFTER,
+                    Expression.Condition.Operator.AFTER,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -383,7 +374,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator before(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.BEFORE,
+                    Expression.Condition.Operator.BEFORE,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -391,7 +382,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator contains(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.CONTAINS,
+                    Expression.Condition.Operator.CONTAINS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -399,7 +390,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator starts(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.STARTS,
+                    Expression.Condition.Operator.STARTS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -407,7 +398,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator ends(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.ENDS,
+                    Expression.Condition.Operator.ENDS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -415,7 +406,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator eq(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.EQUALS,
+                    Expression.Condition.Operator.EQUALS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -423,7 +414,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator gt(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.GREATER_THAN,
+                    Expression.Condition.Operator.GREATER_THAN,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -431,7 +422,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator gte(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.GREATER_THAN_EQUALS,
+                    Expression.Condition.Operator.GREATER_THAN_EQUALS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -439,7 +430,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator lt(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.LESS_THAN,
+                    Expression.Condition.Operator.LESS_THAN,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -447,7 +438,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator lte(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.LESS_THAN_EQUALS,
+                    Expression.Condition.Operator.LESS_THAN_EQUALS,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -455,7 +446,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator like(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.LIKE,
+                    Expression.Condition.Operator.LIKE,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -463,7 +454,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator iLike(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.ILIKE,
+                    Expression.Condition.Operator.ILIKE,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -471,7 +462,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator in(final String conditionValue) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.IN,
+                    Expression.Condition.Operator.IN,
                     Collections.singletonList(conditionValue)
             ));
             return this;
@@ -479,7 +470,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator between(final String conditionFrom, final String conditionTo) {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.BETWEEN,
+                    Expression.Condition.Operator.BETWEEN,
                     Collections.unmodifiableList(Arrays.asList(conditionFrom, conditionTo))
             ));
             return this;
@@ -487,7 +478,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator isNull() {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.NULL,
+                    Expression.Condition.Operator.NULL,
                     Collections.emptyList()
             ));
             return this;
@@ -495,7 +486,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator empty() {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.EMPTY,
+                    Expression.Condition.Operator.EMPTY,
                     Collections.emptyList()
             ));
             return this;
@@ -503,7 +494,7 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator isTrue() {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.TRUE,
+                    Expression.Condition.Operator.TRUE,
                     Collections.emptyList()
             ));
             return this;
@@ -511,23 +502,45 @@ public class DynamicFinderCriteria {
 
         public DynamicFinderCriteria.BuilderNextOperator isFalse() {
             expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Method.FALSE,
+                    Expression.Condition.Operator.FALSE,
                     Collections.emptyList()
             ));
             return this;
         }
 
-        public DynamicFinderCriteria.BuilderNext and(final String parameter) {
+        public DynamicFinderCriteria.BuilderNext and(final String property) {
             finishCurrentBuilder();
             expressionBuilder = nextExpressionBuilder = new NextExpressionBuilder(
-                    NextExpression.Operator.AND, parameter);
+                    NextExpression.Operator.AND, property);
             return this;
         }
 
-        public DynamicFinderCriteria.BuilderNext or(final String parameter) {
+        public DynamicFinderCriteria.BuilderNext or(final String property) {
             finishCurrentBuilder();
             expressionBuilder = nextExpressionBuilder = new NextExpressionBuilder(
-                    NextExpression.Operator.OR, parameter);
+                    NextExpression.Operator.OR, property);
+            return this;
+        }
+
+        public DynamicFinderCriteria.BuilderBy and(final String property, final String conditionValue) {
+            finishCurrentBuilder();
+            nextExpressionBuilder = new NextExpressionBuilder(
+                    NextExpression.Operator.AND, property);
+            nextExpressionBuilder.condition(new Expression.Condition(
+                    Expression.Condition.Operator.EQUALS,
+                    Collections.singletonList(conditionValue)
+            ));
+            return this;
+        }
+
+        public DynamicFinderCriteria.BuilderBy or(final String property, final String conditionValue) {
+            finishCurrentBuilder();
+            nextExpressionBuilder = new NextExpressionBuilder(
+                    NextExpression.Operator.OR, property);
+            nextExpressionBuilder.condition(new Expression.Condition(
+                    Expression.Condition.Operator.EQUALS,
+                    Collections.singletonList(conditionValue)
+            ));
             return this;
         }
 
@@ -568,7 +581,7 @@ public class DynamicFinderCriteria {
      * Reduces offered method calls to allowed set.
      * Condition is always required. Equal should be used as default.
      */
-    public interface BuilderBy extends BuilderByNot, Negation, Buildable {
+    public interface BuilderBy extends BuilderByNot, Negation, BuilderNextOperator {
     }
 
     /**
@@ -602,7 +615,9 @@ public class DynamicFinderCriteria {
      */
     public interface BuilderNextOperator extends Buildable {
         DynamicFinderCriteria.BuilderNext and(final String parameter);
+        DynamicFinderCriteria.BuilderBy and(final String property, final String conditionValue);
         DynamicFinderCriteria.BuilderNext or(final String parameter);
+        DynamicFinderCriteria.BuilderBy or(final String property, final String conditionValue);
     }
 
     /**
@@ -617,6 +632,7 @@ public class DynamicFinderCriteria {
      * Helidon dynamic finder query criteria builder: marks current interface (builder stage) as buildable.
      */
     public interface Buildable {
+
         DynamicFinderOrder.Builder orderBy(final String property);
         DynamicFinder build();
     }
@@ -625,6 +641,6 @@ public class DynamicFinderCriteria {
      * Helidon dynamic finder query criteria builder: allows condition negation to interface (builder stage).
      */
     public interface Negation {
-        BuilderByNot not();
+        BuilderBy not();
     }
 }
