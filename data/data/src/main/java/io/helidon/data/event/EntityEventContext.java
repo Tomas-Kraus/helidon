@@ -15,9 +15,6 @@
  */
 package io.helidon.data.event;
 
-//import io.micronaut.core.annotation.NonNull;
-import io.helidon.core.beans.BeanProperty;
-
 /**
  * Context object for event receivers.
  * @param <T> The generic type of the entity
@@ -25,6 +22,8 @@ import io.helidon.core.beans.BeanProperty;
  * @since 2.3.0
  */
 public interface EntityEventContext<T> extends PersistenceEventContext<T> {
+
+
     /**
      * @return The entity associated with the event.
      */
@@ -36,7 +35,7 @@ public interface EntityEventContext<T> extends PersistenceEventContext<T> {
      * @param newValue The new value
      * @param <P> THe property type
      */
-    <P> void setProperty(BeanProperty<T, P> property, P newValue);
+    <P> void setProperty(String property, P newValue);
 
     /**
      * @return Does the underlying persistence engine have its own event system.

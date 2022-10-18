@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2021 Oracle and/or its affiliates.
+ * Copyright (c) 2019, 2022 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.data.annotation;
-
-import java.lang.annotation.*;
-
 /**
- * Defines the query method. Query type and statement is build from method name.
- *
- * @author graemerocher
- * @since 1.0
+ * Helidon dynamic finder query abstract syntax tree.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Documented
-@Inherited
-public @interface QueryMethod {
-
-    /**
-     * @return The query type.
-     * Default value is to determine type from the method name prefix.
-     */
-    String type() default "";
-
-}
+package io.helidon.data.builder.query;
