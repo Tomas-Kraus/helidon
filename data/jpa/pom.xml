@@ -27,16 +27,12 @@
     <packaging>pom</packaging>
 
     <groupId>io.helidon.data</groupId>
-    <artifactId>helidon-data-project</artifactId>
-    <name>Helidon Data Repository Project</name>
+    <artifactId>helidon-data-jpa-project</artifactId>
+    <name>Helidon Data Repository JPA Project</name>
 
-    <description>Data Repository for Helidon</description>
+    <description>JPA Data Repository for Helidon</description>
 
     <modules>
-        <module>data</module>
-        <module>runtime</module>
         <module>processor</module>
-        <module>jpa</module>
-        <module>test</module>
     </modules>
 </project>
