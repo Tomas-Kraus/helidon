@@ -57,6 +57,10 @@ public class DynamicFinderOrder {
 
         }
 
+        public static Order build(Order.Method method, String property) {
+            return new Order(method, property);
+        }
+
         // Query order method.
         private final Order.Method method;
         // Entity property name used to sort query result.
@@ -85,6 +89,10 @@ public class DynamicFinderOrder {
             return property;
         }
 
+    }
+
+    public static DynamicFinderOrder build(List<Order> orders) {
+        return new DynamicFinderOrder(orders);
     }
 
     // List of ordering properties with ordering methods.

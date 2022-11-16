@@ -58,14 +58,29 @@ public interface PokemonRepository extends CrudRepository<Pokemon, Integer> {
     @NativeQuery(key="pokemons.native.by-type-and-name", resultSetMapping = "PokemonByTypeAndNameRSMapping")
     Optional<Pokemon> pokemonByTypeAndName4(String typeName, String pokemonName);
 
-    // Query with custom filtering
+    // "Filter" is newly introduced keyword which allows to pass dynamic filtering rules to repository methods.
+
+    // Query with custom filtering: Dynamic criteria
     // Filter can access method parameters by name.
     // @Filter annotation links method prototype with filtering class (generated). This may be used
     //         for linking filtering classes with methods. Another option is to use child class instead
     //         of RepositoryFilter in method prototype filter argument.
     // TODO: How to specify projection part of the query?
-    //       - use method name prefix? -> findMaxAbeByFilter :: parse everything up to 'By' delimiter
+    //       - use method name prefix? -> findMaxAgeByFilter :: parse everything up to 'By' delimiter
     @Filter(PokemonRepositoryFilter.class)
-    List<Pokemon> findByFilter(RepositoryFilter filter, String value);
+    List<Pokemon> findByFilter(RepositoryFilter.Criteria filter, String value);
+
+    // Query with custom filtering: Dynamic ordering
+    // Projection and criteria are built based on method name
+    @Filter(PokemonRepositoryFilter.class)
+    List<Pokemon> findByNameOrderByFilter(RepositoryFilter.Order filter, String name);
+
+    // There must be a chance to pass both criteria and ordering rules together.
+    // Unfortunately using 'By' keyword to separate projection and rest of the query (criteria and ordring)
+    // needs another information to be passed to the parser and code generator
+    // - type of the filter attribute to distinguish whether just criteria or both criteria and ordring
+    //   are passed
+    @Filter(PokemonRepositoryFilter.class)
+    List<Pokemon> findAvgAgeByFilter(RepositoryFilter filter, String name);
 
 }

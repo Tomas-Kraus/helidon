@@ -21,10 +21,21 @@ import java.util.Optional;
 
 import io.helidon.data.processor.DynamicFinder;
 import io.helidon.data.processor.DynamicFinderCriteria;
+import io.helidon.data.processor.DynamicFinderOrder;
 import io.helidon.data.repository.RepositoryFilter;
 
 public class PokemonRepositoryFilter implements RepositoryFilter {
 
+    // Parameter id
+    private static final String ID = "id";
+    // Parameter name
+    private static final String NAME = "name";
+    // Parameter type
+    private static final String TYPE = "type";
+    // Parameter type.id
+    private static final String TYPE_ID = "type.id";
+    // Parameter type.name
+    private static final String TYPE_NAME = "type.name";
     private final DynamicFinder query;
 
     PokemonRepositoryFilter(Optional<Criteria> criteria, Optional<Order> order) {
@@ -68,13 +79,16 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
         }
     }
 
-    public static class Criteria implements RepositoryFilter.FilterCriteria {
+    public static class Criteria implements RepositoryFilter.Criteria {
 
-        // TODO: Add AST instead of condition lists
+        // Criteria part of dynamic finder query. This shall be passed to DynamicFinder instance.
+        private Optional<DynamicFinderCriteria> criteria;
+
+        // TODO: Build AST in builder instead of keeping condition lists
         private final Optional<List<DynamicFinderCriteria.Expression>> id;
         private final Optional<List<DynamicFinderCriteria.Expression>> name;
         private final Optional<List<DynamicFinderCriteria.Expression>> type;
-        // TODO: Build AST from condition lists
+        // TODO: Build AST from condition lists in builder
         private Criteria(
                 Optional<List<DynamicFinderCriteria.Expression>> id,
                 Optional<List<DynamicFinderCriteria.Expression>> name,
@@ -99,13 +113,7 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
          */
         public static class Builder implements io.helidon.common.Builder<Builder, Criteria> {
 
-            // Parameter id
-            private static final String ID = "id";
-            // Parameter name
-            private static final String NAME = "name";
-            // Parameter type
-            private static final String TYPE = "type";
-            // Expressions joining logical operator
+             // Expressions joining logical operator
             DynamicFinderCriteria.NextExpression.Operator expressionOperator;
             private final List<DynamicFinderCriteria.Expression> idList;
             private final List<DynamicFinderCriteria.Expression> nameList;
@@ -247,6 +255,16 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
                 return this;
             }
 
+            public Builder or() {
+                expressionOperator = DynamicFinderCriteria.NextExpression.Operator.OR;
+                return this;
+            }
+
+            public Builder and() {
+                expressionOperator = DynamicFinderCriteria.NextExpression.Operator.AND;
+                return this;
+            }
+
             @Override
             public Criteria build() {
                 return new Criteria(
@@ -286,7 +304,14 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
 
     }
 
-    public class Order implements RepositoryFilter.FilterOrder {
+    public static class Order implements RepositoryFilter.Order {
+
+        // Order part of the Helidon dynamic finder query. This shall be passed to DynamicFinder instance.
+        private Optional<DynamicFinderOrder> order;
+
+        private Order(Optional<DynamicFinderOrder> order) {
+            this.order = order;
+        }
 
         public static Order.Builder builder() {
             return new Order.Builder();
@@ -302,9 +327,56 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
          */
         public static class Builder implements io.helidon.common.Builder<Order.Builder, Order> {
 
+            private final List<DynamicFinderOrder.Order> orders;
+
+            private Builder() {
+                orders = new LinkedList<>();
+            }
+            public Builder idAsc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, ID));
+                return this;
+            }
+
+            public Builder idDesc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, ID));
+                return this;
+            }
+
+            public Builder nameAsc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, NAME));
+                return this;
+            }
+
+            public Builder nameDesc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, NAME));
+                return this;
+            }
+
+            public Builder typeIdAsc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, TYPE_ID));
+                return this;
+            }
+
+            public Builder typeIdDesc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, TYPE_ID));
+                return this;
+            }
+
+            public Builder typeNameAsc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, TYPE_NAME));
+                return this;
+            }
+
+            public Builder typeNameDesc() {
+                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, TYPE_NAME));
+                return this;
+            }
+
             @Override
             public Order build() {
-                return null;
+                return new Order(
+                        orders.isEmpty() ? Optional.empty() : Optional.of(DynamicFinderOrder.build(orders))
+                );
             }
 
         }

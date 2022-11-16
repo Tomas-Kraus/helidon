@@ -20,10 +20,10 @@ package io.helidon.data.repository;
  */
 public interface RepositoryFilter {
 
-    interface FilterCriteria {
+    interface Criteria {
     }
 
-    interface FilterOrder {
+    interface Order {
     }
 
 

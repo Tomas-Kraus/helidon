@@ -61,6 +61,8 @@ public class PokemonService implements HttpService {
                 .get("/pokemon/type/{name}", this::getPokemonsByType)
                 // Get pokemon by filtering keyword
                 .get("/pokemon/filter/{filter}/{value}", this::getPokemonsByFilter)
+                // Get pokemon by name and sort depending on request argument
+                .get("/pokemon/sort/{name}/{order}", this::getPokemonsByNameInVariableOrder)
                 // Create new pokemon
                 .post("/pokemon", Handler.create(Pokemon.class, this::insertPokemon))
                 // Update name of existing pokemon
@@ -216,7 +218,7 @@ public class PokemonService implements HttpService {
 */
 
     /**
-     * Find pokemons using custom filter.
+     * Find pokemons using custom criteria filter.
      *
      * @param request  server request
      * @param response server response
@@ -231,10 +233,28 @@ public class PokemonService implements HttpService {
             case "suffix" -> criteriaBuilder.nameEndsWith("value");
             case "substring" -> criteriaBuilder.nameContains("value");
         }
-        RepositoryFilter filterRule = PokemonRepositoryFilter.builder()
-                .criteria(criteriaBuilder.build())
-                .build();
-        response.send(pokemonRepository.findByFilter(filterRule, value));
+        response.send(pokemonRepository.findByFilter(criteriaBuilder.build(), value));
+    }
+
+    /**
+     * Find pokemons using custom ordering filter.
+     *
+     * @param request  server request
+     * @param response server response
+     */
+    private void getPokemonsByNameInVariableOrder(ServerRequest request, ServerResponse response) {
+        String name = request.path().pathParameters().value("name");
+        String order = request.path().pathParameters().value("order");
+        PokemonRepositoryFilter.Order.Builder orderBuilder = PokemonRepositoryFilter.Order.builder();
+        if (order != null) {
+            switch (order) {
+                case "asc" -> orderBuilder.nameAsc();
+                case "desc" -> orderBuilder.nameDesc();
+            }
+        } else {
+            orderBuilder.nameAsc();
+        }
+        response.send(pokemonRepository.findByNameOrderByFilter(orderBuilder.build(), name));
     }
 
 }
