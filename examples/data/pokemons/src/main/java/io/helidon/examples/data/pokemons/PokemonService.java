@@ -18,10 +18,16 @@ package io.helidon.examples.data.pokemons;
 import io.helidon.common.http.Http;
 import io.helidon.common.media.type.MediaTypes;
 import io.helidon.data.HelidonData;
+import io.helidon.data.repository.RepositoryFilter;
 import io.helidon.examples.data.pokemons.model.Pokemon;
 import io.helidon.examples.data.pokemons.repository.PokemonRepository;
 import io.helidon.examples.data.pokemons.repository.TypeRepository;
-import io.helidon.nima.webserver.http.*;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonRepositoryFilter;
+import io.helidon.nima.webserver.http.Handler;
+import io.helidon.nima.webserver.http.HttpRules;
+import io.helidon.nima.webserver.http.HttpService;
+import io.helidon.nima.webserver.http.ServerRequest;
+import io.helidon.nima.webserver.http.ServerResponse;
 
 /**
  * Example Nima service using blocking CRUD data repoository.
@@ -53,6 +59,8 @@ public class PokemonService implements HttpService {
                 .get("/pokemon/name/{name}", this::getPokemonByName)
                 // Get pokemons by Type name
                 .get("/pokemon/type/{name}", this::getPokemonsByType)
+                // Get pokemon by filtering keyword
+                .get("/pokemon/filter/{filter}/{value}", this::getPokemonsByFilter)
                 // Create new pokemon
                 .post("/pokemon", Handler.create(Pokemon.class, this::insertPokemon))
                 // Update name of existing pokemon
@@ -60,7 +68,6 @@ public class PokemonService implements HttpService {
                 // Delete pokemon by ID including type relation
                 .delete(/*"/pokemon", */Handler.create(this::deletePokemonById));
     }
-
 
     /**
      * Return index page.
@@ -71,16 +78,16 @@ public class PokemonService implements HttpService {
     private void index(ServerRequest request, ServerResponse response) {
         response.headers().contentType(MediaTypes.TEXT_PLAIN);
         response.send("Pokemon JDBC Example:\n"
-        + "     GET /type                - List all pokemon types\n"
-        + "     GET /pokemon             - List all pokemons\n"
-        + "     GET /pokemon/{id}        - Get pokemon by id\n"
-        + "     GET /pokemon/name/{name} - Get pokemon by name\n"
-        + "     GET /pokemon/type/{name} - List all pokemons of given type\n"
-        + "    POST /pokemon             - Insert new pokemon:\n"
-        + "                                {\"id\":<id>,\"name\":<name>,\"type\":<type>}\n"
-        + "     PUT /pokemon             - Update pokemon\n"
-        + "                                {\"id\":<id>,\"name\":<name>,\"type\":<type>}\n"
-        + "  DELETE /pokemon/{id}        - Delete pokemon with specified id\n");
+                              + "     GET /type                - List all pokemon types\n"
+                              + "     GET /pokemon             - List all pokemons\n"
+                              + "     GET /pokemon/{id}        - Get pokemon by id\n"
+                              + "     GET /pokemon/name/{name} - Get pokemon by name\n"
+                              + "     GET /pokemon/type/{name} - List all pokemons of given type\n"
+                              + "    POST /pokemon             - Insert new pokemon:\n"
+                              + "                                {\"id\":<id>,\"name\":<name>,\"type\":<type>}\n"
+                              + "     PUT /pokemon             - Update pokemon\n"
+                              + "                                {\"id\":<id>,\"name\":<name>,\"type\":<type>}\n"
+                              + "  DELETE /pokemon/{id}        - Delete pokemon with specified id\n");
     }
 
     /**
@@ -112,13 +119,13 @@ public class PokemonService implements HttpService {
      * @param response server response
      */
     private void getPokemonById(ServerRequest request, ServerResponse response) {
-            int pokemonId = Integer.parseInt(request.path().pathParameters().value("id"));
-            // Optional<E> findById(ID id) is method added from CrudRepository interface
-            pokemonRepository.findById(pokemonId)
-                    .ifPresentOrElse(
-                            it -> response.send(it),
-                            () -> response.status(Http.Status.NOT_FOUND_404).send()
-                    );
+        int pokemonId = Integer.parseInt(request.path().pathParameters().value("id"));
+        // Optional<E> findById(ID id) is method added from CrudRepository interface
+        pokemonRepository.findById(pokemonId)
+                .ifPresentOrElse(
+                        it -> response.send(it),
+                        () -> response.status(Http.Status.NOT_FOUND_404).send()
+                );
     }
 
     /**
@@ -192,12 +199,42 @@ public class PokemonService implements HttpService {
     /**
      * Delete pokemon with specified id (key).
      *
-     * @param request  the server request
+     * @param request the server request
      */
     private void deletePokemonById(ServerRequest request) {
         int id = Integer.parseInt(request.path().pathParameters().value("id"));
         // void deleteById(ID id) is method added from CrudRepository interface
         pokemonRepository.deleteById(id);
+    }
+
+/*
+    private void getPokemonsByType(ServerRequest request, ServerResponse response) {
+        String typeName = request.path().pathParameters().value("name");
+        // List<Pokemon> findByTypeName(String typeName) is method defined as query by method name
+        response.send(pokemonRepository.findByTypeName(typeName));
+    }
+*/
+
+    /**
+     * Find pokemons using custom filter.
+     *
+     * @param request  server request
+     * @param response server response
+     */
+    private void getPokemonsByFilter(ServerRequest request, ServerResponse response) {
+        String filter = request.path().pathParameters().value("filter");
+        String value = request.path().pathParameters().value("value");
+        PokemonRepositoryFilter.Criteria.Builder criteriaBuilder = PokemonRepositoryFilter.Criteria.builder();
+        switch (filter) {
+            // "value" references method findByFilter prototype argument name
+            case "prefix" -> criteriaBuilder.nameStartsWith("value");
+            case "suffix" -> criteriaBuilder.nameEndsWith("value");
+            case "substring" -> criteriaBuilder.nameContains("value");
+        }
+        RepositoryFilter filterRule = PokemonRepositoryFilter.builder()
+                .criteria(criteriaBuilder.build())
+                .build();
+        response.send(pokemonRepository.findByFilter(filterRule, value));
     }
 
 }

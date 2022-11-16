@@ -137,6 +137,14 @@ public class DynamicFinderCriteria {
 
             }
 
+            public static Condition build(Operator operator, String... values) {
+                int paramCount = values != null ? values.length : 0;
+                if (paramCount != operator.paramCount()) {
+                    throw new IllegalArgumentException(String.format("Number of parameters must be %d for operator %s.", operator.paramCount(), operator.name()));
+                }
+                return new Condition(operator, (values != null && values.length > 0) ? Arrays.asList(values) : Collections.emptyList());
+            }
+
             // Condition operator.
             private final Operator operator;
             // Condition values: dynamic finder query method parameters names assigned to condition
@@ -167,6 +175,10 @@ public class DynamicFinderCriteria {
                 return values;
             }
 
+        }
+
+        public static Expression build(String property, boolean not, Condition condition) {
+            return new Expression(property, not, condition);
         }
 
         // Criteria expression property.
@@ -245,6 +257,10 @@ public class DynamicFinderCriteria {
                 return keyword;
             }
 
+        }
+
+        public static Expression build(Operator operator, String property, boolean not, Condition condition) {
+            return new NextExpression(operator, property, not, condition);
         }
 
         // Expression logical operator.

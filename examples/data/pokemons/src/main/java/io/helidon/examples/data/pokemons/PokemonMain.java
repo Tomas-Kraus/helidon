@@ -15,7 +15,6 @@
  */
 package io.helidon.examples.data.pokemons;
 
-import io.helidon.common.LogConfig;
 import io.helidon.nima.webserver.WebServer;
 import io.helidon.nima.webserver.http.HttpRouting;
 
@@ -46,9 +45,6 @@ public final class PokemonMain {
      * @return the created {@link io.helidon.nima.webserver.WebServer} instance
      */
     static WebServer startServer() {
-
-        // Load logging configuration
-        LogConfig.configureRuntime();
 
         WebServer server = WebServer.builder()
                 .routing(PokemonMain::routing)

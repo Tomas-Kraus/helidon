@@ -15,11 +15,14 @@
  */
 package io.helidon.examples.data.pokemons.repository;
 
+import io.helidon.data.annotation.Filter;
 import io.helidon.data.annotation.NativeQuery;
 import io.helidon.data.annotation.Query;
 import io.helidon.data.annotation.Repository;
 import io.helidon.data.repository.CrudRepository;
+import io.helidon.data.repository.RepositoryFilter;
 import io.helidon.examples.data.pokemons.model.Pokemon;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonRepositoryFilter;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,5 +57,15 @@ public interface PokemonRepository extends CrudRepository<Pokemon, Integer> {
 
     @NativeQuery(key="pokemons.native.by-type-and-name", resultSetMapping = "PokemonByTypeAndNameRSMapping")
     Optional<Pokemon> pokemonByTypeAndName4(String typeName, String pokemonName);
+
+    // Query with custom filtering
+    // Filter can access method parameters by name.
+    // @Filter annotation links method prototype with filtering class (generated). This may be used
+    //         for linking filtering classes with methods. Another option is to use child class instead
+    //         of RepositoryFilter in method prototype filter argument.
+    // TODO: How to specify projection part of the query?
+    //       - use method name prefix? -> findMaxAbeByFilter :: parse everything up to 'By' delimiter
+    @Filter(PokemonRepositoryFilter.class)
+    List<Pokemon> findByFilter(RepositoryFilter filter, String value);
 
 }
