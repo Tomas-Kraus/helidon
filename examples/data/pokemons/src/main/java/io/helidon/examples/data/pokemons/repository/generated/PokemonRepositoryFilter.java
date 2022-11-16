@@ -332,6 +332,7 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
             private Builder() {
                 orders = new LinkedList<>();
             }
+
             public Builder idAsc() {
                 orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, ID));
                 return this;

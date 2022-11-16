@@ -232,6 +232,12 @@ public class PokemonService implements HttpService {
             case "prefix" -> criteriaBuilder.nameStartsWith("value");
             case "suffix" -> criteriaBuilder.nameEndsWith("value");
             case "substring" -> criteriaBuilder.nameContains("value");
+            case "not_prefix" -> criteriaBuilder.not().nameStartsWith("value");
+            case "not_suffix" -> criteriaBuilder.not().nameEndsWith("value");
+            case "not_substring" -> criteriaBuilder.not().nameContains("value");
+            case "prefix_suffix" -> criteriaBuilder
+                    .nameStartsWith("value")
+                    .or().nameEndsWith("value");
         }
         response.send(pokemonRepository.findByFilter(criteriaBuilder.build(), value));
     }
