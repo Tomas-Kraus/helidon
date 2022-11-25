@@ -15,14 +15,13 @@
  */
 package io.helidon.data.processor;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OrderMethodParserTest {
@@ -31,25 +30,6 @@ public class OrderMethodParserTest {
 
     // Test all possible ways to traverse from selection to order part of the query.
 
-    // Helper method to evaluate use-cae with simple orderBy
-    public void evaluateResultOrderByProperty(
-            final DynamicFinder query,
-            final DynamicFinderSelection.Method queryMathod,
-            final DynamicFinderOrder.Order.Method orderMethod,
-            final String orderProperty
-    ) {
-        // Selection
-        assertThat(query.selection().method(), is(queryMathod));
-        assertThat(query.selection().projection().isEmpty(), is(true));
-        // Criteria
-        assertThat(query.criteria().isPresent(), is(false));
-        // Order
-        assertThat(query.order().isPresent(), is(true));
-        assertThat(query.order().get().orders().size(), is(1));
-        DynamicFinderOrder.Order order = query.order().get().orders().get(0);
-        assertThat(order.method(), is(orderMethod));
-        assertThat(order.property(), is(orderProperty));
-    }
 
     // Test getOrderByName method name ("OrderBy" starts from root node of the selection projection parser)
     @Test
@@ -58,7 +38,7 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("nameValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("getOrderByName", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, DynamicFinderOrder.Order.Method.ASC, "name");
     }
 
@@ -69,31 +49,8 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("ageValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("findOrderByAge", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.FIND, DynamicFinderOrder.Order.Method.ASC, "age");
-    }
-
-    // Helper method to evaluate use-cae with simple orderBy
-    public void evaluateResultOrderByProperty(
-            final DynamicFinder query,
-            final DynamicFinderSelection.Method queryMathod,
-            final DynamicFinderSelection.Projection.Method projectionMethod,
-            final DynamicFinderOrder.Order.Method orderMethod,
-            final String orderProperty
-    ) {
-        // Selection
-        assertThat(query.selection().method(), is(queryMathod));
-        assertThat(query.selection().projection().isPresent(), is(true));
-        assertThat(query.selection().property().isEmpty(), is(true));
-        assertThat(query.selection().projection().get().method(), is(projectionMethod));
-        // Criteria
-        assertThat(query.criteria().isPresent(), is(false));
-        // Order
-        assertThat(query.order().isPresent(), is(true));
-        assertThat(query.order().get().orders().size(), is(1));
-        DynamicFinderOrder.Order order = query.order().get().orders().get(0);
-        assertThat(order.method(), is(orderMethod));
-        assertThat(order.property(), is(orderProperty));
     }
 
     // Test getCountOrderByName method name ("OrderBy" starts from root node of the selection properties parser)
@@ -103,7 +60,7 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("nameValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("getCountOrderByName", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, DynamicFinderSelection.Projection.Method.COUNT,
                 DynamicFinderOrder.Order.Method.ASC, "name");
     }
@@ -115,7 +72,7 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("ageValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("findDistinctOrderByAge", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.FIND, DynamicFinderSelection.Projection.Method.DISTINCT,
                 DynamicFinderOrder.Order.Method.ASC, "age");
     }
@@ -171,48 +128,6 @@ public class OrderMethodParserTest {
 
     // Test all possible ways to traverse from criteria to order part of the query.
 
-    // Helper method to evaluate use-cae with simple orderBy
-    public void evaluateResultOrderByProperty(
-            final DynamicFinder query,
-            final DynamicFinderSelection.Method queryMethod,
-            final DynamicFinderSelection.Projection.Method projectionMethod,
-            final String projectionProperty,
-            final String criteriaProperty,
-            final String criteriaValue,
-            final DynamicFinderCriteria.Expression.Condition.Operator criteriaOperator,
-            final DynamicFinderOrder.Order.Method orderMethod,
-            final String orderProperty
-    ) {
-        // Selection
-        assertThat(query.selection().method(), is(queryMethod));
-        if (projectionProperty == null) {
-            assertThat(query.selection().property().isPresent(), is(false));
-        } else {
-            assertThat(query.selection().property().isPresent(), is(true));
-            assertThat(query.selection().property().get(), is(projectionProperty));
-        }
-        if (projectionMethod == null) {
-            assertThat(query.selection().projection().isPresent(), is(false));
-        } else {
-            assertThat(query.selection().projection().isPresent(), is(true));
-            assertThat(query.selection().projection().get().method(), is(projectionMethod));
-        }
-        // Criteria
-        assertThat(query.criteria().isPresent(), is(true));
-        DynamicFinderCriteria criteria = query.criteria().get();
-        assertThat(criteria.first(), is(notNullValue()));
-        assertThat(criteria.first().property(), is(criteriaProperty));
-        assertThat(criteria.first().not(), is(false));
-        assertThat(criteria.first().condition().operator(), is(criteriaOperator));
-        assertThat(criteria.first().condition().values().get(0), is(criteriaValue));
-        // Order
-        assertThat(query.order().isPresent(), is(true));
-        assertThat(query.order().get().orders().size(), is(1));
-        DynamicFinderOrder.Order order = query.order().get().orders().get(0);
-        assertThat(order.method(), is(orderMethod));
-        assertThat(order.property(), is(orderProperty));
-    }
-
     // Test getByNameOrderByAge method name ("OrderBy" starts from final node of the criteria properties parser)
     @Test
     public void testGetByNameOrderByAge() {
@@ -220,9 +135,9 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("nameValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("getByNameOrderByAge", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, null,
-                null, "name", "nameValue", DynamicFinderCriteria.Expression.Condition.Operator.EQUALS,
+                null, "name", "nameValue", DynamicFinderCriteria.Condition.Operator.EQUALS,
                 DynamicFinderOrder.Order.Method.ASC, "age"
         );
     }
@@ -234,64 +149,11 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("nameValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("getByNameContainsOrderByAge", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, null,
-                null, "name", "nameValue", DynamicFinderCriteria.Expression.Condition.Operator.CONTAINS,
+                null, "name", "nameValue", DynamicFinderCriteria.Condition.Operator.CONTAINS,
                 DynamicFinderOrder.Order.Method.ASC, "age"
         );
-    }
-
-    // Helper method to evaluate use-cae with simple orderBy
-    public void evaluateResultOrderByProperty(
-            final DynamicFinder query,
-            final DynamicFinderSelection.Method queryMethod,
-            final DynamicFinderSelection.Projection.Method projectionMethod,
-            final String projectionProperty,
-            final String criteriaProperty1,
-            final String criteriaValue1,
-            final DynamicFinderCriteria.Expression.Condition.Operator criteriaOperator1,
-            final String criteriaProperty2,
-            final String criteriaValue2,
-            final DynamicFinderCriteria.Expression.Condition.Operator criteriaOperator2,
-            final DynamicFinderCriteria.NextExpression.Operator CriteriaJoinOperator,
-            final DynamicFinderOrder.Order.Method orderMethod,
-            final String orderProperty
-    ) {
-        // Selection
-        assertThat(query.selection().method(), is(queryMethod));
-        if (projectionProperty == null) {
-            assertThat(query.selection().property().isPresent(), is(false));
-        } else {
-            assertThat(query.selection().property().isPresent(), is(true));
-            assertThat(query.selection().property().get(), is(projectionProperty));
-        }
-        if (projectionMethod == null) {
-            assertThat(query.selection().projection().isPresent(), is(false));
-        } else {
-            assertThat(query.selection().projection().isPresent(), is(true));
-            assertThat(query.selection().projection().get().method(), is(projectionMethod));
-        }
-        // Criteria
-        assertThat(query.criteria().isPresent(), is(true));
-        DynamicFinderCriteria criteria = query.criteria().get();
-        assertThat(criteria.first(), is(notNullValue()));
-        assertThat(criteria.first().property(), is(criteriaProperty1));
-        assertThat(criteria.first().not(), is(false));
-        assertThat(criteria.first().condition().operator(), is(criteriaOperator1));
-        assertThat(criteria.first().condition().values().get(0), is(criteriaValue1));
-        assertThat(criteria.next().size(), is(1));
-        final DynamicFinderCriteria.NextExpression next = criteria.next().get(0);
-        assertThat(next.property(), is(criteriaProperty2));
-        assertThat(next.not(), is(false));
-        assertThat(next.condition().operator(), is(criteriaOperator2));
-        assertThat(next.condition().values().get(0), is(criteriaValue2));
-        assertThat(next.operator(), is(CriteriaJoinOperator));
-        // Order
-        assertThat(query.order().isPresent(), is(true));
-        assertThat(query.order().get().orders().size(), is(1));
-        DynamicFinderOrder.Order order = query.order().get().orders().get(0);
-        assertThat(order.method(), is(orderMethod));
-        assertThat(order.property(), is(orderProperty));
     }
 
     // Test getByNameOrAgeOrderByAge method name ("OrderBy" starts from final node of the 2nd criteria properties parser)
@@ -301,11 +163,11 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("nameValue", "ageValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("getByNameOrAgeOrderByAge", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, null, null,
-                "name", "nameValue", DynamicFinderCriteria.Expression.Condition.Operator.EQUALS,
-                "age", "ageValue", DynamicFinderCriteria.Expression.Condition.Operator.EQUALS,
-                DynamicFinderCriteria.NextExpression.Operator.OR,
+                "name", "nameValue", DynamicFinderCriteria.Condition.Operator.EQUALS,
+                "age", "ageValue", DynamicFinderCriteria.Condition.Operator.EQUALS,
+                DynamicFinderCriteria.Compound.NextExpression.Operator.OR,
                 DynamicFinderOrder.Order.Method.ASC, "age"
         );
     }
@@ -317,11 +179,11 @@ public class OrderMethodParserTest {
         List<String> arguments = List.of("nameValue", "ageValue");
         MethodParser parser = new MethodParserImpl(properties);
         DynamicFinder query = parser.parse("getByNameOrAgeLessThanOrderByAge", arguments);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, null, null,
-                "name", "nameValue", DynamicFinderCriteria.Expression.Condition.Operator.EQUALS,
-                "age", "ageValue", DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN,
-                DynamicFinderCriteria.NextExpression.Operator.OR,
+                "name", "nameValue", DynamicFinderCriteria.Condition.Operator.EQUALS,
+                "age", "ageValue", DynamicFinderCriteria.Condition.Operator.LESS_THAN,
+                DynamicFinderCriteria.Compound.NextExpression.Operator.OR,
                 DynamicFinderOrder.Order.Method.ASC, "age"
         );
     }
@@ -335,7 +197,7 @@ public class OrderMethodParserTest {
         MethodParser parser = new MethodParserImpl(properties);
         @SuppressWarnings("unchecked")
         DynamicFinder query = parser.parse("getOrderByNameAsc", Collections.EMPTY_LIST);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, DynamicFinderOrder.Order.Method.ASC, "name");
     }
 
@@ -346,7 +208,7 @@ public class OrderMethodParserTest {
         MethodParser parser = new MethodParserImpl(properties);
         @SuppressWarnings("unchecked")
         DynamicFinder query = parser.parse("getOrderByNameDesc", Collections.EMPTY_LIST);
-        evaluateResultOrderByProperty(
+        TestHelper.evaluateResultOrderByProperty(
                 query, DynamicFinderSelection.Method.GET, DynamicFinderOrder.Order.Method.DESC, "name");
     }
 

@@ -15,191 +15,612 @@
  */
 package io.helidon.data.processor;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-/**
- * Criteria part of the Helidon dynamic finder query.
- */
 public class DynamicFinderCriteria {
 
     /**
      * Query criteria expression.
+     * Expression is a logical expression syntax tree where internal node represents single criteria
+     * or multiple expressions joined by logical operator.
      */
-    public static class Expression {
+    public interface Expression {
+
+        enum Type {
+            /** Simple criteria expression. */
+            CONDITION,
+            /** Compound expression. */
+            COMPOUND
+        }
+
 
         /**
-         * Expression condition.
+         * Type of the expression.
+         * Get {@link Type} enumeration value to detect current implementation of expression.
+         *
+         * @return {@link Type} of the condition expression
          */
-        public static class Condition {
+        Type type();
+
+        <T extends Expression> T as(Class<T> cls);
+
+    }
+
+    /**
+     * Compound expression.
+     * Two or more expressions joined by logical operators.
+     */
+    public static class Compound implements Expression {
+
+        /**
+         * Compound expression element following joining logical operator.
+         * Joining logical operator is included.
+         */
+        public interface NextExpression extends Expression {
 
             /**
-             * Condition operators with supported keywords.
-             * Numbers of parameters are used to assign method parameters to statement {@code setParameter} calls.
-             * Keywords are used to initialize related part of dynamic finder query method name parser.
+             * Expression logical operator.
+             * Used to connect with previous expression in the query criteria.
              */
-            public enum Operator {
-                AFTER(1, "After"),
-                BEFORE(1, "Before"),
-                CONTAINS(1, "Contains"),
-                STARTS(1, "StartsWith", "StartingWith"),
-                ENDS(1, "EndsWith", "EndingWith"),
-                EQUALS(1, "Equal", "Equals"),
-                GREATER_THAN(1, "GreaterThan"),
-                GREATER_THAN_EQUALS(1, "GreaterThanEqual", "GreaterThanEquals"),
-                LESS_THAN(1, "LessThan"),
-                LESS_THAN_EQUALS(1, "LessThanEqual", "LessThanEquals"),
-                LIKE(1, "Like"),
-                ILIKE(1, "Ilike"),
-                IN(1, "In", "InList"),
-                BETWEEN(2, "Between", "InRange"),
-                NULL(0, "Null", "IsNull"),
-                EMPTY(0, "Empty", "IsEmpty"),
-                TRUE(0, "True", "IsTrue"),
-                FALSE(0, "False", "IsFalse");
+            enum Operator {
+                /** Logical operator {@code And}. */
+                AND("And"),
+                /** Logical operator {@code Or}. */
+                OR("Or");
 
-                /** Condition operators enumeration length. */
-                static final int LENGTH = values().length;
+                /** Expression logical operators enumeration length. */
+                public static final int LENGTH = values().length;
 
-                private static final Map<String, Operator> KEYWORD_TO_OPERATOR_MAP = initKeywordToOperatorMap();
+                // Logical operator keyword
+                private final String keyword;
 
-                private static final String[] ALL_KEYWORDS_IN_DESCENDING_LENGTH = initAllKeywordsInDescendingLength();
-
-                // Build keyword to operator Map
-                private static Map<String, Operator> initKeywordToOperatorMap() {
-                    Map<String, Operator> map = new HashMap<>();
-                    for (Operator operator : Operator.values()) {
-                        for (String kw : operator.keywords) {
-                            map.put(kw, operator);
-                        }
-                    }
-                    return map;
+                // Creates an instance of criteria expression joining logical operator.
+                Operator(String keyword) {
+                    this.keyword = keyword;
                 }
 
-                // Build an array of all operators keywords sorted by descending length
-                private static String[] initAllKeywordsInDescendingLength() {
-                    Set<String> kwSet = KEYWORD_TO_OPERATOR_MAP.keySet();
-                    @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-                    String[] keywords = kwSet.toArray(new String[kwSet.size()]);
-                    Arrays.sort(keywords, Comparator.comparingInt(String::length).reversed());
-                    return keywords;
+                String keyword() {
+                    return keyword;
                 }
 
-                /**
-                 * Get operator for provided keyword.
-                 *
-                 * @return operator for provided keyword or {@code null} if keyword is not known.
-                 */
-                static Operator kwToOperator(String kw) {
-                    return KEYWORD_TO_OPERATOR_MAP.get(kw);
-                }
-
-                /**
-                 * Return an array of all {@link Operator}s keywords sorted by descending length.
-                 *
-                 * @return all operator keywords (sorted by descending length).
-                 */
-                static String[] allKeywordsInDescLength() {
-                    return ALL_KEYWORDS_IN_DESCENDING_LENGTH;
-                }
-
-                // Number of operator parameters
-                private final int paramCount;
-                // Supported operator keywords
-                private final String[] keywords;
-
-                // Creates an instance of condition operators
-                Operator(int paramCount, String... keywords) {
-                    if (keywords == null || keywords.length == 0) {
-                        throw new IllegalArgumentException("At least one keyword is required!");
-                    }
-                    this.paramCount = paramCount;
-                    this.keywords = keywords;
-                }
-
-                // TODO: Remove public access to keywords and paramCount methods
-                /**
-                 * Supported keywords.
-                 *
-                 * @return keywords supported by the condition method.
-                 */
-                public String[] keywords() {
-                    return keywords;
-                }
-
-                /**
-                 * Number of operator parameters.
-                 *
-                 * @return number of operator parameters required from dynamic finder query method
-                 */
-                public int paramCount() {
-                    return paramCount;
-                }
-
-            }
-
-            public static Condition build(Operator operator, String... values) {
-                int paramCount = values != null ? values.length : 0;
-                if (paramCount != operator.paramCount()) {
-                    throw new IllegalArgumentException(String.format("Number of parameters must be %d for operator %s.", operator.paramCount(), operator.name()));
-                }
-                return new Condition(operator, (values != null && values.length > 0) ? Arrays.asList(values) : Collections.emptyList());
-            }
-
-            // Condition operator.
-            private final Operator operator;
-            // Condition values: dynamic finder query method parameters names assigned to condition
-            private final List<String> values;
-
-            // Creates an instance of expression condition.
-            private Condition(Operator operator, List<String> values) {
-                this.operator = operator;
-                this.values = values;
             }
 
             /**
-             * Condition operator.
+             * Expression logical operator.
              *
-             * @return method of the expression condition
+             * @return logical operator to connect with previous expression in the query criteria.
              */
+            Operator operator();
+
+            /**
+             * Expression joined by logical operator.
+             *
+             * @return expression on the right side of the logical operator.
+             */
+            Expression expression();
+
+        }
+
+        static class NextExpressionBuilder {
+
+            private NextExpression.Operator operator;
+
+            private Expression expression;
+
+            private NextExpressionBuilder() {
+                this.operator = null;
+                this.expression = null;
+            }
+
+            NextExpressionBuilder operator(NextExpression.Operator operator) {
+                Objects.requireNonNull(operator, "Expression operator shall not be null.");
+                this.operator = operator;
+                return this;
+            }
+
+            NextExpressionBuilder expression(Expression expression) {
+                Objects.requireNonNull(expression, "Expression shall not be null.");
+                this.expression = expression;
+                return this;
+            }
+
+            NextExpression build() {
+                if (operator == null) {
+                    throw new IllegalStateException("No expression operator was set.");
+                }
+                if (expression == null) {
+                    throw new IllegalStateException("No expression was set.");
+                }
+                return new NextExpressionImpl(operator, expression);
+            }
+        }
+
+
+        // Internal implementation of Compound expression element following joining logical operator.
+        private static final class NextExpressionImpl implements NextExpression {
+
+            private final Operator operator;
+
+            private final Expression expression;
+
+            private NextExpressionImpl(Operator operator, Expression expression) {
+                Objects.requireNonNull(expression, "Expression shall not be null.");
+                Objects.requireNonNull(operator, "Expression operator shall not be null.");
+                this.operator = operator;
+                this.expression = expression;
+            }
+
+            @Override
+            public Type type() {
+                return expression.type();
+            }
+
+            @Override
+            public <T extends Expression> T as(Class<T> cls) {
+                if (cls.isInstance(NextExpression.class)) {
+                    return cls.cast(this);
+                }
+                return expression.as(cls);
+            }
+
+            @Override
             public Operator operator() {
                 return operator;
             }
 
-            /**
-             * Condition values.
-             * Values are passed as dynamic finder query method arguments.
-             *
-             * @return values of the expression condition
-             */
-            public List<String> values() {
-                return values;
+            @Override
+            public Expression expression() {
+                return expression;
             }
 
         }
 
-        public static Expression build(String property, boolean not, Condition condition) {
-            return new Expression(property, not, condition);
+        public static NextExpression buildExpression(NextExpression.Operator operator, Expression expression) {
+            Objects.requireNonNull(expression, "Expression shall not be null.");
+            Objects.requireNonNull(operator, "Expression operator shall not be null.");
+            return new NextExpressionImpl(operator, expression);
         }
 
-        // Criteria expression property.
-        private final String property;
-        // Negated expression.
-        private final boolean not;
-        // Criteria expression condition.
-        private final Condition condition;
+        public static Compound build(Expression first, List<NextExpression> next) {
+            Objects.requireNonNull(first, "First expression shall not be null.");
+            Objects.requireNonNull(next, "Next expression list shall not be null.");
+            return new Compound(first, next);
+        }
 
-        // Creates an instance of query criteria expression.
-        private Expression(String property, boolean not, Condition condition) {
-            if (condition == null) {
-                throw new IllegalArgumentException("Expression condition shal not be null");
+        static NextExpressionBuilder expressionBuilder() {
+            return new NextExpressionBuilder();
+        }
+
+        static Builder builder() {
+            return new Builder();
+        }
+
+        // First expression (with no logical operator).
+        private final Expression first;
+        // Next expression following joining logical operator.
+        private final List<NextExpression> next;
+
+        private Compound(Expression first, List<NextExpression> next) {
+            this.first = first;
+            this.next = next;
+        }
+
+        @Override
+        public Expression.Type type() {
+            return Type.COMPOUND;
+        }
+
+        @Override
+        public <T extends Expression> T as(Class<T> cls) {
+            if (cls != Compound.class) {
+                throw new IllegalArgumentException(String.format("Class %s is not supported", cls.getSimpleName()));
             }
-            this.property = property;
-            this.not = not;
-            this.condition = condition;
+            return cls.cast(this);
         }
 
         /**
-         * Criteria expression property.
+         * First expression (with no logical operator) of the compound expression.
+         *
+         * @return first expression of the compound expression
+         */
+        public Expression first() {
+            return first;
+        }
+
+        /**
+         * Next expression (following joining logical operator) of the compound expression.
+         *
+         * @return list of next expressions with preceding logical operators
+         */
+        public List<NextExpression> next() {
+            return next;
+        }
+
+        static class Builder {
+
+            private Expression first;
+
+            private List<NextExpression> next;
+
+            private Builder() {
+                this.first = null;
+                this.next = null;
+            }
+
+            Builder first(Expression expression) {
+                Objects.requireNonNull(expression, "Expression shall not be null.");
+                if (first != null) {
+                    throw new IllegalStateException("First expression was already set.");
+                }
+                this.first = expression;
+                return this;
+            }
+
+            Builder next(List<NextExpression> next) {
+                Objects.requireNonNull(next, "Expression list shall not be null.");
+                if (first == null) {
+                    throw new IllegalStateException("No first expression was set.");
+                }
+                this.next = next;
+                return this;
+            }
+
+            Compound build() {
+                if (first == null) {
+                    throw new IllegalStateException("No first expression was set.");
+                }
+                if (next == null) {
+                    throw new IllegalStateException("No next expression list was set.");
+                }
+                if (next.isEmpty()) {
+                    throw new IllegalStateException("No next expression was set.");
+                }
+                return Compound.build(first, List.copyOf(next));
+            }
+
+        }
+
+    }
+
+    /**
+     * Expression as condition.
+     * Leaf node of the expression syntax tree.
+     */
+    public static class Condition implements Expression {
+
+        /**
+         * Condition operators with supported keywords.
+         * Numbers of parameters are used to assign method parameters to statement {@code setParameter} calls.
+         * Keywords are used to initialize related part of dynamic finder query method name parser.
+         */
+        public enum Operator {
+            AFTER(1, "After"),
+            BEFORE(1, "Before"),
+            CONTAINS(1, "Contains"),
+            STARTS(1, "StartsWith", "StartingWith"),
+            ENDS(1, "EndsWith", "EndingWith"),
+            EQUALS(1, "Equal", "Equals"),
+            GREATER_THAN(1, "GreaterThan"),
+            GREATER_THAN_EQUALS(1, "GreaterThanEqual", "GreaterThanEquals"),
+            LESS_THAN(1, "LessThan"),
+            LESS_THAN_EQUALS(1, "LessThanEqual", "LessThanEquals"),
+            LIKE(1, "Like"),
+            ILIKE(1, "Ilike"),
+            IN(1, "In", "InList"),
+            BETWEEN(2, "Between", "InRange"),
+            NULL(0, "Null", "IsNull"),
+            EMPTY(0, "Empty", "IsEmpty"),
+            TRUE(0, "True", "IsTrue"),
+            FALSE(0, "False", "IsFalse");
+
+            /** Condition operators enumeration length. */
+            static final int LENGTH = values().length;
+
+            private static final Map<String, Operator> KEYWORD_TO_OPERATOR_MAP = initKeywordToOperatorMap();
+
+            private static final String[] ALL_KEYWORDS_IN_DESCENDING_LENGTH = initAllKeywordsInDescendingLength();
+
+            // Build keyword to operator Map
+            private static Map<String, Operator> initKeywordToOperatorMap() {
+                Map<String, Operator> map = new HashMap<>();
+                for (Operator operator : values()) {
+                    for (String kw : operator.keywords) {
+                        map.put(kw, operator);
+                    }
+                }
+                return map;
+            }
+
+            // Build an array of all operators keywords sorted by descending length
+            private static String[] initAllKeywordsInDescendingLength() {
+                Set<String> kwSet = KEYWORD_TO_OPERATOR_MAP.keySet();
+                @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
+                String[] keywords = kwSet.toArray(new String[kwSet.size()]);
+                Arrays.sort(keywords, Comparator.comparingInt(String::length).reversed());
+                return keywords;
+            }
+
+            /**
+             * Get operator for provided keyword.
+             *
+             * @return operator for provided keyword or {@code null} if keyword is not known.
+             */
+            static Operator kwToOperator(String kw) {
+                return KEYWORD_TO_OPERATOR_MAP.get(kw);
+            }
+
+            /**
+             * Return an array of all {@link Operator}s keywords sorted by descending length.
+             *
+             * @return all operator keywords (sorted by descending length).
+             */
+            static String[] allKeywordsInDescLength() {
+                return ALL_KEYWORDS_IN_DESCENDING_LENGTH;
+            }
+
+            // Number of operator parameters
+            private final int paramCount;
+            // Supported operator keywords
+            private final String[] keywords;
+
+            // Creates an instance of condition operators
+            Operator(int paramCount, String... keywords) {
+                if (keywords == null || keywords.length == 0) {
+                    throw new IllegalArgumentException("At least one keyword is required!");
+                }
+                this.paramCount = paramCount;
+                this.keywords = keywords;
+            }
+
+            // TODO: Remove public access to keywords and paramCount methods
+            /**
+             * Supported keywords.
+             *
+             * @return keywords supported by the condition method.
+             */
+            public String[] keywords() {
+                return keywords;
+            }
+
+            /**
+             * Number of operator parameters.
+             *
+             * @return number of operator parameters required from dynamic finder query method
+             */
+            public int paramCount() {
+                return paramCount;
+            }
+
+        }
+
+        /**
+         * Condition parameter.
+         *
+         * @param <T> class of the value
+         */
+        public static abstract class Parameter<T> {
+
+            /**
+             * Condition parameter type.
+             * This enumeration is used to distinguish all existing implementations of condition parameter.
+             */
+            public enum Type {
+                /**
+                 * Parameter is specified as direct valie.
+                 */
+                VALUE,
+                /**
+                 * Parameter is specified as method argument reference.
+                 */
+                ARGUMENT
+            }
+
+            /**
+             * Type of the condition parameter.
+             * Get {@link Type} enumeration value to detect current implementation of condition parameter.
+             *
+             * @return {@link Type} of the condition parameter
+             */
+            public abstract Type type();
+
+            /**
+             * Condition parameter as direct value.
+             *
+             * @param <T> class of the value
+             */
+            public static class Value<T> extends Parameter<T> {
+
+                public static <T> Value<T> build(Class<T> valueClass, T value) {
+                    return new Value<>(valueClass, value);
+                }
+
+                // Value of the parameter
+                private final T value;
+                // Class of the parameter
+                private final Class<T> valueClass;
+
+                private Value(Class<T> valueClass, T value) {
+                    Objects.requireNonNull(value, "Value of the parameter is null");
+                    Objects.requireNonNull(valueClass, "Class of the parameter is null");
+                    this.value = value;
+                    this.valueClass = valueClass;
+                }
+
+                @Override
+                public Type type() {
+                    return Type.VALUE;
+                }
+
+                public T value() {
+                    return value;
+                }
+
+                static class Builder<T> {
+
+                    private final Class<T> valueClass;
+                    private final T value;
+
+                    private Builder(Class<T> valueClass, T value) {
+                        this.valueClass = valueClass;
+                        this.value = value;
+                    }
+
+                    Value<T> build() {
+                        return new Value<>(valueClass, value);
+                    }
+
+                }
+
+            }
+
+            /**
+             * Condition parameter as method argument reference.
+             *
+             * @param <T> class of the method argument value
+             */
+            public static class Argument<T> extends Parameter<T> {
+
+                // Name of the method argument
+                private final String name;
+                // Class of the parameter
+                private final Class<T> valueClass;
+
+                private Argument(Class<T> valueClass, String name) {
+                    Objects.requireNonNull(name, "Name of the method argument is null");
+                    Objects.requireNonNull(valueClass, "Class of the parameter is null");
+                    this.name = name;
+                    this.valueClass = valueClass;
+                }
+
+                @Override
+                public Type type() {
+                    return Type.ARGUMENT;
+                }
+
+                public String name() {
+                    return name;
+                }
+
+                public Class<T> valueClass() {
+                    return valueClass;
+                }
+
+                static class Builder<T> {
+
+                    private final Class<T> valueClass;
+                    private final String name;
+
+                    private Builder(Class<T> valueClass, String name) {
+                        this.valueClass = valueClass;
+                        this.name = name;
+                    }
+
+                    Argument<T> build() {
+                        return new Argument<>(valueClass, name);
+                    }
+
+                }
+
+            }
+
+            private static <T> Builder<T> builder() {
+                return new Builder<>();
+            }
+
+            static class Builder<T> {
+
+                private Builder() {
+                }
+
+                Value.Builder<T> value(Class<T> valueClass, T value) {
+                    return new Value.Builder<>(valueClass, value);
+                }
+
+                Argument.Builder<T> argument(Class<T> valueClass, String name) {
+                    return new Argument.Builder<>(valueClass, name);
+                }
+
+            }
+
+        }
+
+        /**
+         * Creates an instance of criteria expression condition.
+         *
+         * @param not whether the condition is negated
+         * @param property name of the entity property in the condition
+         * @param operator condition operator
+         * @param values condition values
+         * @return new instance of criteria expression condition
+         */
+        public static Condition build(boolean not, String property, Operator operator, Parameter<?>... values) {
+            Objects.requireNonNull(property, "Condition property shall not be null.");
+            Objects.requireNonNull(operator, "Condition operator shall not be null.");
+            Objects.requireNonNull(values, "Condition values array shall not be null.");
+            int paramCount = values != null ? values.length : 0;
+            if (paramCount != operator.paramCount()) {
+                throw new IllegalArgumentException(String.format("Number of parameters must be %d for operator %s.", operator.paramCount(), operator.name()));
+            }
+            return new Condition(
+                    not,
+                    property,
+                    operator,
+                    (values != null && values.length > 0) ? Arrays.asList(values) : Collections.emptyList());
+        }
+
+        /**
+         * Creates an instance of criteria expression condition.
+         * Condition won't be negated.
+         *
+         * @param property name of the entity property in the condition
+         * @param operator condition operator
+         * @param values condition values
+         * @return new instance of criteria expression condition
+         */
+        public static Condition build(String property, Operator operator, Parameter<?>... values) {
+            return build(false, property, operator, values);
+        }
+
+        // Condition property.
+        private final String property;
+        // Condition operator.
+        private final Operator operator;
+        // Condition values: dynamic finder query method parameters names assigned to condition.
+        private final List<? extends Parameter<?>> values;
+        // Whether condition is negated.
+        private final boolean not;
+
+        // Creates an instance of expression condition with possible negation.
+        private Condition(boolean not, String property, Operator operator, List<? extends Parameter<?>> values) {
+            this.property = property;
+            this.operator = operator;
+            this.values = values;
+            this.not = not;
+        }
+
+        @Override
+        public Expression.Type type() {
+            return Type.CONDITION;
+        }
+
+        @Override
+        public <T extends Expression> T as(Class<T> cls) {
+            if (cls != Condition.class) {
+                throw new IllegalArgumentException(String.format("Class %s is not supported", cls.getSimpleName()));
+            }
+            return cls.cast(this);
+        }
+
+        /**
+         * Condition property.
          *
          * @return name of the property
          */
@@ -208,117 +629,116 @@ public class DynamicFinderCriteria {
         }
 
         /**
-         * Negated expression.
+         * Condition operator.
          *
-         * @return value of {@code true} when expression is negated or {@code false} otherwise
-         */
-        public boolean not() {
-            return not;
-        }
-
-        /**
-         * Criteria expression condition.
-         *
-         * @return condition of the expression
-         */
-        public Condition condition() {
-            return condition;
-        }
-
-    }
-
-    /**
-     * Query criteria expression with logical operator.
-     */
-    public static class NextExpression extends Expression {
-
-        /**
-         * Expression logical operators.
-         * Used to connect with previous expression in the query criteria.
-         */
-        public enum Operator {
-            /** Logical operator {@code And}. */
-            AND("And"),
-            /** Logical operator {@code Or}. */
-            OR("Or");
-
-            /** Expression logical operators enumeration length. */
-            public static final int LENGTH = values().length;
-
-            // Logical operator keyword
-            private final String keyword;
-
-            // Creates an instance of criteria expression joining logical operator.
-            Operator(String keyword) {
-                this.keyword = keyword;
-            }
-
-            String keyword() {
-                return keyword;
-            }
-
-        }
-
-        public static Expression build(Operator operator, String property, boolean not, Condition condition) {
-            return new NextExpression(operator, property, not, condition);
-        }
-
-        // Expression logical operator.
-        private final Operator operator;
-
-        // Creates an instance of query criteria expression.
-        private NextExpression(Operator operator, String parameter, boolean not, Condition condition) {
-            super(parameter, not, condition);
-            this.operator = operator;
-        }
-
-        /**
-         * Expression logical operator.
-         *
-         * @return logical operator to connect with previous expression in the query criteria.
+         * @return method of the expression condition
          */
         public Operator operator() {
             return operator;
         }
 
+        /**
+         * Condition values.
+         * Values are passed as dynamic finder query method arguments.
+         *
+         * @return values of the expression condition
+         */
+        public List<? extends Parameter<?>> values() {
+            return values;
+        }
+
+        /**
+         * Negated condition.
+         *
+         * @return value of {@code true} when condition is negated or {@code false} otherwise
+         */
+        public boolean not() {
+            return not;
+        }
+
+        static Builder builder() {
+            return new Builder();
+        }
+
+        private static class Builder {
+
+            // Condition property.
+            private String property;
+            // Condition operator.
+            private Operator operator;
+            // Condition values: dynamic finder query method parameters names assigned to condition.
+            private List<Parameter<?>> values;
+            // Whether condition is negated.
+            private boolean not;
+
+            private Builder() {
+                this.property = null;
+                this.operator = null;
+                this.values = new LinkedList<>();
+                this.not = false;
+            }
+
+            private Builder property(String property) {
+                Objects.requireNonNull(property, "Condition property shall not be null.");
+                this.property = property;
+                return this;
+            }
+
+            private Builder operator(Operator operator) {
+                Objects.requireNonNull(operator, "Condition operator shall not be null.");
+                this.operator = operator;
+                return this;
+            }
+
+            private Builder value(Class<Object> valueClass, Object value) {
+                values.add(new Parameter.Value<>(valueClass, value));
+                return this;
+            }
+
+            private Builder argument(Class<Object> valueClass, String name) {
+                values.add(new Parameter.Argument<>(valueClass, name));
+                return this;
+            }
+
+            private Builder not() {
+                this.not = true;
+                return this;
+            }
+
+            private Condition build() {
+                // Optimize logical values on AST building level.
+                if (not) {
+                    switch (operator) {
+                        // Convert NotTrue to False
+                        case TRUE:
+                            return new Condition(false, property, Operator.FALSE, List.copyOf(values));
+                        // Convert NotFalse to True
+                        case FALSE:
+                            return new Condition(false, property, Operator.TRUE, List.copyOf(values));
+                    }
+                }
+                return new Condition(not, property, operator, List.copyOf(values));
+            }
+
+        }
+
     }
 
-    // Query criteria first expression.
-    private final Expression first;
-    // Query criteria expressions following the first one.
-    private final List<NextExpression> next;
+    public static DynamicFinderCriteria build(Expression expression) {
+        return new DynamicFinderCriteria(expression);
+    }
+
+    // Rood node of criteria expression
+    private final Expression expression;
 
     // Creates an instance of criteria part of the Helidon dynamic finder query.
-    private DynamicFinderCriteria(Expression first, List<NextExpression> next) {
-        if (first == null) {
-            throw new IllegalArgumentException("First expression Optional<Expression> argument shall not be null!");
-        }
-        if (next == null) {
-            throw new IllegalArgumentException("Next expressions List<NextExpression> argument shall not be null!");
-        }
-        this.first = first;
-        this.next = next;
+    private DynamicFinderCriteria(Expression expression) {
+        Objects.requireNonNull(expression, "Criteria expression shall not be null.");
+        this.expression = expression;
     }
 
-    /**
-     * Query criteria first expression.
-     * Single expression does not need logical operator.
-     *
-     * @return first (mandatory) expression of the query criteria, never returns {@code null}.
-     */
-    public Expression first() {
-        return first;
-    }
-
-    /**
-     * Query criteria expressions following the first one.
-     * Contains logical operator to apply as connection with previous expression.
-     * Should return empty list when no next expression is available, never returns {@code null}.
-     *
-     * @return list of expressions following the first one, never returns {@code null}.
-     */
-    public List<NextExpression> next() {
-        return next;
+    public Expression expression() {
+        return expression;
     }
 
     /**
@@ -326,85 +746,24 @@ public class DynamicFinderCriteria {
      */
     static class Builder {
 
-        // Criteria expression builder.
-        private static class ExpressionBuilder {
-
-            // Criteria expression property.
-            final String property;
-            // Negated expression.
-            boolean not;
-            // Criteria expression condition.
-            Expression.Condition condition;
-
-            // Creates an instance of expression builder.
-            private ExpressionBuilder(String property) {
-                this.property = property;
-                this.not = false;
-                this.condition = null;
-            }
-
-            private void not() {
-                not = true;
-            }
-
-            void condition(Expression.Condition condition) {
-                this.condition = condition;
-            }
-
-            private Expression build() {
-                // Optimize logical values on AST building level.
-                if (not) {
-                    switch (condition.operator) {
-                        // Convert NotTrue to False
-                        case TRUE:
-                            return new Expression(property, false,
-                                    new Expression.Condition(Expression.Condition.Operator.FALSE, condition.values));
-                        // Convert NotFalse to True
-                        case FALSE:
-                            return new Expression(property, false,
-                                    new Expression.Condition(Expression.Condition.Operator.TRUE, condition.values));
-                    }
-                }
-                return new Expression(property, not, condition);
-            }
-
-        }
-
-        // Criteria next expression builder.
-        private static class NextExpressionBuilder extends ExpressionBuilder {
-
-            private final NextExpression.Operator operator;
-
-            // Creates an instance of expression builder.
-            private NextExpressionBuilder(NextExpression.Operator operator, String parameter) {
-                super(parameter);
-                this.operator = operator;
-            }
-
-            private NextExpression build() {
-                return new NextExpression(operator, property, not, condition);
-            }
-
-        }
-
         // Parent class builder where all parts are put together.
         private final DynamicFinder.Builder builder;
         // Query criteria first expression.
         private Expression first;
         // Query criteria expressions following the first one.
-        private final List<NextExpression> next;
+        private final List<Compound.NextExpression> next;
         // Criteria expression builder.
         // Contains nextExpressionBuilder instance after first expression is finished.
-        private ExpressionBuilder expressionBuilder;
+        private Condition.Builder conditionBuilder;
         // Criteria next expression builder.
-        private NextExpressionBuilder nextExpressionBuilder;
+        private Compound.NextExpressionBuilder nextExpressionBuilder;
 
         // Creqates an instanceof query criteria builder.
         Builder(DynamicFinder.Builder builder) {
             this.builder = builder;
             this.first = null;
             this.next = new LinkedList<>();
-            this.expressionBuilder = null;
+            this.conditionBuilder = null;
             this.nextExpressionBuilder = null;
         }
 
@@ -413,210 +772,174 @@ public class DynamicFinderCriteria {
          *
          * @param property criteria expression property: Entity property name
          */
-        DynamicFinderCriteria.Builder by(String property) {
-            expressionBuilder = new ExpressionBuilder(property);
+        Builder by(String property) {
+            conditionBuilder = new Condition.Builder();
+            conditionBuilder.property(property);
             return this;
         }
 
         /**
          * Build Helidon dynamic finder query criteria.
-         * This is a shortcut to add default {@link Expression.Condition.Operator.EQUALS} condition
-         * for provided property.
+         * This is a shortcut to add default {@code EQUALS} condition for provided property.
          *
          * @param property criteria expression parameter: Entity property name
          * @param conditionValue condition property value: used in {@code setParameter(property, conditionValue)} call.
          */
-        DynamicFinderCriteria.Builder by(String property, String conditionValue) {
-            expressionBuilder = new ExpressionBuilder(property);
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.EQUALS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder by(String property, String conditionValue) {
+            conditionBuilder = new Condition.Builder();
+            conditionBuilder.property(property)
+                            .operator(Condition.Operator.EQUALS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder not() {
-            expressionBuilder.not();
+        Builder not() {
+            conditionBuilder.not();
             return this;
         }
 
-        DynamicFinderCriteria.Builder after(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.AFTER,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder after(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.AFTER)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder before(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.BEFORE,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder before(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.BEFORE)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder contains(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.CONTAINS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder contains(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.CONTAINS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder starts(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.STARTS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder starts(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.STARTS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder ends(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.ENDS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder ends(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.ENDS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder eq(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.EQUALS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder eq(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.EQUALS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder gt(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.GREATER_THAN,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder gt(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.GREATER_THAN)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder gte(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.GREATER_THAN_EQUALS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder gte(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.GREATER_THAN_EQUALS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder lt(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.LESS_THAN,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder lt(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.LESS_THAN)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder lte(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.LESS_THAN_EQUALS,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder lte(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.LESS_THAN_EQUALS)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder like(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.LIKE,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder like(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.LIKE)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder iLike(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.ILIKE,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder iLike(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.ILIKE)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder in(String conditionValue) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.IN,
-                    Collections.singletonList(conditionValue)
-            ));
+        Builder in(String conditionValue) {
+            conditionBuilder.operator(Condition.Operator.IN)
+                            .argument(Object.class, conditionValue);
             return this;
         }
 
-        DynamicFinderCriteria.Builder between(final String conditionFrom, final String conditionTo) {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.BETWEEN,
-                    Collections.unmodifiableList(Arrays.asList(conditionFrom, conditionTo))
-            ));
+        Builder between(final String conditionFrom, final String conditionTo) {
+            conditionBuilder.operator(Condition.Operator.BETWEEN)
+                            .argument(Object.class, conditionFrom)
+                            .argument(Object.class, conditionTo);
             return this;
         }
 
-        DynamicFinderCriteria.Builder isNull() {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.NULL,
-                    Collections.emptyList()
-            ));
+        Builder isNull() {
+            conditionBuilder.operator(Condition.Operator.NULL);
             return this;
         }
 
-        DynamicFinderCriteria.Builder empty() {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.EMPTY,
-                    Collections.emptyList()
-            ));
+        Builder empty() {
+            conditionBuilder.operator(Condition.Operator.EMPTY);
             return this;
         }
 
-        DynamicFinderCriteria.Builder isTrue() {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.TRUE,
-                    Collections.emptyList()
-            ));
+        Builder isTrue() {
+            conditionBuilder.operator(Condition.Operator.TRUE);
             return this;
         }
 
-        DynamicFinderCriteria.Builder isFalse() {
-            expressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.FALSE,
-                    Collections.emptyList()
-            ));
+        Builder isFalse() {
+            conditionBuilder.operator(Condition.Operator.FALSE);
             return this;
         }
 
-        DynamicFinderCriteria.Builder and(String property) {
+        Builder and(String property) {
             finishCurrentBuilder();
-            expressionBuilder = nextExpressionBuilder = new NextExpressionBuilder(
-                    NextExpression.Operator.AND, property);
+            conditionBuilder = Condition.builder()
+                    .property(property);
+            nextExpressionBuilder = Compound.expressionBuilder()
+                    .operator(Compound.NextExpression.Operator.AND);
             return this;
         }
 
-        DynamicFinderCriteria.Builder or(String property) {
+        Builder or(String property) {
             finishCurrentBuilder();
-            expressionBuilder = nextExpressionBuilder = new NextExpressionBuilder(
-                    NextExpression.Operator.OR, property);
+            conditionBuilder = Condition.builder()
+                    .property(property);
+            nextExpressionBuilder = Compound.expressionBuilder()
+                    .operator(Compound.NextExpression.Operator.OR);
             return this;
         }
 
-        DynamicFinderCriteria.Builder and(String property, String conditionValue) {
+        Builder and(String property, String conditionValue) {
             finishCurrentBuilder();
-            nextExpressionBuilder = new NextExpressionBuilder(
-                    NextExpression.Operator.AND, property);
-            nextExpressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.EQUALS,
-                    Collections.singletonList(conditionValue)
-            ));
+            conditionBuilder = Condition.builder()
+                    .property(property)
+                    .operator(Condition.Operator.EQUALS)
+                    .argument(Object.class, conditionValue);
+            nextExpressionBuilder = Compound.expressionBuilder()
+                    .operator(Compound.NextExpression.Operator.AND);
             return this;
         }
 
-        DynamicFinderCriteria.Builder or(String property, String conditionValue) {
+        Builder or(String property, String conditionValue) {
             finishCurrentBuilder();
-            nextExpressionBuilder = new NextExpressionBuilder(
-                    NextExpression.Operator.OR, property);
-            nextExpressionBuilder.condition(new Expression.Condition(
-                    Expression.Condition.Operator.EQUALS,
-                    Collections.singletonList(conditionValue)
-            ));
+            conditionBuilder = Condition.builder()
+                    .property(property)
+                    .operator(Condition.Operator.EQUALS)
+                    .argument(Object.class, conditionValue);
+            nextExpressionBuilder = Compound.expressionBuilder()
+                    .operator(Compound.NextExpression.Operator.OR);
             return this;
         }
 
@@ -628,28 +951,47 @@ public class DynamicFinderCriteria {
         DynamicFinderOrder.Builder orderBy(String property) {
             // Finalize criteria first.
             finishCurrentBuilder();
-            expressionBuilder = nextExpressionBuilder = null;
-            builder.setCriteria(new DynamicFinderCriteria(first, next));
+            conditionBuilder = null;
+            nextExpressionBuilder = null;
+            builder.setCriteria(buildCriteria());
             return new DynamicFinderOrder.Builder(builder).orderBy(property);
         }
 
         DynamicFinder build() {
             // Finalize criteria first.
             finishCurrentBuilder();
-            expressionBuilder = nextExpressionBuilder = null;
-            builder.setCriteria(new DynamicFinderCriteria(first, next));
+            conditionBuilder = null;
+            nextExpressionBuilder = null;
+            builder.setCriteria(buildCriteria());
             // Return finished AST.
             return builder.build();
         }
 
         private void finishCurrentBuilder() {
             if (first == null) {
-                first = expressionBuilder.build();
+                first = conditionBuilder.build();
             } else {
-                next.add(nextExpressionBuilder.build());
+                next.add(nextExpressionBuilder.expression(conditionBuilder.build()).build());
             }
         }
 
+        // Helper method to build proper expression from stored conditions and logical operators.
+        private DynamicFinderCriteria buildCriteria() {
+            if (first == null) {
+                throw new IllegalStateException("No criteria expression condition was set.");
+            }
+            // Only single condition exists, make it whole expression.
+            if (next.isEmpty()) {
+                return new DynamicFinderCriteria(first);
+            // Build compound expression when more than one condition exist.
+            } else {
+                Compound expression = Compound.builder().first(first).next(next).build();
+                return new DynamicFinderCriteria(expression);
+            }
+        }
+
+
     }
 
- }
+
+}

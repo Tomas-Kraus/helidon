@@ -59,7 +59,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
                 new ParserTransition.SingleTransition(
                         DynamicFinder.ORDER_BY_KEYWORD.charAt(DynamicFinder.ORDER_BY_KEYWORD.length() - 1), finalState));
         // Add And joining logical operator
-        String andKw = DynamicFinderCriteria.NextExpression.Operator.AND.keyword();
+        String andKw = DynamicFinderCriteria.Compound.NextExpression.Operator.AND.keyword();
         state = root.addTransition(andKw.charAt(0));
         for (int i = 1; i < andKw.length() - 1; i++) {
             state = state.addTransition(andKw.charAt(i));
@@ -73,7 +73,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
         transition.setAction(andKw.charAt(andKw.length() - 1), finalAndAction);
         state.setTransition(transition);
         // Add Or joining logical operator
-        String orKw = DynamicFinderCriteria.NextExpression.Operator.OR.keyword();
+        String orKw = DynamicFinderCriteria.Compound.NextExpression.Operator.OR.keyword();
         state = root.addTransition(orKw.charAt(0));
         for (int i = 1; i < orKw.length() - 1; i++) {
             state = state.addTransition(orKw.charAt(i));
@@ -118,7 +118,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
         // Now all condition operators keywords must be joined from new root state
         // because Not and IsNot keywords are optional.
         keywords:
-        for (String keyword : DynamicFinderCriteria.Expression.Condition.Operator.allKeywordsInDescLength()) {
+        for (String keyword : DynamicFinderCriteria.Condition.Operator.allKeywordsInDescLength()) {
             int i = 0;
             ParserState newLast = newRoot;
             ParserState newNext = newRoot.transition().next(keyword.charAt(i));
@@ -170,8 +170,8 @@ class MethodCriteriaParser extends MethodAbstractParser {
     private String property;
     private int firstOperatorChar;
     boolean notOperator;
-    private DynamicFinderCriteria.Expression.Condition.Operator operator;
-    private DynamicFinderCriteria.NextExpression.Operator joinOperator;
+    private DynamicFinderCriteria.Condition.Operator operator;
+    private DynamicFinderCriteria.Compound.NextExpression.Operator joinOperator;
 
     MethodCriteriaParser(List<String> entityProperties) {
         this.propertiesRoot = buildStateMachineFromSortedList(
@@ -179,7 +179,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
                 ParserState.FinalState.CRITERIA_PROPERTY, this::firstPropertyChar, this::lastPropertyChar,
                 null, (root) -> buildFinalParserStates(root, this::propertyAndOperator, this::propertyOrOperator));
         ParserState conditionPperators = buildStateMachineFromSortedList(
-                Arrays.asList(DynamicFinderCriteria.Expression.Condition.Operator.allKeywordsInDescLength()),
+                Arrays.asList(DynamicFinderCriteria.Condition.Operator.allKeywordsInDescLength()),
                 MethodCriteriaParser::createFinalCriteriaOperatorState,
                 ParserState.FinalState.CRITERIA_OPERATOR, this::firstOperatorChar, this::lastOperatorChar,
                 null, (root) -> buildFinalParserStates(root, this::criteriaAndOperator, this::criteriaOrOperator));
@@ -363,7 +363,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
     // Build operator name from parsed text and resolve enumeration value.
     void lastOperatorChar(ParserContext ctx) {
         final String keyword = ctx.parsedText(firstOperatorChar);
-        operator = DynamicFinderCriteria.Expression.Condition.Operator.kwToOperator(keyword);
+        operator = DynamicFinderCriteria.Condition.Operator.kwToOperator(keyword);
         if (operator == null) {
             throw new IllegalStateException(String.format(
                     "Keyword %s does not match any known criteria operator at position %d when parsing %s.",
@@ -374,25 +374,25 @@ class MethodCriteriaParser extends MethodAbstractParser {
     // Finish property build and set joining logical operator to AND
     void propertyAndOperator(ParserContext ctx) {
         buildProperty(ctx);
-        joinOperator = DynamicFinderCriteria.NextExpression.Operator.AND;
+        joinOperator = DynamicFinderCriteria.Compound.NextExpression.Operator.AND;
     }
 
     // Finish property build and set joining logical operator to OR
     void propertyOrOperator(ParserContext ctx) {
         buildProperty(ctx);
-        joinOperator = DynamicFinderCriteria.NextExpression.Operator.OR;
+        joinOperator = DynamicFinderCriteria.Compound.NextExpression.Operator.OR;
     }
 
     // Set joining logical operator to AND
     void criteriaAndOperator(ParserContext ctx) {
         buildOperatorState(ctx);
-        joinOperator = DynamicFinderCriteria.NextExpression.Operator.AND;
+        joinOperator = DynamicFinderCriteria.Compound.NextExpression.Operator.AND;
     }
 
     // Set joining logical operator to OR
     void criteriaOrOperator(ParserContext ctx) {
         buildOperatorState(ctx);
-        joinOperator = DynamicFinderCriteria.NextExpression.Operator.OR;
+        joinOperator = DynamicFinderCriteria.Compound.NextExpression.Operator.OR;
     }
 
     // Set the negation of criteria condition operator to true

@@ -15,10 +15,10 @@
  */
 package io.helidon.data.processor;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

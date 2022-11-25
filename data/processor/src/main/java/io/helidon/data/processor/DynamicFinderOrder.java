@@ -16,8 +16,10 @@
 package io.helidon.data.processor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Order part of the Helidon dynamic finder query.
@@ -40,8 +42,38 @@ public class DynamicFinderOrder {
             /** Descending order. */
             DESC("Desc");
 
+            // Case-insensitive keywords searching map
+            public static final Map<String, Method> IKEYWORDS = initIKeywords();
+
             /** Query ordering methods enumeration length. */
             public static final int LENGTH = values().length;
+
+            // Initialize case-insensitive keywords searching map.
+            private static Map<String, Method> initIKeywords() {
+                Map<String, Method> map = new HashMap<>(6);
+                map.put(ASC.keyword.toLowerCase(), ASC);
+                map.put("Ascend".toLowerCase(), ASC);
+                map.put("Ascending".toLowerCase(), ASC);
+                map.put(DESC.keyword.toLowerCase(), DESC);
+                map.put("Descend".toLowerCase(), DESC);
+                map.put("Descending".toLowerCase(), DESC);
+                return map;
+            }
+
+            /**
+             * Get query ordering method matching provided keyword.
+             * Keyword matching is case-insensitive.
+             *
+             * @param kw keyword to search for
+             * @return matching query ordering method or empty value when no matching keyword was found
+             */
+            public static Method parse(String kw) {
+                Method method = IKEYWORDS.get(kw);
+                if (method == null) {
+                    throw new IllegalArgumentException(String.format("Unknown ordering keyword %s.", kw));
+                }
+                return method;
+            }
 
             // Query ordering methods keyword
             private final String keyword;

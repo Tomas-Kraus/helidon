@@ -15,8 +15,12 @@
  */
 package io.helidon.examples.data.pokemons.repository.generated;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import io.helidon.data.processor.DynamicFinder;
@@ -26,6 +30,8 @@ import io.helidon.data.repository.RepositoryFilter;
 
 public class PokemonRepositoryFilter implements RepositoryFilter {
 
+    // Entity name.
+    private static final String ENTITY = "Pokemon";
     // Parameter id
     private static final String ID = "id";
     // Parameter name
@@ -36,6 +42,9 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
     private static final String TYPE_ID = "type.id";
     // Parameter type.name
     private static final String TYPE_NAME = "type.name";
+
+    // Entity attributes case-insensitive matching Map.
+    private static final Map<String, String> ENTITY_ATTRS = initEntityAttrs();
     private final DynamicFinder query;
 
     PokemonRepositoryFilter(Optional<Criteria> criteria, Optional<Order> order) {
@@ -48,6 +57,17 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    // Initialize entity attributes case-insensitive matching Map.
+    private static Map<String, String> initEntityAttrs() {
+        Map<String, String> map = new HashMap<>();
+        map.put(ID.toLowerCase(), ID);
+        map.put(NAME.toLowerCase(), NAME);
+        map.put(TYPE.toLowerCase(), TYPE);
+        map.put(TYPE_ID.toLowerCase(), TYPE_ID);
+        map.put(TYPE_NAME.toLowerCase(), TYPE_NAME);
+        return map;
     }
 
     /**
@@ -81,22 +101,10 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
 
     public static class Criteria implements RepositoryFilter.Criteria {
 
-        // Criteria part of dynamic finder query. This shall be passed to DynamicFinder instance.
-        private Optional<DynamicFinderCriteria> criteria;
+        private final Optional<DynamicFinderCriteria> criteria;
 
-        // TODO: Build AST in builder instead of keeping condition lists
-        private final Optional<List<DynamicFinderCriteria.Expression>> id;
-        private final Optional<List<DynamicFinderCriteria.Expression>> name;
-        private final Optional<List<DynamicFinderCriteria.Expression>> type;
-        // TODO: Build AST from condition lists in builder
-        private Criteria(
-                Optional<List<DynamicFinderCriteria.Expression>> id,
-                Optional<List<DynamicFinderCriteria.Expression>> name,
-                Optional<List<DynamicFinderCriteria.Expression>> type
-        ) {
-            this.id = id;
-            this.name = name;
-            this.type = type;
+        private Criteria(Optional<DynamicFinderCriteria> criteria) {
+            this.criteria = criteria;
         }
 
         public static Builder builder() {
@@ -113,192 +121,125 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
          */
         public static class Builder implements io.helidon.common.Builder<Builder, Criteria> {
 
-             // Expressions joining logical operator
-            DynamicFinderCriteria.NextExpression.Operator expressionOperator;
-            private final List<DynamicFinderCriteria.Expression> idList;
-            private final List<DynamicFinderCriteria.Expression> nameList;
-            private final List<DynamicFinderCriteria.Expression> typeList;
-            // Negate condition
-            private boolean not;
+            private final List<DynamicFinderCriteria.Condition> idList;
+            private final List<DynamicFinderCriteria.Condition> nameList;
+            private final List<DynamicFinderCriteria.Condition> typeNameList;
 
             private Builder() {
                 this.idList = new LinkedList<>();
                 this.nameList = new LinkedList<>();
-                this.typeList = new LinkedList<>();
-                this.not = false;
-                this.expressionOperator = null;
+                this.typeNameList = new LinkedList<>();
             }
 
-            // Equals for id
-            public Builder id(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.EQUALS, valueParam);
+            // Equal for id
+            public Builder id(int id) {
+                add(idList, NAME, DynamicFinderCriteria.Condition.Operator.EQUALS, Integer.class, id);
                 return this;
             }
 
-            // Builder methods for numeric types: Equals, After, Before, GreaterThan, GreaterThanEqual, LessThan, LessThanEquals,
-            //                                    InList, Between, IsNull
-
-            // After for name
-            public Builder idAfter(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.AFTER, valueParam);
-                return this;
-            }
-
-            // Before for name
-            public Builder idBefore(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.BEFORE, valueParam);
-                return this;
-            }
-
-            // GreaterThan for id
-            public Builder idGt(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.GREATER_THAN, valueParam);
-                return this;
-            }
-
-            // GreaterThanEqual for id
-            public Builder idGte(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.GREATER_THAN_EQUALS, valueParam);
-                return this;
-            }
-
-            // LessThan for id
-            public Builder idLt(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN, valueParam);
-                return this;
-            }
-
-            // LessThanEquals for id
-            public Builder idLte(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.LESS_THAN_EQUALS, valueParam);
-                return this;
-            }
-
-            // InList for id
-            public Builder idIn(String valueParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.IN, valueParam);
-                return this;
-            }
-
-            // Between for id
-            public Builder idBetween(String fromParam, String toParam) {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.BETWEEN, fromParam, toParam);
-                return this;
-            }
-
-            // IsNull for id
-            public Builder idIsNull() {
-                add(idList, ID, DynamicFinderCriteria.Expression.Condition.Operator.NULL);
+            // Equal for ids
+            public Builder id(Iterable<Integer> ids) {
+                ids.forEach(id -> add(idList, NAME, DynamicFinderCriteria.Condition.Operator.EQUALS, Integer.class, id));
                 return this;
             }
 
             // Equal for name
-            public Builder name(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.EQUALS, valueParam);
+            public Builder name(String name) {
+                add(nameList, NAME, DynamicFinderCriteria.Condition.Operator.EQUALS, String.class, name);
                 return this;
             }
 
-            // Builder methods for String type: Equal, Contains, StartsWith, EndsWith, Like, Ilike, InList, Between, IsNull
-
-            // Contains for name
-            public Builder nameContains(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.CONTAINS, valueParam);
+            // Equal for names
+            public Builder name(Iterable<String> names) {
+                names.forEach(name -> add(nameList, NAME, DynamicFinderCriteria.Condition.Operator.EQUALS, String.class, name));
                 return this;
             }
 
-            // StartsWith for name
-            public Builder nameStartsWith(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.STARTS, valueParam);
+            // Equal for type.name
+            public Builder typeName(String typeName) {
+                add(typeNameList, TYPE_NAME, DynamicFinderCriteria.Condition.Operator.EQUALS, String.class, typeName);
                 return this;
             }
 
-            // EndsWith for name
-            public Builder nameEndsWith(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.ENDS, valueParam);
-                return this;
-            }
-
-            // Like for name
-            public Builder nameLike(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.LIKE, valueParam);
-                return this;
-            }
-
-            // Ilike for name
-            public Builder nameIlike(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.ILIKE, valueParam);
-                return this;
-            }
-
-            // In for name
-            public Builder nameIn(String valueParam) {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.IN, valueParam);
-                return this;
-            }
-
-            // IsNull for name
-            public Builder nameIsNull() {
-                add(nameList, NAME, DynamicFinderCriteria.Expression.Condition.Operator.NULL);
-                return this;
-            }
-
-            // IsNull for type
-            public Builder typeIsNull() {
-                add(typeList, TYPE, DynamicFinderCriteria.Expression.Condition.Operator.NULL);
-                return this;
-            }
-
-            // Builder methods for ManyToOne relations: IsNull
-
-            public Builder not() {
-                this.not = true;
-                return this;
-            }
-
-            public Builder or() {
-                expressionOperator = DynamicFinderCriteria.NextExpression.Operator.OR;
-                return this;
-            }
-
-            public Builder and() {
-                expressionOperator = DynamicFinderCriteria.NextExpression.Operator.AND;
+            // Equal for type.name
+            public Builder typeName(Iterable<String> names) {
+                names.forEach(name -> add(typeNameList, TYPE_NAME, DynamicFinderCriteria.Condition.Operator.EQUALS, String.class, name));
                 return this;
             }
 
             @Override
             public Criteria build() {
-                return new Criteria(
-                        // Convert LinkedLists to unmodifiable ArrayLists when not empty.
-                        idList.isEmpty() ? Optional.empty() : Optional.of(List.copyOf(idList)),
-                        nameList.isEmpty() ? Optional.empty() : Optional.of(List.copyOf(nameList)),
-                        typeList.isEmpty() ? Optional.empty() : Optional.of(List.copyOf(typeList))
-                );
+                DynamicFinderCriteria.Expression idExpr = expressionFromList(idList);
+                DynamicFinderCriteria.Expression nameExpr = expressionFromList(nameList);
+                DynamicFinderCriteria.Expression typeNameExpr = expressionFromList(typeNameList);
+                List<DynamicFinderCriteria.Expression> expressions = List.of(idExpr, nameExpr, typeNameExpr);
+                switch (expressions.size()) {
+                    case 0:
+                        return new Criteria(Optional.empty());
+                    case 1:
+                        return new Criteria(Optional.of(DynamicFinderCriteria.build(expressions.get(0))));
+                    default:
+                        return new Criteria(Optional.of(
+                                DynamicFinderCriteria.build(
+                                        DynamicFinderCriteria.Compound.build(
+                                                expressions.get(0),
+                                                buildNextExpressionList(
+                                                        expressions,
+                                                        DynamicFinderCriteria.Compound.NextExpression.Operator.AND)))));
+                }
             }
 
-            // Add next expression to the expressions list.
-            private void add(
-                    List<DynamicFinderCriteria.Expression> list,
-                    String property,
-                    DynamicFinderCriteria.Expression.Condition.Operator criteriaOperator,
-                    String... valueParam) {
-                // 1st expression does not contain joining logical operator
-                if (list.isEmpty()) {
-                    idList.add(DynamicFinderCriteria.Expression.build(
-                            property,
-                            not,
-                            DynamicFinderCriteria.Expression.Condition.build(criteriaOperator, valueParam)));
-                    // 2nd and later expression contains joining logical operator
-                } else {
-                    idList.add(DynamicFinderCriteria.NextExpression.build(
-                            // Default operator is AND
-                            expressionOperator != null ? expressionOperator : DynamicFinderCriteria.NextExpression.Operator.AND,
-                            property,
-                            not,
-                            DynamicFinderCriteria.Expression.Condition.build(criteriaOperator, valueParam)));
+            // Those static helpers should be moved to data Runtime module or even do DynamicFinder AST classes as factory methods
+
+            // Builds next expression list starting from 2nd item in the list.
+            private static List<DynamicFinderCriteria.Compound.NextExpression> buildNextExpressionList(
+                    List<? extends DynamicFinderCriteria.Expression> list,
+                    DynamicFinderCriteria.Compound.NextExpression.Operator operator
+            ) {
+                List<DynamicFinderCriteria.Compound.NextExpression> nextList = new ArrayList<>(list.size() - 1);
+                boolean first = true;
+                for (DynamicFinderCriteria.Expression expression : list) {
+                    // Skip 1st item in the list
+                    if (first) {
+                        first = false;
+                    } else {
+                        nextList.add(DynamicFinderCriteria.Compound.buildExpression(operator, expression));
+                    }
                 }
-                // Reset negation and joining logical operator
-                this.not = false;
-                this.expressionOperator = null;
+                return nextList;
+            }
+
+            // Returns null when provided list is empty.
+            private static DynamicFinderCriteria.Expression expressionFromList(List<DynamicFinderCriteria.Condition> list) {
+                if (list.isEmpty()) {
+                    return null;
+                }
+                // Only one condition exists, return it as an expression.
+                if (list.size() == 1) {
+                    return list.get(0);
+                // Build compound expression from more than one expression.
+                } else {
+                    return DynamicFinderCriteria.Compound.build(
+                            list.get(0),
+                            buildNextExpressionList(list, DynamicFinderCriteria.Compound.NextExpression.Operator.OR));
+                }
+            }
+
+
+            // Add next expression to the expressions list.
+            private static <T> void add(List<DynamicFinderCriteria.Condition> list,
+                             String property,
+                             DynamicFinderCriteria.Condition.Operator criteriaOperator,
+                             Class<T> valueClass,
+                             T... value) {
+                int size = value == null ? 0 : value.length;
+                @SuppressWarnings("unchecked")
+                DynamicFinderCriteria.Condition.Parameter<T>[] values
+                        = new DynamicFinderCriteria.Condition.Parameter[size];
+                for (int i = 0; i < size; i++) {
+                    values[i] = DynamicFinderCriteria.Condition.Parameter.Value.build(valueClass, value[i]);
+                }
+                list.add(DynamicFinderCriteria.Condition.build(property, criteriaOperator, values));
             }
         }
 
@@ -307,7 +248,7 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
     public static class Order implements RepositoryFilter.Order {
 
         // Order part of the Helidon dynamic finder query. This shall be passed to DynamicFinder instance.
-        private Optional<DynamicFinderOrder> order;
+        private final Optional<DynamicFinderOrder> order;
 
         private Order(Optional<DynamicFinderOrder> order) {
             this.order = order;
@@ -318,7 +259,7 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
         }
 
         /**
-         * Builder for Pokemon entity class filtering criteria.
+         * Builder for Pokemon entity class filtering ordering.
          * Entity has following atributes:<ul>
          * <li>id</li>
          * <li>name</li>
@@ -333,51 +274,41 @@ public class PokemonRepositoryFilter implements RepositoryFilter {
                 orders = new LinkedList<>();
             }
 
-            public Builder idAsc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, ID));
-                return this;
+            /**
+             * Set ordering rule for provided entity attribute.
+             *
+             * @param name  name of the entity attribute
+             * @param order ordering keyword
+             * @return ordering builder
+             */
+            public Builder order(String name, String order) {
+                Objects.requireNonNull(name, "Name of entity attribute is null");
+                Objects.requireNonNull(order, "Ordering keyword is null.");
+                return order(name, DynamicFinderOrder.Order.Method.parse(order));
             }
 
-            public Builder idDesc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, ID));
-                return this;
-            }
-
-            public Builder nameAsc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, NAME));
-                return this;
-            }
-
-            public Builder nameDesc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, NAME));
-                return this;
-            }
-
-            public Builder typeIdAsc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, TYPE_ID));
-                return this;
-            }
-
-            public Builder typeIdDesc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, TYPE_ID));
-                return this;
-            }
-
-            public Builder typeNameAsc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.ASC, TYPE_NAME));
-                return this;
-            }
-
-            public Builder typeNameDesc() {
-                orders.add(DynamicFinderOrder.Order.build(DynamicFinderOrder.Order.Method.DESC, TYPE_NAME));
+            /**
+             * Set ordering rule for provided entity attribute.
+             *
+             * @param name  name of the entity attribute
+             * @param order ordering method
+             * @return ordering builder
+             */
+            public Builder order(String name, DynamicFinderOrder.Order.Method order) {
+                Objects.requireNonNull(name, "Name of entity attribute is null");
+                Objects.requireNonNull(order, "Ordering method is null.");
+                // Case-insensitive entity attribute matching.
+                String attributeName = ENTITY_ATTRS.get(name);
+                if (attributeName == null) {
+                    throw new IllegalArgumentException(String.format("Attribute %s was not found in entity %s.", name, ENTITY));
+                }
+                orders.add(DynamicFinderOrder.Order.build(order, attributeName));
                 return this;
             }
 
             @Override
             public Order build() {
-                return new Order(
-                        orders.isEmpty() ? Optional.empty() : Optional.of(DynamicFinderOrder.build(orders))
-                );
+                return new Order(orders.isEmpty() ? Optional.empty() : Optional.of(DynamicFinderOrder.build(orders)));
             }
 
         }

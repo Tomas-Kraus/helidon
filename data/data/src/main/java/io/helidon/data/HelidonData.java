@@ -25,9 +25,11 @@ public class HelidonData {
      *
      * @param repositoryClass data repository interface or abstract class to create
      * @return new data repository instance
+     * @param <E> type of the entity
+     * @param <ID> type of the ID
      * @param <T> target data repository type
      */
-    public static <T extends GenericRepository> T createRepository(Class <? super T> repositoryClass) {
+    public static <E, ID, T extends GenericRepository<E, ID>> T createRepository(Class <? super T> repositoryClass) {
         // TODO: Real imlpementation, this is just a placeholder
         T repository = null;
         return repository;

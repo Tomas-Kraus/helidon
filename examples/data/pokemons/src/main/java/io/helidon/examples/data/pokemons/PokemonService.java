@@ -15,9 +15,14 @@
  */
 package io.helidon.examples.data.pokemons;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import io.helidon.common.http.Http;
 import io.helidon.common.media.type.MediaTypes;
 import io.helidon.data.HelidonData;
+import io.helidon.data.processor.DynamicFinderOrder;
 import io.helidon.data.repository.RepositoryFilter;
 import io.helidon.examples.data.pokemons.model.Pokemon;
 import io.helidon.examples.data.pokemons.repository.PokemonRepository;
@@ -60,9 +65,9 @@ public class PokemonService implements HttpService {
                 // Get pokemons by Type name
                 .get("/pokemon/type/{name}", this::getPokemonsByType)
                 // Get pokemon by filtering keyword
-                .get("/pokemon/filter/{filter}/{value}", this::getPokemonsByFilter)
+                .get("/pokemon/filter", this::getPokemonsByFilter)
                 // Get pokemon by name and sort depending on request argument
-                .get("/pokemon/sort/{name}/{order}", this::getPokemonsByNameInVariableOrder)
+                .get("/pokemon/sort", this::getPokemonsByNameInVariableOrder)
                 // Create new pokemon
                 .post("/pokemon", Handler.create(Pokemon.class, this::insertPokemon))
                 // Update name of existing pokemon
@@ -224,22 +229,11 @@ public class PokemonService implements HttpService {
      * @param response server response
      */
     private void getPokemonsByFilter(ServerRequest request, ServerResponse response) {
-        String filter = request.path().pathParameters().value("filter");
-        String value = request.path().pathParameters().value("value");
-        PokemonRepositoryFilter.Criteria.Builder criteriaBuilder = PokemonRepositoryFilter.Criteria.builder();
-        switch (filter) {
-            // "value" references method findByFilter prototype argument name
-            case "prefix" -> criteriaBuilder.nameStartsWith("value");
-            case "suffix" -> criteriaBuilder.nameEndsWith("value");
-            case "substring" -> criteriaBuilder.nameContains("value");
-            case "not_prefix" -> criteriaBuilder.not().nameStartsWith("value");
-            case "not_suffix" -> criteriaBuilder.not().nameEndsWith("value");
-            case "not_substring" -> criteriaBuilder.not().nameContains("value");
-            case "prefix_suffix" -> criteriaBuilder
-                    .nameStartsWith("value")
-                    .or().nameEndsWith("value");
-        }
-        response.send(pokemonRepository.findByFilter(criteriaBuilder.build(), value));
+        response.send(pokemonRepository.findByFilter(
+                PokemonRepositoryFilter.Criteria.builder()
+                        .name(request.query().all("name", () -> Collections.EMPTY_LIST))
+                        .typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
+                        .build());
     }
 
     /**
@@ -249,18 +243,50 @@ public class PokemonService implements HttpService {
      * @param response server response
      */
     private void getPokemonsByNameInVariableOrder(ServerRequest request, ServerResponse response) {
-        String name = request.path().pathParameters().value("name");
-        String order = request.path().pathParameters().value("order");
-        PokemonRepositoryFilter.Order.Builder orderBuilder = PokemonRepositoryFilter.Order.builder();
-        if (order != null) {
-            switch (order) {
-                case "asc" -> orderBuilder.nameAsc();
-                case "desc" -> orderBuilder.nameDesc();
-            }
-        } else {
-            orderBuilder.nameAsc();
-        }
-        response.send(pokemonRepository.findByNameOrderByFilter(orderBuilder.build(), name));
+        response.send(pokemonRepository.findByNameOrderByFilter(
+                PokemonRepositoryFilter.Order.builder()
+                        .order("name", request.query().first("order").orElse("asc"))
+                        .order("type", DynamicFinderOrder.Order.Method.DESC)
+                        .build()));
+    }
+
+    /**
+     * Find pokemons using both custom criteria and ordering filters.
+     *
+     * @param request  server request
+     * @param response server response
+     */
+    private void getPokemonsAvhHpByFilter(ServerRequest request, ServerResponse response) {
+        response.send(pokemonRepository.findAvgHpByFilterOrderByFilter(
+                PokemonRepositoryFilter.Criteria.builder()
+                        .name(request.query().all("name", () -> Collections.EMPTY_LIST))
+                        .typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
+                        .build(),
+                PokemonRepositoryFilter.Order.builder()
+                        .order("name", request.query().first("order").orElse("asc"))
+                        .build()));
+    }
+
+    /**
+     * Find pokemon names using both custom criteria and ordering filters.
+     * Another API example with compound filter.
+     *
+     * @param request  server request
+     * @param response server response
+     */
+    private void getPokemonNamesByFilter(ServerRequest request, ServerResponse response) {
+        response.send(pokemonRepository.findNameByFilter(
+                PokemonRepositoryFilter.builder()
+                        .criteria(
+                                PokemonRepositoryFilter.Criteria.builder()
+                                        .name(request.query().all("name", () -> Collections.EMPTY_LIST))
+                                        .typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
+                                        .build())
+                        .order(
+                                PokemonRepositoryFilter.Order.builder()
+                                        .order("name", request.query().first("order").orElse("asc"))
+                                        .build())
+                        .build()));
     }
 
 }

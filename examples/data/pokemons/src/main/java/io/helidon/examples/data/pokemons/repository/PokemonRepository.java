@@ -67,20 +67,20 @@ public interface PokemonRepository extends CrudRepository<Pokemon, Integer> {
     //         of RepositoryFilter in method prototype filter argument.
     // TODO: How to specify projection part of the query?
     //       - use method name prefix? -> findMaxAgeByFilter :: parse everything up to 'By' delimiter
-    @Filter(PokemonRepositoryFilter.class)
-    List<Pokemon> findByFilter(RepositoryFilter.Criteria filter, String value);
+    List<Pokemon> findByFilter(RepositoryFilter.Criteria filter);
 
     // Query with custom filtering: Dynamic ordering
     // Projection and criteria are built based on method name
-    @Filter(PokemonRepositoryFilter.class)
-    List<Pokemon> findByNameOrderByFilter(RepositoryFilter.Order filter, String name);
+    List<Pokemon> findByNameOrderByFilter(RepositoryFilter.Order filter);
 
     // There must be a chance to pass both criteria and ordering rules together.
     // Unfortunately using 'By' keyword to separate projection and rest of the query (criteria and ordring)
     // needs another information to be passed to the parser and code generator
     // - type of the filter attribute to distinguish whether just criteria or both criteria and ordring
     //   are passed
-    @Filter(PokemonRepositoryFilter.class)
-    List<Pokemon> findAvgAgeByFilter(RepositoryFilter filter, String name);
+    List<Pokemon> findAvgHpByFilterOrderByFilter(RepositoryFilter.Criteria criteria, RepositoryFilter.Order order);
+
+    // Another example of passing both criteria and ordering rules together.
+    List<Pokemon> findNameByFilter(RepositoryFilter filter);
 
 }

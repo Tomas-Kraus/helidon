@@ -21,6 +21,7 @@ package io.helidon.data.processor;
  */
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Run the AST to target query String transformation process.
@@ -94,37 +95,64 @@ class TransformQuery implements DynamicFinderStatement {
         transformation.finishSelection(selection);
     }
 
+    // Descend trough criteria subtree of the AST and call criteria related events.
     private void transformCriteria() {
         model.criteria().ifPresent(
                 criteria -> {
                     transformation.startCriteria(criteria);
-                    // First expression is always present.
-                    transformation.startFirstCriteriaExpression(criteria.first());
-                    final DynamicFinderCriteria.Expression first =  criteria.first();
-                    transformation.firstCriteriaExpressionProperty(first.property());
-                    transformation.firstCriteriaExpressionNot(first.not());
-                    transformation.startFirstCriteriaExpressionCondition(first.condition());
-                    transformation.firstCriteriaExpressionConditionOperator(first.condition().operator());
-                    first.condition().values().forEach(
-                            transformation::firstCriteriaExpressionConditionValue);
-                    transformation.finishFirstCriteriaExpressionCondition(first.condition());
-                    transformation.finishFirstCriteriaExpression(criteria.first());
-                    criteria.next().forEach(
-                            next -> {
-                                transformation.startNextCriteriaExpression(next);
-                                transformation.nextCriteriaExpressionOperator(next.operator());
-                                transformation.nextCriteriaExpressionProperty(next.property());
-                                transformation.nextCriteriaExpressionNot(next.not());
-                                transformation.startNextCriteriaExpressionCondition(next.condition());
-                                transformation.nextCriteriaExpressionConditionOperator(next.condition().operator());
-                                next.condition().values().forEach(
-                                        transformation::nextCriteriaExpressionConditionValue);
-                                transformation.finishNextCriteriaExpressionCondition(next.condition());
-                                transformation.finishNextCriteriaExpression(next);
-                            }
-                    );
+                    transformExpression(criteria.expression());
                     transformation.finishCriteria(criteria);
                 });
+    }
+
+    // Descend trough criteria expression subtree.
+    private void transformExpression(DynamicFinderCriteria.Expression expression) {
+        switch (expression.type()) {
+            // Leaf node of the expression subtree
+            case CONDITION -> {
+                DynamicFinderCriteria.Condition condition = expression.as(DynamicFinderCriteria.Condition.class);
+                transformation.startCriteriaCondition(condition);
+                transformation.criteriaConditionNot(condition.not());
+                transformation.criteriaConditionProperty(condition.property());
+                transformation.criteriaConditionOperator(condition.operator());
+                condition.values().forEach(
+                        value -> transformCriteriaExpressionConditionParameter(
+                                value,
+                                transformation::criteriaConditionValue,
+                                transformation::criteriaConditionArgument
+                        ));
+                transformation.finishCriteriaCondition(condition);
+            }
+            case COMPOUND -> {
+                DynamicFinderCriteria.Compound compound = expression.as(DynamicFinderCriteria.Compound.class);
+                transformation.startCriteriaCompoundExpression(compound);
+                transformation.startFirstCriteriaCompoundExpression(compound.first());
+                transformExpression(compound.first());
+                transformation.finishFirstCriteriaCompoundExpression(compound.first());
+                compound.next().forEach(
+                        next -> {
+                            transformation.criteriaCompoundExpressionOperator(next.operator());
+                            transformation.startNextCriteriaCompoundExpression(next);
+                            transformExpression(next);
+                            transformation.finishNextCriteriaCompoundExpression(next);
+                        });
+                transformation.finishCriteriaCompoundExpression(compound);
+            }
+        }
+    }
+
+    // Call criteria expression condition parameter handler for proper child class of the parameter
+    private static void transformCriteriaExpressionConditionParameter(
+            DynamicFinderCriteria.Condition.Parameter<?> parameter,
+            Consumer<DynamicFinderCriteria.Condition.Parameter.Value<?>> valueAction,
+            Consumer<DynamicFinderCriteria.Condition.Parameter.Argument<?>> argumentAction
+    ) {
+        switch (parameter.type()) {
+        case VALUE -> valueAction.accept(
+                (DynamicFinderCriteria.Condition.Parameter.Value<?>) parameter);
+        case ARGUMENT -> argumentAction.accept(
+                (DynamicFinderCriteria.Condition.Parameter.Argument<?>) parameter);
+        }
     }
 
     private void transformOrder() {

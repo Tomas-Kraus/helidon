@@ -95,8 +95,7 @@ public interface QueryTransformation {
     /**
      * Optional event with optional parameter of the selection projection method.
      * This method is called only when specific projection was set in the AST
-     * and projection method has an argument, see {@link DynamicFinderSelection.Projection.Method.TOP}
-     * as an example of such method.
+     * and projection method has an argument, see {@link DynamicFinderSelection.Projection.Method}.
      *
      * @param parameter  optional parameter of the selection projection method
      */
@@ -123,158 +122,133 @@ public interface QueryTransformation {
     }
 
     /**
-     * Optional initial event of first criteria expression.
+     * Optional initial event of criteria condition.
      * This method is called always when optional criteria AST subtree exists.
      *
-     * @param expression first criteria expression
+     * @param condition criteria condition
      */
-    default void startFirstCriteriaExpression(DynamicFinderCriteria.Expression expression) {
+    default void startCriteriaCondition(DynamicFinderCriteria.Condition condition) {
     }
 
     /**
-     * Optional event of first criteria expression property.
+     * Optional event of criteria condition negation.
      * This method is called always when optional criteria AST subtree exists.
      *
-     * @param property first criteria expression property
+     * @param not criteria condition negation. Value of {@code true} when condition
+     *            is negated or {@code false} otherwise
      */
-    default void firstCriteriaExpressionProperty(String property) {
+    default void criteriaConditionNot(boolean not) {
     }
 
     /**
-     * Optional event of first criteria expression condition negation.
+     * Optional event of criteria condition property.
      * This method is called always when optional criteria AST subtree exists.
      *
-     * @param not value of {@code true} when criteria should be negated or {@code false} otherwise
+     * @param property criteria condition property
      */
-    default void firstCriteriaExpressionNot(boolean not) {
+    default void criteriaConditionProperty(String property) {
     }
 
     /**
-     * Optional event of first criteria expression condition.
+     * Optional event of criteria condition operator.
      * This method is called always when optional criteria AST subtree exists.
      *
-     * @param condition first criteria expression condition
+     * @param operator criteria condition operator
      */
-    default void startFirstCriteriaExpressionCondition(DynamicFinderCriteria.Expression.Condition condition) {
+    default void criteriaConditionOperator(DynamicFinderCriteria.Condition.Operator operator) {
     }
 
     /**
-     * Optional event of first criteria expression condition operator.
-     * This method is called always when optional criteria AST subtree exists.
-     *
-     * @param operator first criteria expression condition operator
-     */
-    default void firstCriteriaExpressionConditionOperator(DynamicFinderCriteria.Expression.Condition.Operator operator) {
-    }
-
-    /**
-     * Optional event of first criteria expression condition value.
+     * Optional event of criteria condition parameter as direct value.
      * This method is called always when optional criteria AST subtree exists.
      * Multiple condition values may exist.
      *
-     * @param value first criteria expression condition value
+     * @param value criteria condition parameter as direct value
      */
-    default void firstCriteriaExpressionConditionValue(String value) {
+    default void criteriaConditionValue(DynamicFinderCriteria.Condition.Parameter.Value<?> value) {
     }
 
     /**
-     * Optional event of first criteria expression condition.
+     * Optional event of criteria condition parameter as method argument reference.
      * This method is called always when optional criteria AST subtree exists.
-     *
-     * @param condition first criteria expression condition
-     */
-    default void finishFirstCriteriaExpressionCondition(DynamicFinderCriteria.Expression.Condition condition) {
-    }
-
-    /**
-     * Optional final event of first criteria expression.
-     * This method is called always when optional criteria AST subtree exists.
-     *
-     * @param expression first criteria expression
-     */
-    default void finishFirstCriteriaExpression(DynamicFinderCriteria.Expression expression) {
-    }
-
-    /**
-     * Optional initial event of next criteria expression.
-     * This method is called when optional criteria AST subtree exists for each next expression.
-     *
-     * @param expression first criteria expression
-     */
-    default void startNextCriteriaExpression(DynamicFinderCriteria.Expression expression) {
-    }
-
-    /**
-     * Optional event of next criteria expression logical operator.
-     * This method is called when optional criteria AST subtree exists for each next expression.
-     *
-     * @param operator first criteria expression property
-     */
-    default void nextCriteriaExpressionOperator(DynamicFinderCriteria.NextExpression.Operator operator) {
-    }
-
-    /**
-     * Optional event of next criteria expression property.
-     * This method is called when optional criteria AST subtree exists for each next expression.
-     *
-     * @param property first criteria expression property
-     */
-    default void nextCriteriaExpressionProperty(String property) {
-    }
-
-    /**
-     * Optional event of next criteria expression condition negation.
-     * This method is called when optional criteria AST subtree exists for each next expression.
-     *
-     * @param not value of {@code true} when criteria should be negated or {@code false} otherwise
-     */
-    default void nextCriteriaExpressionNot(boolean not) {
-    }
-
-    /**
-     * Optional event of next criteria expression condition.
-     * This method is called when optional criteria AST subtree exists for each next expression.
-     *
-     * @param condition first criteria expression condition
-     */
-    default void startNextCriteriaExpressionCondition(DynamicFinderCriteria.Expression.Condition condition) {
-    }
-
-    /**
-     * Optional event of next criteria expression condition operator.
-     * This method is called when optional criteria AST subtree exists for each next expression.
-     *
-     * @param operator first criteria expression condition operator
-     */
-    default void nextCriteriaExpressionConditionOperator(DynamicFinderCriteria.Expression.Condition.Operator operator) {
-    }
-
-    /**
-     * Optional event of next criteria expression condition value.
-     * This method is called when optional criteria AST subtree exists for each next expression.
      * Multiple condition values may exist.
      *
-     * @param value first criteria expression condition value
+     * @param argument criteria condition parameter as method argument reference
      */
-    default void nextCriteriaExpressionConditionValue(String value) {
+    default void criteriaConditionArgument(DynamicFinderCriteria.Condition.Parameter.Argument<?> argument) {
     }
 
     /**
-     * Optional event of next criteria expression condition.
-     * This method is called when optional criteria AST subtree exists for each next expression.
+     * Optional final event of criteria condition.
+     * This method is called always when optional criteria AST subtree exists.
      *
-     * @param condition first criteria expression condition
+     * @param condition criteria condition
      */
-    default void finishNextCriteriaExpressionCondition(DynamicFinderCriteria.Expression.Condition condition) {
+    default void finishCriteriaCondition(DynamicFinderCriteria.Condition condition) {
     }
 
     /**
-     * Optional final event of next criteria expression.
-     * This method is called when optional criteria AST subtree exists for each next expression.
+     * Optional initial event of criteria compound expression.
+     * This method is called always when optional criteria AST subtree exists.
      *
-     * @param expression first criteria expression
+     * @param expression criteria compound expression
      */
-    default void finishNextCriteriaExpression(DynamicFinderCriteria.Expression expression) {
+    default void startCriteriaCompoundExpression(DynamicFinderCriteria.Compound expression) {
+    }
+
+    /**
+     * Optional initial event of first criteria compound expression item.
+     * This method is called always when optional criteria AST subtree exists.
+     *
+     * @param expression first item of criteria compound expression
+     */
+    default void startFirstCriteriaCompoundExpression(DynamicFinderCriteria.Expression expression) {
+    }
+
+    /**
+     * Optional final event of first criteria compound expression item.
+     * This method is called always when optional criteria AST subtree exists.
+     *
+     * @param expression first item of criteria compound expression
+     */
+    default void finishFirstCriteriaCompoundExpression(DynamicFinderCriteria.Expression expression) {
+    }
+
+    /**
+     * Optional initial event of next criteria compound expression item.
+     * This method is called always when optional criteria AST subtree exists.
+     *
+     * @param expression next item of criteria compound expression
+     */
+    default void startNextCriteriaCompoundExpression(DynamicFinderCriteria.Compound.NextExpression expression) {
+    }
+
+    /**
+     * Optional final event of next criteria compound expression item.
+     * This method is called always when optional criteria AST subtree exists.
+     *
+     * @param expression next item of criteria compound expression
+     */
+    default void finishNextCriteriaCompoundExpression(DynamicFinderCriteria.Compound.NextExpression expression) {
+    }
+
+    /**
+     * Optional event of next criteria compound expression joining logical operator.
+     * This event is called between two joined expressions processing.
+     * This method is called always when optional criteria AST subtree exists.
+     *
+     * @param operator compound expression joining logical operator
+     */
+    default void criteriaCompoundExpressionOperator(DynamicFinderCriteria.Compound.NextExpression.Operator operator) {
+    }
+
+    /**
+     * Optional final event of criteria compound expression.
+     * This method is called always when optional criteria AST subtree exists.
+     *
+     * @param expression criteria compound expression
+     */
+    default void finishCriteriaCompoundExpression(DynamicFinderCriteria.Compound expression) {
     }
 
     /**
