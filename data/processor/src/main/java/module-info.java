@@ -25,6 +25,8 @@ module io.helidon.data.processor {
     requires java.logging;
     requires io.helidon.data;
     requires io.helidon.common;
+    requires io.helidon.data.runtime;
+    requires jakarta.persistence;
 
     exports io.helidon.data.processor;
     exports io.helidon.data.processor.spi;

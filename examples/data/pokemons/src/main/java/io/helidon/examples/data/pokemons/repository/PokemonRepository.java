@@ -15,14 +15,15 @@
  */
 package io.helidon.examples.data.pokemons.repository;
 
-import io.helidon.data.annotation.Filter;
 import io.helidon.data.annotation.NativeQuery;
 import io.helidon.data.annotation.Query;
 import io.helidon.data.annotation.Repository;
 import io.helidon.data.repository.CrudRepository;
 import io.helidon.data.repository.RepositoryFilter;
 import io.helidon.examples.data.pokemons.model.Pokemon;
-import io.helidon.examples.data.pokemons.repository.generated.PokemonRepositoryFilter;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonCriteria;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonFilter;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonOrder;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,20 +68,20 @@ public interface PokemonRepository extends CrudRepository<Pokemon, Integer> {
     //         of RepositoryFilter in method prototype filter argument.
     // TODO: How to specify projection part of the query?
     //       - use method name prefix? -> findMaxAgeByFilter :: parse everything up to 'By' delimiter
-    List<Pokemon> findByFilter(RepositoryFilter.Criteria filter);
+    List<Pokemon> findByFilter(PokemonCriteria filter);
 
     // Query with custom filtering: Dynamic ordering
     // Projection and criteria are built based on method name
-    List<Pokemon> findByNameOrderByFilter(RepositoryFilter.Order filter);
+    List<Pokemon> findByNameOrderByFilter(PokemonOrder filter);
 
     // There must be a chance to pass both criteria and ordering rules together.
     // Unfortunately using 'By' keyword to separate projection and rest of the query (criteria and ordring)
     // needs another information to be passed to the parser and code generator
     // - type of the filter attribute to distinguish whether just criteria or both criteria and ordring
     //   are passed
-    List<Pokemon> findAvgHpByFilterOrderByFilter(RepositoryFilter.Criteria criteria, RepositoryFilter.Order order);
+    List<Pokemon> findAvgHpByFilterOrderByFilter(PokemonCriteria criteria, PokemonOrder order);
 
     // Another example of passing both criteria and ordering rules together.
-    List<Pokemon> findNameByFilter(RepositoryFilter filter);
+    List<Pokemon> findNameByFilter(PokemonFilter filter);
 
 }

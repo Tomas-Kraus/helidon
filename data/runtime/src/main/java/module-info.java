@@ -22,4 +22,6 @@ module io.helidon.data.runtime {
     requires java.logging;
     requires java.sql;
     requires io.helidon.data;
+
+    exports io.helidon.data.runtime;
 }

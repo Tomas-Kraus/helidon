@@ -4,6 +4,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.helidon.data.runtime.DynamicFinder;
+
 class MethodParserImpl extends MethodParser {
 
     // Parser for the selection part of the method name.
@@ -26,7 +28,7 @@ class MethodParserImpl extends MethodParser {
         this.sortedEntityProperties = entityProperties.stream()
                 .sorted(Comparator.comparingInt(String::length).reversed())
                 .collect(Collectors.toList());
-        this.selectionParser = new MethodSelectionParser(DynamicFinder.builder(), sortedEntityProperties);
+        this.selectionParser = new MethodSelectionParser(DynamicFinderBuilder.builder(), sortedEntityProperties);
         this.criteriaParser = new MethodCriteriaParser(sortedEntityProperties);
         this.orderParser = new MethodOrderParser(entityProperties);
         this.reset = this::firstReset;
@@ -39,7 +41,7 @@ class MethodParserImpl extends MethodParser {
 
     // Reset parser to be used for another method name parsing. Active from 2nd call of parse method.
     private void nextReset() {
-        selectionParser.reset(DynamicFinder.builder());
+        selectionParser.reset(DynamicFinderBuilder.builder());
         criteriaParser.reset();
         orderParser.reset();
     }

@@ -18,6 +18,9 @@ package io.helidon.data.processor;
 import java.util.Collections;
 import java.util.List;
 
+import io.helidon.data.runtime.DynamicFinder;
+import io.helidon.data.runtime.DynamicFinderSelection;
+
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;

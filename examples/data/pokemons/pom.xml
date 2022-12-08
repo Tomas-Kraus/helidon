@@ -72,6 +72,11 @@
             <groupId>io.helidon.logging</groupId>
             <artifactId>helidon-logging-jul</artifactId>
         </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -82,6 +87,34 @@
                 <executions>
                     <execution>
                         <id>copy-libs</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>entities</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>java</executable>
+                            <arguments>
+                                <!--argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8787</argument-->
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>io.helidon.data.processor.ProcessorMain</argument>
+                                <argument>io.helidon.examples.data.pokemons.model.Type</argument>
+                                <argument>io.helidon.examples.data.pokemons.model.Pokemon</argument>
+                                <argument>io.helidon.examples.data.pokemons.model.Trainer</argument>
+                                <argument>io.helidon.examples.data.pokemons.repository.TypeRepository</argument>
+                                <argument>io.helidon.examples.data.pokemons.repository.PokemonRepository</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

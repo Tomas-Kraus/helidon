@@ -54,6 +54,11 @@ public class Pokemon {
     @Column(name = "ID_TYPE")
     private Type type;
 
+    @ManyToOne()
+    @JoinColumn(name = "idTrainer")
+    @Column(name = "ID_TRAINER") private
+    Trainer trainer;
+
     /**
      * Create empty Pokemon with all values set to {@code null}.
      */
@@ -85,6 +90,14 @@ public class Pokemon {
 
     public void setType(Type idType) {
         this.type = type;
+    }
+
+    public Trainer getTrainer() {
+        return trainer;
+    }
+
+    public void setTrainer(Trainer trainer) {
+        this.trainer = trainer;
     }
 
 }

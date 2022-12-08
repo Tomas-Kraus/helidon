@@ -18,6 +18,8 @@ package io.helidon.data.processor;
 import java.util.List;
 import java.util.Set;
 
+import io.helidon.data.runtime.DynamicFinderOrder;
+
 /**
  * Data repository query method parser of the order part of the method name.
  */
@@ -25,7 +27,7 @@ class MethodOrderParser extends MethodAbstractParser {
 
     @FunctionalInterface
     private interface OrderBy {
-        DynamicFinderOrder.Builder orderBy(String property);
+        DynamicFinderOrderBuilder orderBy(String property);
     }
     private static ParserState createFinalOrderPropertiesState() {
         ParserState state = new ParserState(ParserTransition.EmptyTransition.getInstance());
@@ -106,7 +108,7 @@ class MethodOrderParser extends MethodAbstractParser {
     }
 
     private OrderBy builder;
-    private DynamicFinderOrder.Builder orderBuilder;
+    private DynamicFinderOrderBuilder orderBuilder;
     // Root (starting) node of the order properties parser.
     private final ParserState propertiesRoot;
     // Root (starting) node of the ordering direction parser.
@@ -135,13 +137,13 @@ class MethodOrderParser extends MethodAbstractParser {
         this.property = null;
     }
 
-    ParserState.FinalState parse(DynamicFinderSelection.Builder builder, ParserContext context) {
+    ParserState.FinalState parse(DynamicFinderSelectionBuilder builder, ParserContext context) {
         // Set builder instance retrieved from selection part parser.
         this.builder = builder::orderBy;
         return parse(context);
     }
 
-    ParserState.FinalState parse(DynamicFinderCriteria.Builder builder, ParserContext context) {
+    ParserState.FinalState parse(DynamicFinderCriteriaBuilder builder, ParserContext context) {
         // Set selection builder instance retrieved from criteria part parser.
         this.builder = builder::orderBy;
         return parse(context);

@@ -33,12 +33,16 @@ package io.helidon.data.processor;
 import java.util.List;
 import java.util.Optional;
 
+import io.helidon.data.runtime.DynamicFinder;
+import io.helidon.data.runtime.DynamicFinderCriteria;
+import io.helidon.data.runtime.DynamicFinderOrder;
+import io.helidon.data.runtime.DynamicFinderSelection;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static io.helidon.data.processor.TestHelper.criteriaConditionValue;
 import static io.helidon.data.processor.TestHelper.criteriaConditionValues;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -65,7 +69,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(1)
     public void testGetSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .build();
         evaluateResultOnly(query, DynamicFinderSelection.Method.GET);
@@ -78,7 +82,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(1)
     public void testFindSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .build();
         evaluateResultOnly(query, DynamicFinderSelection.Method.FIND);
@@ -104,7 +108,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetCountSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .count()
                 .build();
@@ -119,7 +123,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindCountSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .count()
                 .build();
@@ -134,7 +138,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetCountDistinctSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .countDistinct()
                 .build();
@@ -149,7 +153,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindCountDistinctSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .countDistinct()
                 .build();
@@ -164,7 +168,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetDistinctSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .distinct()
                 .build();
@@ -179,7 +183,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindDistinctSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .distinct()
                 .build();
@@ -194,7 +198,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetMaxSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .max()
                 .build();
@@ -209,7 +213,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindMaxSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .max()
                 .build();
@@ -224,7 +228,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetMinSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .min()
                 .build();
@@ -239,7 +243,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindMinSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .min()
                 .build();
@@ -254,7 +258,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetSumSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .sum()
                 .build();
@@ -269,7 +273,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindSumSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .sum()
                 .build();
@@ -284,7 +288,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetAvgSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .avg()
                 .build();
@@ -299,7 +303,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindAvgSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .avg()
                 .build();
@@ -329,7 +333,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testGetTopSelection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .top(10)
                 .build();
@@ -344,7 +348,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(2)
     public void testFindTopelSection() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .top(10)
                 .build();
@@ -362,7 +366,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(3)
     public void testGetBy() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name", "nameValue")
                 .build();
@@ -378,7 +382,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(3)
     public void testFindBy() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name", "nameValue")
                 .build();
@@ -391,7 +395,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByAfter() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .after("nameValue")
@@ -405,7 +409,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotAfter() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -420,7 +424,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByBefore() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .before("nameValue")
@@ -434,7 +438,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotBefore() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -449,7 +453,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByContains() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .contains("nameValue")
@@ -463,7 +467,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotContains() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -478,7 +482,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByStarts() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .starts("nameValue")
@@ -492,7 +496,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotStarts() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -507,7 +511,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByEnds() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .ends("nameValue")
@@ -521,7 +525,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotEnds() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -536,7 +540,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByEq() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .eq("nameValue")
@@ -550,7 +554,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotEq() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -565,7 +569,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByGt() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .gt("nameValue")
@@ -579,7 +583,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotGt() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -593,7 +597,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByGte() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .gte("nameValue")
@@ -607,7 +611,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotGte() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -622,7 +626,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByLt() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .lt("nameValue")
@@ -636,7 +640,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotLt() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -650,7 +654,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByLte() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .lte("nameValue")
@@ -664,7 +668,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotLte() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -678,7 +682,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByLike() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .like("nameValue")
@@ -692,7 +696,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotLike() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -707,7 +711,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByIlike() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .iLike("nameValue")
@@ -721,7 +725,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotIlike() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -736,7 +740,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByIn() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .in("nameValue")
@@ -750,7 +754,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotIn() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -765,7 +769,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByBetween() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .between("from", "to")
@@ -779,7 +783,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotBetween() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .find()
                 .by("name")
                 .not()
@@ -794,7 +798,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNull() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .isNull()
@@ -808,7 +812,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotNull() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .not()
@@ -823,7 +827,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByEmpty() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .empty()
@@ -837,7 +841,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotEmpty() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .not()
@@ -852,7 +856,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByTrue() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .isTrue()
@@ -867,7 +871,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotTrue() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .not()
@@ -883,7 +887,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByFalse() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .isFalse()
@@ -898,7 +902,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(4)
     public void testGetByNotFalse() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .not()
@@ -914,7 +918,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(5)
     public void testGetByPropertyAndLikeOrTrue() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name")
                 .eq("nameValue")
@@ -975,7 +979,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(6)
     public void testGetOrderByTime() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name", "nameValue")
                 .orderBy("time")
@@ -989,7 +993,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(6)
     public void testGetOrderByTimeAsc() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name", "nameValue")
                 .orderBy("time")
@@ -1004,7 +1008,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(6)
     public void testGetOrderByTimeDesc() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .by("name", "nameValue")
                 .orderBy("time")
@@ -1019,7 +1023,7 @@ public class DynamicFinderBuilderTest {
     @Test
     @Order(6)
     public void testGetOrderByTimeDescAndName() {
-        DynamicFinder query = DynamicFinder.builder()
+        DynamicFinder query = DynamicFinderBuilder.builder()
                 .get()
                 .orderBy("time")
                 .desc()

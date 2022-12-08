@@ -17,12 +17,18 @@ package io.helidon.data.processor;
 
 import java.util.List;
 
+import io.helidon.data.runtime.DynamicFinder;
+
 // Purpose of this class is just separation of public API from MethodParserImpl.
 // It should be reduced to a single method which produces translated target platform query.
 /**
  * Data repository query method parser.
  */
 public abstract class MethodParser {
+
+    public static final MethodParser parser(List<String> entityProperties) {
+        return new MethodParserImpl(entityProperties);
+    }
 
     /**
      * Parse data repository query method.

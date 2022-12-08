@@ -17,6 +17,11 @@ package io.helidon.data.processor;
 
 import java.util.List;
 
+import io.helidon.data.runtime.DynamicFinder;
+import io.helidon.data.runtime.DynamicFinderCriteria;
+import io.helidon.data.runtime.DynamicFinderOrder;
+import io.helidon.data.runtime.DynamicFinderSelection;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -15,7 +15,6 @@
  */
 package io.helidon.data.jpa.processor;
 
-import io.helidon.data.processor.DynamicFinder;
 import io.helidon.data.processor.DynamicFinderStatement;
 import io.helidon.data.processor.MethodParser;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,7 @@ public class QueryCriteriaTransformTest {
             List<String> entityProperties,
             String methodName,
             List<String> methodArguments) {
-        MethodParser parser = DynamicFinder.parser(entityProperties);
+        MethodParser parser = MethodParser.parser(entityProperties);
         return parser.parse(entityName, methodName, methodArguments);
     }
 

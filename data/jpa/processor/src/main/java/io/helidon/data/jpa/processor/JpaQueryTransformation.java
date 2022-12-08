@@ -15,11 +15,11 @@
  */
 package io.helidon.data.jpa.processor;
 
-import io.helidon.data.processor.DynamicFinderCriteria;
-import io.helidon.data.processor.DynamicFinderOrder;
-import io.helidon.data.processor.DynamicFinderSelection;
-import io.helidon.data.processor.DynamicFinderSelection.Projection;
 import io.helidon.data.processor.QueryTransformation;
+import io.helidon.data.runtime.DynamicFinderCriteria;
+import io.helidon.data.runtime.DynamicFinderOrder;
+import io.helidon.data.runtime.DynamicFinderSelection;
+import io.helidon.data.runtime.DynamicFinderSelection.Projection;
 
 import java.util.LinkedList;
 import java.util.List;

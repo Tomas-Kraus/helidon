@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.helidon.data.runtime.DynamicFinder;
+
 class MethodAbstractParser {
 
     /**

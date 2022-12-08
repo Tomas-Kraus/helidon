@@ -15,6 +15,10 @@
  */
 package io.helidon.data.processor;
 
+import io.helidon.data.runtime.DynamicFinder;
+import io.helidon.data.runtime.DynamicFinderCriteria;
+import io.helidon.data.runtime.DynamicFinderSelection;
+
 import java.util.List;
 import java.util.logging.Logger;
 

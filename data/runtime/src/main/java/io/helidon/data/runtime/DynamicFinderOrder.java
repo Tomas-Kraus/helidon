@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.data.processor;
+package io.helidon.data.runtime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public class DynamicFinderOrder {
                 this.keyword = keyword;
             }
 
-            String keyword() {
+            public String keyword() {
                 return keyword;
             }
 
@@ -141,109 +141,6 @@ public class DynamicFinderOrder {
      */
     public List<Order> orders() {
         return orders;
-    }
-
-    /**
-     * Helidon dynamic finder query order builder.
-     */
-    static class Builder {
-
-        private static class OrderBuilder {
-
-            // Entity property name.
-            private final String property;
-            // Query order method.
-            private Order.Method method;
-
-            private OrderBuilder(String property) {
-                this.property = property;
-                this.method = Order.Method.ASC;
-            }
-
-            private void asc() {
-                this.method = Order.Method.ASC;
-            }
-
-            private void desc() {
-                this.method = Order.Method.DESC;
-            }
-
-            private Order build() {
-                return new Order(method, property);
-            }
-        }
-
-        // Parent class builder where all parts are put together.
-        private final DynamicFinder.Builder builder;
-
-        // Query order builder.
-        OrderBuilder orderBuilder;
-
-        // List of ordering properties with ordering methods.
-        private final List<Order> orders;
-
-        // Creqates an instanceof query selection builder.
-        Builder(DynamicFinder.Builder builder) {
-            this.builder = builder;
-            this.orderBuilder = null;
-            orders = new LinkedList<>();
-        }
-
-        /**
-         * Select ascending order.
-         *
-         * @return builder with ascending order set for current property
-         */
-        DynamicFinderOrder.Builder asc() {
-            orderBuilder.asc();
-            return this;
-        }
-
-        /**
-         * Select descending order.
-         *
-         * @return builder with descending order set for current property
-         */
-        DynamicFinderOrder.Builder desc() {
-            orderBuilder.desc();
-            return this;
-        }
-
-        /**
-         * Select descending order.
-         *
-         * @return builder with descending order set for current property
-         */
-        DynamicFinderOrder.Builder and(String property) {
-            orders.add(orderBuilder.build());
-            orderBuilder = new OrderBuilder(property);
-            return this;
-        }
-
-        /**
-         * Build Helidon dynamic finder query.
-         *
-         * @return new instance of Helidon dynamic finder query.
-         */
-        DynamicFinder build() {
-            // Finalize order first.
-            orders.add(orderBuilder.build());
-            orderBuilder = null;
-            builder.setOrder(new DynamicFinderOrder(new ArrayList<>(orders)));
-            // Return finished AST.
-            return builder.build();
-        }
-
-        /**
-         * Build Helidon dynamic finder query order.
-         *
-         * @param property order parameter: Entity property name
-         */
-        DynamicFinderOrder.Builder orderBy(String property) {
-            orderBuilder = new OrderBuilder(property);
-            return this;
-        }
-
     }
 
 }

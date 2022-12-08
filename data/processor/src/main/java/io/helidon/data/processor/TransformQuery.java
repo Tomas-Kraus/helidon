@@ -23,6 +23,10 @@ package io.helidon.data.processor;
 import java.util.List;
 import java.util.function.Consumer;
 
+import io.helidon.data.runtime.DynamicFinder;
+import io.helidon.data.runtime.DynamicFinderCriteria;
+import io.helidon.data.runtime.DynamicFinderSelection;
+
 /**
  * Run the AST to target query String transformation process.
  */

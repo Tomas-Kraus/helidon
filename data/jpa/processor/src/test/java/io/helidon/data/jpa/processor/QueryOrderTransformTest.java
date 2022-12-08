@@ -15,7 +15,6 @@
  */
 package io.helidon.data.jpa.processor;
 
-import io.helidon.data.processor.DynamicFinder;
 import io.helidon.data.processor.DynamicFinderStatement;
 import io.helidon.data.processor.MethodParser;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ public class QueryOrderTransformTest {
 
     // Parse method prototype and transform AST to target platform query
     private static DynamicFinderStatement parseQuery(String methodName) {
-        MethodParser parser = DynamicFinder.parser(ENTITY_PROPERTIES);
+        MethodParser parser = MethodParser.parser(ENTITY_PROPERTIES);
         return parser.parse(ENTITY_NAME, methodName, METHOD_ARGUMENTS);
     }
 

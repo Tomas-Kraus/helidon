@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.data.processor;
+package io.helidon.data.runtime;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,14 +43,9 @@ import java.util.Optional;
  */
 public class DynamicFinder {
 
-    public static final MethodParser parser(List<String> entityProperties) {
-        return new MethodParserImpl(entityProperties);
+    public static DynamicFinder build(DynamicFinderSelection selection, Optional<DynamicFinderCriteria> criteria, Optional<DynamicFinderOrder> order) {
+        return new DynamicFinder(selection, criteria, order);
     }
-
-    /** Criteria part of dynamic finder query initial keyword. */
-    static final String BY_KEYWORD = "By";
-    /** Order part of dynamic finder query initial keyword. */
-    static final String ORDER_BY_KEYWORD = "OrderBy";
 
     // Selection part of dynamic finder query.
     private final DynamicFinderSelection selection;
@@ -97,90 +91,6 @@ public class DynamicFinder {
      */
     public Optional<DynamicFinderCriteria> criteria() {
         return criteria;
-    }
-
-    static Builder builder() {
-        return new Builder();
-    }
-
-    // TODO: Remove public visibility!
-    /**
-     * Helidon dynamic finder query builder.
-     */
-    static class Builder {
-
-        // Selection part of dynamic finder query.
-        private DynamicFinderSelection selection;
-        // Criteria part of dynamic finder query.
-        private DynamicFinderCriteria criteria;
-        // Criteria part of dynamic finder query.
-        private DynamicFinderOrder order;
-
-        // Creates an instance of Helidon dynamic finder query builder.
-        private Builder() {
-            this.criteria = null;
-            this.selection = null;
-            this.order = null;
-        }
-
-        /**
-         * Select dynamic finder query with single result.
-         *
-         * @return builder with single result query
-         */
-        DynamicFinderSelection.Builder get() {
-            return new DynamicFinderSelection.Builder(this).get();
-        }
-
-        /**
-         * Select dynamic finder query with multiple results.
-         *
-         * @return builder with multiple results query
-         */
-        DynamicFinderSelection.Builder find() {
-            return new DynamicFinderSelection.Builder(this).find();
-        }
-
-        /**
-         * Internal: Build Helidon dynamic finder query.
-         *
-         * @return new instance of Helidon dynamic finder query.
-         */
-        DynamicFinder build() {
-            return new DynamicFinder(
-                    selection,
-                    criteria != null ? Optional.of(criteria) : Optional.empty(),
-                    order != null ? Optional.of(order) : Optional.empty()
-            );
-        }
-
-        /**
-         * Internal: Setter for selection from {@link DynamicFinderSelection.Builder}.
-         *
-         * @param selection selection part of dynamic finder query
-         */
-        void setSelection(final DynamicFinderSelection selection) {
-            this.selection = selection;
-        }
-
-        /**
-         * Internal: Setter for criteria from {@link DynamicFinderCriteria.Builder}.
-         *
-         * @param criteria selection part of dynamic finder query
-         */
-        void setCriteria(final DynamicFinderCriteria criteria) {
-            this.criteria = criteria;
-        }
-
-        /**
-         * Internal: Setter for order from {@link DynamicFinderOrder.Builder}.
-         *
-         * @param order order part of dynamic finder query
-         */
-        void setOrder(final DynamicFinderOrder order) {
-            this.order = order;
-        }
-
     }
 
 }

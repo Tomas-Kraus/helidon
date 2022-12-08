@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import io.helidon.data.runtime.DynamicFinder;
+import io.helidon.data.runtime.DynamicFinderCriteria;
+
 /**
  * Data repository query method parser of the criteria part of the method name.
  */
@@ -45,10 +48,10 @@ class MethodCriteriaParser extends MethodAbstractParser {
             ParserState root,
             ParserTransition.Action finalAndAction,
             ParserTransition.Action finalOrAction) {
-        ParserState state = root.addTransition(DynamicFinder.ORDER_BY_KEYWORD.charAt(0));
+        ParserState state = root.addTransition(DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(0));
         // Add OrderBy
-        for (int i = 1; i < DynamicFinder.ORDER_BY_KEYWORD.length() - 1; i++) {
-            state = state.addTransition(DynamicFinder.ORDER_BY_KEYWORD.charAt(i));
+        for (int i = 1; i < DynamicFinderBuilder.ORDER_BY_KEYWORD.length() - 1; i++) {
+            state = state.addTransition(DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(i));
         }
         if (!state.transition().isEmpty()) {
             throw new MethodParserException("Keyword OrderBy is already present in state machine.");
@@ -57,7 +60,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
         finalState.setFinalState(ParserState.FinalState.ORDER_BY);
         state.setTransition(
                 new ParserTransition.SingleTransition(
-                        DynamicFinder.ORDER_BY_KEYWORD.charAt(DynamicFinder.ORDER_BY_KEYWORD.length() - 1), finalState));
+                        DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(DynamicFinderBuilder.ORDER_BY_KEYWORD.length() - 1), finalState));
         // Add And joining logical operator
         String andKw = DynamicFinderCriteria.Compound.NextExpression.Operator.AND.keyword();
         state = root.addTransition(andKw.charAt(0));
@@ -156,8 +159,8 @@ class MethodCriteriaParser extends MethodAbstractParser {
         return new ParserState(ParserTransition.EmptyTransition.getInstance());
     }
 
-    private DynamicFinderSelection.Builder builder;
-    private DynamicFinderCriteria.Builder criteriaBuilder;
+    private DynamicFinderSelectionBuilder builder;
+    private DynamicFinderCriteriaBuilder criteriaBuilder;
     // Root (starting) node of the criteria properties parser.
     private final ParserState propertiesRoot;
     // Root (starting) node of the criteria operator parser.
@@ -215,11 +218,11 @@ class MethodCriteriaParser extends MethodAbstractParser {
         this.argumentPos = 0;
     }
 
-    DynamicFinderCriteria.Builder criteriaBuilder() {
+    DynamicFinderCriteriaBuilder criteriaBuilder() {
         return criteriaBuilder;
     }
 
-    ParserState.FinalState parse(DynamicFinderSelection.Builder builder, ParserContext context, List<String> methodArguments) {
+    ParserState.FinalState parse(DynamicFinderSelectionBuilder builder, ParserContext context, List<String> methodArguments) {
         // Set selection builder instance retrieved from selection part parser.
         this.builder = builder;
         // Set method arguments to be consumed by parser.
@@ -292,7 +295,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
                     property, ctx.pos(), ctx.text()));
         }
         if (joinOperator == null) {
-            criteriaBuilder = (DynamicFinderCriteria.Builder) builder
+            criteriaBuilder = (DynamicFinderCriteriaBuilder) builder
                     .by(property, methodArguments[argumentPos++]);
         } else {
             switch (joinOperator) {
@@ -310,7 +313,7 @@ class MethodCriteriaParser extends MethodAbstractParser {
     }
     void buildOperatorState(ParserContext ctx) {
         if (joinOperator == null) {
-            criteriaBuilder = (DynamicFinderCriteria.Builder) builder.by(property);
+            criteriaBuilder = (DynamicFinderCriteriaBuilder) builder.by(property);
         } else {
             switch (joinOperator) {
                 case AND -> criteriaBuilder.and(property);

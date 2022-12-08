@@ -17,17 +17,19 @@ package io.helidon.examples.data.pokemons;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import io.helidon.common.http.Http;
 import io.helidon.common.media.type.MediaTypes;
 import io.helidon.data.HelidonData;
-import io.helidon.data.processor.DynamicFinderOrder;
-import io.helidon.data.repository.RepositoryFilter;
+import io.helidon.data.runtime.DynamicFinderOrder;
 import io.helidon.examples.data.pokemons.model.Pokemon;
 import io.helidon.examples.data.pokemons.repository.PokemonRepository;
 import io.helidon.examples.data.pokemons.repository.TypeRepository;
-import io.helidon.examples.data.pokemons.repository.generated.PokemonRepositoryFilter;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonCriteria;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonFilter;
+import io.helidon.examples.data.pokemons.repository.generated.PokemonOrder;
+import io.helidon.examples.data.pokemons.repository.generated.TypeCriteria;
+import io.helidon.examples.data.pokemons.repository.generated.TypeOrder;
 import io.helidon.nima.webserver.http.Handler;
 import io.helidon.nima.webserver.http.HttpRules;
 import io.helidon.nima.webserver.http.HttpService;
@@ -230,10 +232,13 @@ public class PokemonService implements HttpService {
      */
     private void getPokemonsByFilter(ServerRequest request, ServerResponse response) {
         response.send(pokemonRepository.findByFilter(
-                PokemonRepositoryFilter.Criteria.builder()
-                        .name(request.query().all("name", () -> Collections.EMPTY_LIST))
-                        .typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
-                        .build());
+                PokemonCriteria.builder()
+                        .name(request.query().all("name", List::of))
+                        //.typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
+                        .type(TypeCriteria.builder()
+                                      .name(request.query().all("type", List::of))
+                                      .build())
+                        .build()));
     }
 
     /**
@@ -244,9 +249,12 @@ public class PokemonService implements HttpService {
      */
     private void getPokemonsByNameInVariableOrder(ServerRequest request, ServerResponse response) {
         response.send(pokemonRepository.findByNameOrderByFilter(
-                PokemonRepositoryFilter.Order.builder()
-                        .order("name", request.query().first("order").orElse("asc"))
-                        .order("type", DynamicFinderOrder.Order.Method.DESC)
+                PokemonOrder.builder()
+                        .orderBy("name", request.query().first("order").orElse("asc"))
+                        .orderByType(
+                                TypeOrder.builder()
+                                        .orderByName(DynamicFinderOrder.Order.Method.DESC)
+                                        .build())
                         .build()));
     }
 
@@ -258,12 +266,14 @@ public class PokemonService implements HttpService {
      */
     private void getPokemonsAvhHpByFilter(ServerRequest request, ServerResponse response) {
         response.send(pokemonRepository.findAvgHpByFilterOrderByFilter(
-                PokemonRepositoryFilter.Criteria.builder()
-                        .name(request.query().all("name", () -> Collections.EMPTY_LIST))
-                        .typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
+                PokemonCriteria.builder()
+                        .name(request.query().all("name", List::of))
+                        .type(TypeCriteria.builder()
+                                      .name(request.query().all("type", List::of))
+                                      .build())
                         .build(),
-                PokemonRepositoryFilter.Order.builder()
-                        .order("name", request.query().first("order").orElse("asc"))
+                PokemonOrder.builder()
+                        .orderBy("name", request.query().first("order").orElse("asc"))
                         .build()));
     }
 
@@ -276,16 +286,12 @@ public class PokemonService implements HttpService {
      */
     private void getPokemonNamesByFilter(ServerRequest request, ServerResponse response) {
         response.send(pokemonRepository.findNameByFilter(
-                PokemonRepositoryFilter.builder()
-                        .criteria(
-                                PokemonRepositoryFilter.Criteria.builder()
-                                        .name(request.query().all("name", () -> Collections.EMPTY_LIST))
-                                        .typeName(request.query().all("type", () -> Collections.EMPTY_LIST))
-                                        .build())
-                        .order(
-                                PokemonRepositoryFilter.Order.builder()
-                                        .order("name", request.query().first("order").orElse("asc"))
-                                        .build())
+                PokemonFilter.builder()
+                        .name(request.query().all("name", List::of))
+                        .type(TypeCriteria.builder()
+                                      .name(request.query().all("type", List::of))
+                                      .build())
+                        .orderByName(request.query().first("order").orElse("asc"))
                         .build()));
     }
 

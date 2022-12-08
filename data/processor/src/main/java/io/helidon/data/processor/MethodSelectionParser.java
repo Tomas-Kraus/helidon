@@ -17,6 +17,8 @@ package io.helidon.data.processor;
 
 import java.util.List;
 
+import io.helidon.data.runtime.DynamicFinderSelection;
+
 /**
   * Data repository query method parser of the selection part of the method name.
   */
@@ -173,32 +175,32 @@ class MethodSelectionParser extends MethodAbstractParser {
     //       This may be done better in the future.
     private static void buildFinalParserStates(ParserState root, ParserTransition.Action action) {
         // Add By keyword
-        ParserState state = root.addTransition(DynamicFinder.BY_KEYWORD.charAt(0));
+        ParserState state = root.addTransition(DynamicFinderBuilder.BY_KEYWORD.charAt(0));
         ParserState finalState = new ParserState(ParserTransition.EmptyTransition.getInstance());
         finalState.setFinalState(ParserState.FinalState.BY);
-        ParserTransition finalTransition = new ParserTransition.SingleTransition(DynamicFinder.BY_KEYWORD.charAt(1), finalState);
+        ParserTransition finalTransition = new ParserTransition.SingleTransition(DynamicFinderBuilder.BY_KEYWORD.charAt(1), finalState);
         state.setTransition(finalTransition);
         if (action != null) {
-            finalTransition.setAction(DynamicFinder.BY_KEYWORD.charAt(1), action);
+            finalTransition.setAction(DynamicFinderBuilder.BY_KEYWORD.charAt(1), action);
         }
         // Add OrderBy keyword
-        state = root.addTransition(DynamicFinder.ORDER_BY_KEYWORD.charAt(0));
-        for (int i = 1; i < DynamicFinder.ORDER_BY_KEYWORD.length() - 1; i++) {
-            state = state.addTransition(DynamicFinder.ORDER_BY_KEYWORD.charAt(i));
+        state = root.addTransition(DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(0));
+        for (int i = 1; i < DynamicFinderBuilder.ORDER_BY_KEYWORD.length() - 1; i++) {
+            state = state.addTransition(DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(i));
         }
         finalState = new ParserState(ParserTransition.EmptyTransition.getInstance());
         finalState.setFinalState(ParserState.FinalState.ORDER_BY);
         finalTransition = new ParserTransition.SingleTransition(
-                DynamicFinder.ORDER_BY_KEYWORD.charAt(DynamicFinder.ORDER_BY_KEYWORD.length() - 1), finalState);
+                DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(DynamicFinderBuilder.ORDER_BY_KEYWORD.length() - 1), finalState);
         state.setTransition(finalTransition);
         if (action != null) {
             finalTransition.setAction(
-                    DynamicFinder.ORDER_BY_KEYWORD.charAt(DynamicFinder.ORDER_BY_KEYWORD.length() - 1), action);
+                    DynamicFinderBuilder.ORDER_BY_KEYWORD.charAt(DynamicFinderBuilder.ORDER_BY_KEYWORD.length() - 1), action);
         }
     }
 
-    private DynamicFinder.Builder builder;
-    private DynamicFinderSelection.Builder selectionBuilder;
+    private DynamicFinderBuilder builder;
+    private DynamicFinderSelectionBuilder selectionBuilder;
 
     // Root (starting) node of the selection method parser.
     private final ParserState selectionRoot;
@@ -212,7 +214,7 @@ class MethodSelectionParser extends MethodAbstractParser {
     private int firstSelectionPropertyChar;
     private String selectionProperty;
 
-    MethodSelectionParser(DynamicFinder.Builder builder, List<String> entityProperties) {
+    MethodSelectionParser(DynamicFinderBuilder builder, List<String> entityProperties) {
         this.selectionRoot = buildSelectionMethodsStateMachine(this);
         this.projectionRoot = buildProjectionMethodsStateMachine(this);
         this.propertiesRoot = buildStateMachineFromSortedList(
@@ -228,7 +230,7 @@ class MethodSelectionParser extends MethodAbstractParser {
     }
 
     // Reset parser to be used for another method name parsing
-    void reset(DynamicFinder.Builder builder) {
+    void reset(DynamicFinderBuilder builder) {
         this.builder = builder;
         this.selectionBuilder = null;
         this.projectionMethod = null;
@@ -237,7 +239,7 @@ class MethodSelectionParser extends MethodAbstractParser {
         this.selectionProperty = null;
     }
 
-    DynamicFinderSelection.Builder selectionBuilder() {
+    DynamicFinderSelectionBuilder selectionBuilder() {
         return selectionBuilder;
     }
 

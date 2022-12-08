@@ -15,6 +15,8 @@
  */
 package io.helidon.data.processor;
 
+import io.helidon.data.runtime.DynamicFinder;
+
 /**
  * Context of data repository query method parser.
  */
