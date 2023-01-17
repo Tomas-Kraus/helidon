@@ -18,14 +18,14 @@ package io.helidon.data;
 /**
  * A {@link RuntimeException} used by Helidon Repository Data component.
  */
-public class RepositoryException extends RuntimeException {
+public class DataException extends RuntimeException {
 
     /**
      * Create a new exception for a message.
      *
      * @param message descriptive message
      */
-    public RepositoryException(String message) {
+    public DataException(String message) {
         super(message);
     }
 
@@ -35,7 +35,7 @@ public class RepositoryException extends RuntimeException {
      * @param message descriptive message
      * @param cause original throwable causing this exception
      */
-    public RepositoryException(String message, Throwable cause) {
+    public DataException(String message, Throwable cause) {
         super(message, cause);
     }
 

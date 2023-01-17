@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import io.helidon.data.spi.HelidonDataProvider;
+
 /**
  * Helidon data repository API.
  *
@@ -23,6 +26,7 @@ module io.helidon.data {
     requires java.sql;
     requires transitive io.helidon.common.reactive;
     requires com.fasterxml.jackson.annotation;
+    requires io.helidon.config;
 
     exports io.helidon.data;
     exports io.helidon.data.annotation;
@@ -31,4 +35,8 @@ module io.helidon.data {
     exports io.helidon.data.event.listeners;
     exports io.helidon.data.model;
     exports io.helidon.data.repository;
+    exports io.helidon.data.spi;
+
+    uses HelidonDataProvider;
+
 }

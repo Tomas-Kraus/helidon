@@ -16,6 +16,7 @@
 package io.helidon.data.processor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -108,7 +109,7 @@ class DynamicFinderOrderBuilder {
         // Finalize order first.
         orders.add(orderBuilder.build());
         orderBuilder = null;
-        builder.setOrder(DynamicFinderOrder.build(new ArrayList<>(orders)));
+        builder.setOrder(DynamicFinderOrder.build(List.copyOf(orders)));
         // Return finished AST.
         return builder.build();
     }

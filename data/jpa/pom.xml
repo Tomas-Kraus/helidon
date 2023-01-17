@@ -33,6 +33,7 @@
     <description>JPA Data Repository for Helidon</description>
 
     <modules>
+        <module>runtime</module>
         <module>processor</module>
     </modules>
 </project>

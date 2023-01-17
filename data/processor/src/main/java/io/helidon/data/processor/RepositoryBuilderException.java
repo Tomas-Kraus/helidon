@@ -15,12 +15,12 @@
  */
 package io.helidon.data.processor;
 
-import io.helidon.data.RepositoryException;
+import io.helidon.data.DataException;
 
 /**
  * A {@link RuntimeException} used by Helidon Repository Data Builder component.
  */
-public class RepositoryBuilderException extends RepositoryException {
+public class RepositoryBuilderException extends DataException {
 
     /**
      * Create a new exception for a message.

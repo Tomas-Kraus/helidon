@@ -3,12 +3,11 @@ package io.helidon.data.processor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.lang.System.Logger.Level;
 
 class EntityModel {
 
-    private static final Logger LOGGER = Logger.getLogger(ProcessorMain.class.getName());
+    private static final System.Logger LOGGER = System.getLogger(ProcessorMain.class.getName());
 
     // Map of class FQN to class descriptor
     private final Map<String, EntityClass> classes;

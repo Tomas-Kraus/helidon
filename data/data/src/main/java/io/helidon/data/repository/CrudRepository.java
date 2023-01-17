@@ -15,11 +15,8 @@
  */
 package io.helidon.data.repository;
 
-import io.helidon.data.RepositoryException;
-
 import java.util.Optional;
 
-// TODO: Blocking operations. Consider marking interface woth some @Blocking annotation.
 /**
  * Data repository interface for blocking CRUD operations.
  * Blocking variant of <ul>
@@ -41,7 +38,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * @param entity the entity to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entity. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entity is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entity is {@code null} or the operation has failed
      */
     <T extends E> T save(T entity);
 
@@ -52,7 +49,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * @param entities the entities to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entities. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entities are {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entities are {@code null} or the operation has failed
      */
     <T extends E> Iterable<T> saveAll(Iterable<T> entities);
 
@@ -62,7 +59,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * @param entity the entity to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entity. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entity is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entity is {@code null} or the operation has failed
      */
     <T extends E> T update(T entity);
 
@@ -72,7 +69,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * @param entities the entities to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entities. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entities are {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entities are {@code null} or the operation has failed
      */
     <T extends E> Iterable<T> updateAll(Iterable<T> entities);
 
@@ -81,7 +78,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      *
      * @param id the ID of the entity to search for. Must not be {@code null}
      * @return the entity with the given ID or {@code Optional#empty()} if no such entity was found
-     * @throws {@link RepositoryException} if the ID is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the ID is {@code null} or the operation has failed
      */
     Optional<E> findById(ID id);
 
@@ -90,7 +87,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      *
      * @param id the ID of the entity to search for. Must not be {@code null}
      * @return value of {2ode true} if an entity with the given ID exists or {@code false} otherwise
-     * @throws {@link RepositoryException} if the ID is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the ID is {@code null} or the operation has failed
      */
     boolean existsById(ID id);
 
@@ -98,7 +95,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * Return all entities of the {@code E} type.
      *
      * @return all entities found
-     * @throws {@link RepositoryException} if the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the operation has failed
      */
     Iterable<E> findAll();
 
@@ -106,7 +103,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * Return the number of all entities of the {@code E} type.
      *
      * @return the number of all entities found
-     * @throws {@link RepositoryException} if the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the operation has failed
      */
     long count();
 
@@ -115,7 +112,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * Deletes the entity with the given ID (primary key.
      *
      * @param id ID of the entity to be deleted. Must not be {@code null}
-     * @throws {@link RepositoryException} if the ID is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the ID is {@code null} or the operation has failed
      */
     void deleteById(ID id);
 
@@ -124,7 +121,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * Deletes provided entity.
      *
      * @param entity the entity to delete. Must not be {@code null}
-     * @throws {@link RepositoryException} if the entity is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entity is {@code null} or the operation has failed
      */
     void delete(E entity);
 
@@ -133,7 +130,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
      * Deletes all provided entities.
      *
      * @param entities the entities to delete. Must not be {@code null}
-     * @throws {@link RepositoryException} if the entities are {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entities are {@code null} or the operation has failed
      */
     void deleteAll(Iterable<? extends E> entities);
 
@@ -141,7 +138,7 @@ public interface CrudRepository<E, ID> extends GenericRepository<E, ID> {
     /**
      * Deletes all entities of the {@code E} type.
      *
-     * @throws {@link RepositoryException} if the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the operation has failed
      */
     void deleteAll();
 

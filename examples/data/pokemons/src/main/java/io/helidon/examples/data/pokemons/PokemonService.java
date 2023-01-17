@@ -41,15 +41,18 @@ import io.helidon.nima.webserver.http.ServerResponse;
  */
 public class PokemonService implements HttpService {
 
+    // Helidon data repository
+    private final HelidonData data;
     // Pokemon entity data repository
     private final PokemonRepository pokemonRepository;
     // Type entity data repository
     private final TypeRepository typeRepository;
 
-    PokemonService() {
+    PokemonService(HelidonData data) {
+        this.data = data;
         // Initialize data repositories
-        this.pokemonRepository = HelidonData.createRepository(PokemonRepository.class);
-        this.typeRepository = HelidonData.createRepository(TypeRepository.class);
+        this.pokemonRepository = data.repository(PokemonRepository.class);
+        this.typeRepository = data.repository(TypeRepository.class);
     }
 
     @Override
@@ -70,12 +73,12 @@ public class PokemonService implements HttpService {
                 .get("/pokemon/filter", this::getPokemonsByFilter)
                 // Get pokemon by name and sort depending on request argument
                 .get("/pokemon/sort", this::getPokemonsByNameInVariableOrder)
-                // Create new pokemon
-                .post("/pokemon", Handler.create(Pokemon.class, this::insertPokemon))
+                // Create new pokemon. FIXME: Handler factory with Class<T> type and exception handling would be helpful
+                .post("/pokemon", (req, res) -> insertPokemon(req.content().as(Pokemon.class), res))
                 // Update name of existing pokemon
                 .put("/pokemon", Handler.create(Pokemon.class, this::updatePokemon))
                 // Delete pokemon by ID including type relation
-                .delete(/*"/pokemon", */Handler.create(this::deletePokemonById));
+                .delete(this::deletePokemonById);
     }
 
     /**
@@ -162,7 +165,15 @@ public class PokemonService implements HttpService {
     private void getPokemonsByType(ServerRequest request, ServerResponse response) {
         String typeName = request.path().pathParameters().value("name");
         // List<Pokemon> findByTypeName(String typeName) is method defined as query by method name
-        response.send(pokemonRepository.findByTypeName(typeName));
+        try {
+            response.send(
+                    data.transaction(
+                            () -> pokemonRepository.findByTypeName(typeName)
+                    )
+            );
+        } catch (Exception e) {
+            response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
+        }
     }
 
     /**
@@ -176,11 +187,16 @@ public class PokemonService implements HttpService {
         String pokemonName = request.path().pathParameters().value("pokemonName");
         // Optional<Pokemon> pokemonsByTypeAndName(String typeName, String pokemonName)
         // is method defined by custom query annotation
-        pokemonRepository.pokemonByTypeAndName(typeName, pokemonName)
-                .ifPresentOrElse(
-                        it -> response.send(it),
-                        () -> response.status(Http.Status.NOT_FOUND_404).send()
-                );
+        try {
+            data.transaction(
+                    () -> pokemonRepository.pokemonByTypeAndName(typeName, pokemonName)
+            ).ifPresentOrElse(
+                    it -> response.send(it),
+                    () -> response.status(Http.Status.NOT_FOUND_404).send()
+            );
+        } catch (Exception e) {
+            response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
+        }
     }
 
     /**
@@ -188,10 +204,15 @@ public class PokemonService implements HttpService {
      *
      * @param pokemon pokemon to insert
      */
-    private Pokemon insertPokemon(Pokemon pokemon) {
+    private void insertPokemon(Pokemon pokemon, ServerResponse response) {
         // <T extends E> T save(T entity) is method added from CrudRepository interface
-        pokemonRepository.save(pokemon);
-        return pokemon;
+        try {
+            response.send(
+                    data.transaction(
+                            () -> pokemonRepository.save(pokemon)));
+        } catch (Exception e) {
+            response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
+        }
     }
 
     /**
@@ -210,19 +231,18 @@ public class PokemonService implements HttpService {
      *
      * @param request the server request
      */
-    private void deletePokemonById(ServerRequest request) {
+    private void deletePokemonById(ServerRequest request, ServerResponse response) {
         int id = Integer.parseInt(request.path().pathParameters().value("id"));
         // void deleteById(ID id) is method added from CrudRepository interface
-        pokemonRepository.deleteById(id);
+        try {
+            data.transaction(
+                    () -> pokemonRepository.deleteById(id)
+            );
+        } catch (Exception e) {
+            response.status(Http.Status.INTERNAL_SERVER_ERROR_500);
+        }
+        response.send();
     }
-
-/*
-    private void getPokemonsByType(ServerRequest request, ServerResponse response) {
-        String typeName = request.path().pathParameters().value("name");
-        // List<Pokemon> findByTypeName(String typeName) is method defined as query by method name
-        response.send(pokemonRepository.findByTypeName(typeName));
-    }
-*/
 
     /**
      * Find pokemons using custom criteria filter.
@@ -264,7 +284,7 @@ public class PokemonService implements HttpService {
      * @param request  server request
      * @param response server response
      */
-    private void getPokemonsAvhHpByFilter(ServerRequest request, ServerResponse response) {
+    private void getPokemonsAvgHpByFilter(ServerRequest request, ServerResponse response) {
         response.send(pokemonRepository.findAvgHpByFilterOrderByFilter(
                 PokemonCriteria.builder()
                         .name(request.query().all("name", List::of))

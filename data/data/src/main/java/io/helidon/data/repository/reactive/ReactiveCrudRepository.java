@@ -20,7 +20,6 @@ import java.util.Optional;
 import io.helidon.common.reactive.Multi;
 import io.helidon.common.reactive.Single;
 import io.helidon.data.repository.GenericRepository;
-import io.helidon.data.RepositoryException;
 
 /**
  * Reactive data repository interface for blocking CRUD operations.
@@ -43,7 +42,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * @param entity the entity to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entity. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entity is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entity is {@code null} or the operation has failed
      */
     <T extends E> Single<T> save(T entity);
 
@@ -54,7 +53,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * @param entities the entities to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entities. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entities are {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entities are {@code null} or the operation has failed
      */
     <T extends E> Multi<T> saveAll(Iterable<T> entities);
 
@@ -64,7 +63,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * @param entity the entity to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entity. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entity is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entity is {@code null} or the operation has failed
      */
     <T extends E> Single<T> update(T entity);
 
@@ -74,7 +73,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * @param entities the entities to persist. Must not be {@code null}
      * @param <T> type of the entity
      * @return persisted entities. Never returns {@code null}
-     * @throws {@link RepositoryException} if the entities are {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entities are {@code null} or the operation has failed
      */
     <T extends E> Multi<T> updateAll(Iterable<T> entities);
 
@@ -83,7 +82,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      *
      * @param id the ID of the entity to search for. Must not be {@code null}
      * @return the entity with the given ID or {@code Optional#empty()} if no such entity was found
-     * @throws {@link RepositoryException} if the ID is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the ID is {@code null} or the operation has failed
      */
     Single<Optional<E>> findById(ID id);
 
@@ -92,7 +91,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      *
      * @param id the ID of the entity to search for. Must not be {@code null}
      * @return value of {2ode true} if an entity with the given ID exists or {@code false} otherwise
-     * @throws {@link RepositoryException} if the ID is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the ID is {@code null} or the operation has failed
      */
     Single<Boolean> existsById(ID id);
 
@@ -100,7 +99,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * Return all entities of the {@code E} type.
      *
      * @return all entities found
-     * @throws {@link RepositoryException} if the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the operation has failed
      */
     Multi<E> findAll();
 
@@ -108,7 +107,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * Return the number of all entities of the {@code E} type.
      *
      * @return the number of all entities found
-     * @throws {@link RepositoryException} if the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the operation has failed
      */
     Single<Long> count();
 
@@ -116,7 +115,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * Deletes the entity with the given ID (primary key.
      *
      * @param id ID of the entity to be deleted. Must not be {@code null}
-     * @throws {@link RepositoryException} if the ID is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the ID is {@code null} or the operation has failed
      */
     Single<Void> deleteById(ID id);
 
@@ -124,7 +123,7 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * Deletes provided entity.
      *
      * @param entity the entity to delete. Must not be {@code null}
-     * @throws {@link RepositoryException} if the entity is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entity is {@code null} or the operation has failed
      */
     Single<Void> delete(E entity);
 
@@ -132,14 +131,14 @@ public interface ReactiveCrudRepository<E, ID> extends GenericRepository<E, ID> 
      * Deletes all provided entities.
      *
      * @param entities the entities to delete. Must not be {@code null}
-     * @throws {@link RepositoryException} if the entities are {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the entities are {@code null} or the operation has failed
      */
     Single<Void> deleteAll(Iterable<? extends E> entities);
 
     /**
      * Deletes all entities of the {@code E} type.
      *
-     * @throws {@link RepositoryException} if the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the operation has failed
      */
     Single<Void> deleteAll();
 }

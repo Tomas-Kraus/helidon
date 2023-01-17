@@ -28,15 +28,19 @@ import io.helidon.reactive.webserver.*;
  */
 public class PokemonReactiveService implements Service {
 
+    // Helidon data repository
+    private final HelidonData data;
+
     // Pokemon entity data repository
     final PokemonReactiveRepository pokemonRepository;
 
     // Type entity data repository
     final TypeReactiveRepository typeRepository;
 
-    PokemonReactiveService() {
-        this.pokemonRepository = HelidonData.createRepository(PokemonReactiveRepository.class);
-        this.typeRepository = HelidonData.createRepository(TypeReactiveRepository.class);
+    PokemonReactiveService(HelidonData data) {
+        this.data = data;
+        this.pokemonRepository = data.repository(PokemonReactiveRepository.class);
+        this.typeRepository = data.repository(TypeReactiveRepository.class);
     }
 
     @Override

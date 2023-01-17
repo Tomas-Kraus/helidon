@@ -15,6 +15,8 @@
  */
 package io.helidon.examples.data.pokemons;
 
+import io.helidon.config.Config;
+import io.helidon.data.HelidonData;
 import io.helidon.nima.webserver.WebServer;
 import io.helidon.nima.webserver.http.HttpRouting;
 
@@ -36,7 +38,8 @@ public final class PokemonMain {
      * @param args Command line arguments. Run with MongoDB support when 1st argument is mongo, run with JDBC support otherwise.
      */
     public static void main(final String[] args) {
-        startServer();
+        Config config = Config.create();
+        startServer(config);
     }
 
     /**
@@ -44,10 +47,11 @@ public final class PokemonMain {
      *
      * @return the created {@link io.helidon.nima.webserver.WebServer} instance
      */
-    static WebServer startServer() {
+    static WebServer startServer(Config config) {
 
         WebServer server = WebServer.builder()
-                .routing(PokemonMain::routing)
+                .config(config)
+                .routing(routing -> routing(config, routing))
                 .start();
 
         System.out.println("WEB server is up! http://localhost:" + server.port() + "/greet");
@@ -60,8 +64,9 @@ public final class PokemonMain {
      *
      * @param routing routing builder
      */
-    private static void routing(HttpRouting.Builder routing) {
-        routing.register("/example", new PokemonService())
+    private static void routing(Config config, HttpRouting.Builder routing) {
+        HelidonData data = HelidonData.create(config);
+        routing.register("/example", new PokemonService(data))
                 .build();
     }
 

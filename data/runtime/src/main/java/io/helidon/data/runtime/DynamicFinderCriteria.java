@@ -15,6 +15,7 @@
  */
 package io.helidon.data.runtime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 public class DynamicFinderCriteria {
 
@@ -51,6 +53,45 @@ public class DynamicFinderCriteria {
         Type type();
 
         <T extends Expression> T as(Class<T> cls);
+
+        /**
+         * Add property prefix to the whole expression tree.
+         *
+         * @param prefix property prefix to add
+         * @param expression expression to be modified
+         * @return new modified expression
+         */
+        static DynamicFinderCriteria.Expression propertyPrefix(String prefix, DynamicFinderCriteria.Expression expression) {
+            switch (expression.type()) {
+            case CONDITION -> {
+                DynamicFinderCriteria.Condition src = expression.as(DynamicFinderCriteria.Condition.class);
+                return DynamicFinderCriteria.Condition.build(
+                        src.not(),
+                        new StringBuilder(prefix.length() + src.property().length() + 1)
+                                .append(prefix)
+                                .append('.')
+                                .append(src.property())
+                                .toString(),
+                        src.operator(),
+                        src.values());
+            }
+            case COMPOUND -> {
+                DynamicFinderCriteria.Compound src = expression.as(DynamicFinderCriteria.Compound.class);
+                List<DynamicFinderCriteria.Compound.NextExpression> nextList = new ArrayList<>(src.next().size());
+                src.next().forEach(
+                        next -> nextList.add(
+                                DynamicFinderCriteria.Compound.NextExpression.builder()
+                                        .operator(next.operator())
+                                        .expression(propertyPrefix(prefix, next.expression()))
+                                        .build()));
+                return DynamicFinderCriteria.Compound.builder()
+                        .first(propertyPrefix(prefix, src.first()))
+                        .next(nextList)
+                        .build();
+            }
+            default -> throw new IllegalStateException(String.format("Unknown expression type %s", expression.type().name()));
+            }
+        }
 
     }
 
@@ -107,6 +148,38 @@ public class DynamicFinderCriteria {
              */
             Expression expression();
 
+            static Builder builder() {
+                return new Builder();
+            }
+
+            class Builder implements io.helidon.common.Builder<Builder, NextExpression> {
+
+                private NextExpression.Operator operator;
+
+                private Expression expression;
+
+                private Builder() {
+                    this.operator = null;
+                    this.expression = null;
+                }
+
+                public Builder operator(NextExpression.Operator operator) {
+                    Objects.requireNonNull(operator, "Expression operator shall not be null.");
+                    this.operator = operator;
+                    return this;
+                }
+
+                public Builder expression(Expression expression) {
+                    Objects.requireNonNull(expression, "Expression shall not be null.");
+                    this.expression = expression;
+                    return this;
+                }
+
+                public NextExpression build() {
+                    return Compound.buildExpression(operator, expression);
+                }
+            }
+
         }
 
         // Internal implementation of Compound expression element following joining logical operator.
@@ -158,6 +231,54 @@ public class DynamicFinderCriteria {
             Objects.requireNonNull(first, "First expression shall not be null.");
             Objects.requireNonNull(next, "Next expression list shall not be null.");
             return new Compound(first, next);
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder implements io.helidon.common.Builder<Builder, Compound> {
+
+            private Expression first;
+
+            private List<Compound.NextExpression> next;
+
+            private Builder() {
+                this.first = null;
+                this.next = null;
+            }
+
+            public Builder first(Expression expression) {
+                Objects.requireNonNull(expression, "Expression shall not be null.");
+                if (first != null) {
+                    throw new IllegalStateException("First expression was already set.");
+                }
+                this.first = expression;
+                return this;
+            }
+
+            public Builder next(List<Compound.NextExpression> next) {
+                Objects.requireNonNull(next, "Expression list shall not be null.");
+                if (first == null) {
+                    throw new IllegalStateException("No first expression was set.");
+                }
+                this.next = next;
+                return this;
+            }
+
+            public Compound build() {
+                if (first == null) {
+                    throw new IllegalStateException("No first expression was set.");
+                }
+                if (next == null) {
+                    throw new IllegalStateException("No next expression list was set.");
+                }
+                if (next.isEmpty()) {
+                    throw new IllegalStateException("No next expression was set.");
+                }
+                return Compound.build(first, List.copyOf(next));
+            }
+
         }
 
         // First expression (with no logical operator).

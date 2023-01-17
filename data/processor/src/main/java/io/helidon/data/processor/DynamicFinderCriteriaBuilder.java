@@ -21,7 +21,6 @@ import java.util.Objects;
 
 import io.helidon.data.runtime.DynamicFinder;
 import io.helidon.data.runtime.DynamicFinderCriteria;
-import io.helidon.data.runtime.DynamicFinderOrder;
 
 class DynamicFinderCriteriaBuilder {
 
@@ -35,7 +34,7 @@ class DynamicFinderCriteriaBuilder {
     // Contains nextExpressionBuilder instance after first expression is finished.
     private ConditionBuilder conditionBuilder;
     // Criteria next expression builder.
-    private NextExpressionBuilder nextExpressionBuilder;
+    private DynamicFinderCriteria.Compound.NextExpression.Builder nextExpressionBuilder;
 
     // Creqates an instanceof query criteria builder.
     DynamicFinderCriteriaBuilder(DynamicFinderBuilder builder) {
@@ -272,12 +271,12 @@ class DynamicFinderCriteriaBuilder {
     static ConditionBuilder conditionBuilder() {
         return new ConditionBuilder();
     }
-    static NextExpressionBuilder expressionBuilder() {
-        return new NextExpressionBuilder();
+    static DynamicFinderCriteria.Compound.NextExpression.Builder expressionBuilder() {
+        return DynamicFinderCriteria.Compound.NextExpression.builder();
     }
 
-    static CompoundBuilder compoundBuilder() {
-        return new CompoundBuilder();
+    static DynamicFinderCriteria.Compound.Builder compoundBuilder() {
+        return DynamicFinderCriteria.Compound.builder();
     }
 
     private static class ConditionBuilder {
@@ -341,84 +340,5 @@ class DynamicFinderCriteriaBuilder {
         }
 
     }
-
-    static class NextExpressionBuilder {
-
-        private DynamicFinderCriteria.Compound.NextExpression.Operator operator;
-
-        private DynamicFinderCriteria.Expression expression;
-
-        private NextExpressionBuilder() {
-            this.operator = null;
-            this.expression = null;
-        }
-
-        NextExpressionBuilder operator(DynamicFinderCriteria.Compound.NextExpression.Operator operator) {
-            Objects.requireNonNull(operator, "Expression operator shall not be null.");
-            this.operator = operator;
-            return this;
-        }
-
-        NextExpressionBuilder expression(DynamicFinderCriteria.Expression expression) {
-            Objects.requireNonNull(expression, "Expression shall not be null.");
-            this.expression = expression;
-            return this;
-        }
-
-        DynamicFinderCriteria.Compound.NextExpression build() {
-            if (operator == null) {
-                throw new IllegalStateException("No expression operator was set.");
-            }
-            if (expression == null) {
-                throw new IllegalStateException("No expression was set.");
-            }
-            return DynamicFinderCriteria.Compound.buildExpression(operator, expression);
-        }
-    }
-
-    static class CompoundBuilder {
-
-        private DynamicFinderCriteria.Expression first;
-
-        private List<DynamicFinderCriteria.Compound.NextExpression> next;
-
-        private CompoundBuilder() {
-            this.first = null;
-            this.next = null;
-        }
-
-        CompoundBuilder first(DynamicFinderCriteria.Expression expression) {
-            Objects.requireNonNull(expression, "Expression shall not be null.");
-            if (first != null) {
-                throw new IllegalStateException("First expression was already set.");
-            }
-            this.first = expression;
-            return this;
-        }
-
-        CompoundBuilder next(List<DynamicFinderCriteria.Compound.NextExpression> next) {
-            Objects.requireNonNull(next, "Expression list shall not be null.");
-            if (first == null) {
-                throw new IllegalStateException("No first expression was set.");
-            }
-            this.next = next;
-            return this;
-        }
-
-        DynamicFinderCriteria.Compound build() {
-            if (first == null) {
-                throw new IllegalStateException("No first expression was set.");
-            }
-            if (next == null) {
-                throw new IllegalStateException("No next expression list was set.");
-            }
-            if (next.isEmpty()) {
-                throw new IllegalStateException("No next expression was set.");
-            }
-            return DynamicFinderCriteria.Compound.build(first, List.copyOf(next));
-        }
-
-    }
-
 
 }

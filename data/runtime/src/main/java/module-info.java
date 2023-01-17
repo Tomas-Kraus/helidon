@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2022 Oracle and/or its affiliates.
+ * Copyright (c) 2023 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Helidon data repository API.
+ * Helidon Data Repository Runtime.
  *
- * @see io.helidon.data
+ * @see io.helidon.data.runtime
  */
 module io.helidon.data.runtime {
     requires java.logging;
     requires java.sql;
+    requires io.helidon.common;
     requires io.helidon.data;
 
     exports io.helidon.data.runtime;

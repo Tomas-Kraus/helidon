@@ -29,6 +29,8 @@ class PokemonFilterImpl implements PokemonFilter {
     static final String ID = "id";
     // Parameter name
     static final String NAME = "name";
+    // Parameter type
+    static final String TYPE = "type";
 
     // Entity attributes case-insensitive matching Map.
     static final Map<String, String> ENTITY_ATTRS = initEntityAttrs();
@@ -54,6 +56,7 @@ class PokemonFilterImpl implements PokemonFilter {
         Map<String, String> map = new HashMap<>();
         map.put(ID.toLowerCase(), ID);
         map.put(NAME.toLowerCase(), NAME);
+        map.put(TYPE.toLowerCase(), TYPE);
         return map;
     }
 
@@ -63,9 +66,12 @@ class PokemonFilterImpl implements PokemonFilter {
         private final List<DynamicFinderCriteria.Condition> idList;
         // Criteria part of the Helidon dynamic finder query: name parameter conditions
         private final List<DynamicFinderCriteria.Condition> nameList;
+        // Other entities relations expressions prefixed with local property
+        private final List<DynamicFinderCriteria.Expression> relationsList;
 
         // Order part of the Helidon dynamic finder query.
         private final List<DynamicFinderOrder.Order> orderList;
+
 
         private TypeCriteria typeCriteria;
         private TypeOrder typeOrder;
@@ -74,6 +80,7 @@ class PokemonFilterImpl implements PokemonFilter {
             this.idList = new LinkedList<>();
             this.nameList = new LinkedList<>();
             this.orderList = new LinkedList<>();
+            this.relationsList = new LinkedList<>();
             this.typeCriteria = null;
             this.typeOrder = null;
         }
@@ -108,7 +115,9 @@ class PokemonFilterImpl implements PokemonFilter {
 
         @Override
         public Builder type(TypeCriteria criteria) {
-            typeCriteria = criteria;
+            if (!criteria.criteria().isEmpty()) {
+                relationsList.add(DynamicFinderCriteria.Expression.propertyPrefix(TYPE, criteria.criteria().get().expression()));
+            }
             return this;
         }
 
@@ -182,7 +191,6 @@ class PokemonFilterImpl implements PokemonFilter {
          * @return ordering builder
          */
         public Builder orderBy(String name, String order) {
-            Objects.requireNonNull(name, "Name of entity attribute is null");
             Objects.requireNonNull(order, "Ordering keyword is null.");
             return orderBy(name, DynamicFinderOrder.Order.Method.parse(order));
         }
@@ -209,6 +217,7 @@ class PokemonFilterImpl implements PokemonFilter {
         @Override
         public PokemonFilter build() {
             List<DynamicFinderCriteria.Expression> expressions = FilterHelper.buildExpressions(idList, nameList);
+            expressions.addAll(relationsList);
             Optional<DynamicFinderCriteria> criteria = switch (expressions.size()) {
                 case 0 -> Optional.empty();
                 case 1 -> Optional.of(DynamicFinderCriteria.build(expressions.get(0)));

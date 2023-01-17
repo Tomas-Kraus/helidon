@@ -20,7 +20,6 @@ import io.helidon.common.reactive.Single;
 import io.helidon.data.model.Page;
 import io.helidon.data.model.Pageable;
 import io.helidon.data.model.Sort;
-import io.helidon.data.RepositoryException;
 
 /**
  * Reactive data repository interface with pagination support.
@@ -35,7 +34,7 @@ public interface ReactivePageableRepository<E, ID> extends ReactiveCrudRepositor
      *
      * @param sort the sort. Must not be {@code null}
      * @return all entities found
-     * @throws {@link RepositoryException} if the sort is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the sort is {@code null} or the operation has failed
      */
     Multi<E> findAll(Sort sort);
 
@@ -44,7 +43,7 @@ public interface ReactivePageableRepository<E, ID> extends ReactiveCrudRepositor
      *
      * @param pageable the pageable. Must not be {@code null}
      * @return all entities found
-     * @throws {@link RepositoryException} if the pageable is {@code null} or the operation has failed
+     * @throws {@link io.helidon.data.DataException} if the pageable is {@code null} or the operation has failed
      */
     Single<Page<E>> findAll(Pageable pageable);
 
