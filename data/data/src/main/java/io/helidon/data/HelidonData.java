@@ -19,6 +19,8 @@ package io.helidon.data;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.helidon.common.HelidonServiceLoader;
 import io.helidon.config.Config;
@@ -43,14 +45,14 @@ public interface HelidonData {
 
     /**
      * Execute provided task as database transaction.
-     * Task computes and returns result.
+     * Transaction is handled automatically. Task computes and returns result.
      *
      * @param task task to run in transaction
      * @return computed task result
      * @param <T> the result type of the task
      * @throws Exception when result computation failed
      */
-    <T> T transaction(Callable<T> task) throws Exception;
+    <T> T transaction(Callable<T> task);
 
     /**
      * Task that does not return a result but may throw an exception.
@@ -68,12 +70,32 @@ public interface HelidonData {
 
     /**
      * Execute provided task as database transaction.
-     * Task does not return any result.
+     * Transaction is handled automatically. Task does not return any result.
      *
      * @param task task to run in transaction
      * @throws Exception when task computation failed
      */
-    void transaction(VoidCallable task) throws Exception;
+    void transaction(VoidCallable task);
+
+    /**
+     * Execute provided task as database transaction.
+     * Transaction is finished manually. Task computes and returns result.
+     *
+     * @param task task to run in transaction
+     * @return computed task result
+     * @param <T> the result type of the task
+     * @throws Exception when result computation failed
+     */
+    <T> T transaction(Function<DataTransaction, T> task);
+
+    /**
+     * Execute provided task as database transaction.
+     * Transaction is handled automatically. Task does not return any result.
+     *
+     * @param task task to run in transaction
+     * @throws Exception when task computation failed
+     */
+    void transaction(Consumer<DataTransaction> task);
 
     /**
      * Create new instance of Helidon Data Repository builder.

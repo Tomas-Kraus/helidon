@@ -1,0 +1,16 @@
+package {{{packageName}}};
+
+{{#imports}}import {{{.}}};
+{{/imports}}
+/**
+ * Data repository interface {{{classInterface}}} implementation.
+ */
+public class {{{className}}} implements {{{classInterface}}} {
+    {{#getMethods}}public {{{type}}} {{{name}}}({{#parameters}}{{#if first}}
+            {{else}},
+            {{/if}}{{{type}}} {{{name}}}{{/parameters}}
+    ) {
+        return null;
+    }
+{{/getMethods}}
+}

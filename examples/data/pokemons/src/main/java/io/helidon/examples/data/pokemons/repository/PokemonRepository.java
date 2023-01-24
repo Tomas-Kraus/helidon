@@ -18,6 +18,7 @@ package io.helidon.examples.data.pokemons.repository;
 import io.helidon.data.annotation.NativeQuery;
 import io.helidon.data.annotation.Query;
 import io.helidon.data.annotation.Repository;
+import io.helidon.data.annotation.Transactional;
 import io.helidon.data.repository.CrudRepository;
 import io.helidon.data.repository.RepositoryFilter;
 import io.helidon.examples.data.pokemons.model.Pokemon;
@@ -42,6 +43,10 @@ public interface PokemonRepository extends CrudRepository<Pokemon, Integer> {
     // Query defined by annotation: Find pokemon by provided type name and name attributes
     @Query(value="SELECT p FROM Pokemon p WHERE p.type.name = :typeName AND p.name = :pokemonName")
     Optional<Pokemon> pokemonByTypeAndName(String typeName, String pokemonName);
+
+    // Query defined by annotation: Find all pokemons by provided trainer's name
+    @Query(value="SELECT p FROM Pokemon p WHERE p.trainer.name = :trainerName")
+    List<Pokemon> pokemonsByTrainerName(String trainerName);
 
     // Query defined by annotation: Find pokemon by provided type name and name attributes
     @Query(key="pokemons.jpql.by-type-and-name")
@@ -83,5 +88,12 @@ public interface PokemonRepository extends CrudRepository<Pokemon, Integer> {
 
     // Another example of passing both criteria and ordering rules together.
     List<Pokemon> findNameByFilter(PokemonFilter filter);
+
+    @Transactional
+    default void decrementPokemonHp(String trainer, int hp) {
+        List<Pokemon> pokemons = pokemonsByTrainerName(trainer);
+        pokemons.forEach(pokemon -> pokemon.setHp(pokemon.getHp() - hp));
+        updateAll(pokemons);
+    }
 
 }

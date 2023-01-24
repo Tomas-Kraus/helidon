@@ -36,6 +36,7 @@ import jakarta.persistence.*;
                         fields = {
                                 @FieldResult(name = "id", column = "p.ID"),
                                 @FieldResult(name = "name", column = "p.NAME"),
+                                @FieldResult(name = "hp", column = "p.HP"),
                                 @FieldResult(name = "type", column = "p.ID_TYPE")
                         }
                 )
@@ -47,8 +48,13 @@ public class Pokemon {
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(name = "NAME")
     private String name;
+
+    @Column(name = "HP")
+    private int hp;
+
     @ManyToOne()
     @JoinColumn(name = "idType")
     @Column(name = "ID_TYPE")
@@ -65,6 +71,7 @@ public class Pokemon {
     public Pokemon() {
         this.id = -1;
         this.name = null;
+        this.hp = 0;
         this.type = null;
     }
 
@@ -82,6 +89,14 @@ public class Pokemon {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
     }
 
     public Type getType() {

@@ -23,13 +23,16 @@ import io.helidon.data.processor.spi.QueryTransformationProvider;
  * @see io.helidon.data.jpa.processor
  */
 module io.helidon.data.jpa.processor {
+
     requires java.logging;
     requires io.helidon.data;
     requires io.helidon.common;
     requires io.helidon.data.processor;
     requires io.helidon.data.runtime;
+    requires handlebars;
 
     exports io.helidon.data.jpa.processor;
 
     provides QueryTransformationProvider with JpaQueryTransformationProvider;
+
 }

@@ -22,6 +22,7 @@ import io.helidon.data.spi.HelidonDataProvider;
  * @see io.helidon.data
  */
 module io.helidon.data {
+
     requires java.logging;
     requires java.sql;
     requires transitive io.helidon.common.reactive;
@@ -30,9 +31,6 @@ module io.helidon.data {
 
     exports io.helidon.data;
     exports io.helidon.data.annotation;
-    exports io.helidon.data.annotation.event;
-    exports io.helidon.data.event;
-    exports io.helidon.data.event.listeners;
     exports io.helidon.data.model;
     exports io.helidon.data.repository;
     exports io.helidon.data.spi;

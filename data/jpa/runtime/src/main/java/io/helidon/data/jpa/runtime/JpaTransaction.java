@@ -13,8 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Reactive data repository interfaces.
- * This package provides interfaces for reactive data access.
- */
-package io.helidon.data.repository.reactive;
+package io.helidon.data.jpa.runtime;
+
+import jakarta.persistence.EntityTransaction;
+
+import io.helidon.data.DataTransaction;
+
+class JpaTransaction implements DataTransaction {
+
+    private final EntityTransaction et;
+
+    JpaTransaction(EntityTransaction et) {
+        this.et = et;
+    }
+
+    @Override
+    public void commit() {
+        et.commit();
+    }
+
+    @Override
+    public void rollback() {
+        et.rollback();
+    }
+
+    void begin() {
+        et.begin();
+    }
+
+
+}

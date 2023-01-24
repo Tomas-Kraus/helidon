@@ -17,7 +17,11 @@
 package io.helidon.data.jpa.runtime;
 
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import io.helidon.data.DataException;
+import io.helidon.data.DataTransaction;
 import io.helidon.data.HelidonData;
 import io.helidon.data.repository.GenericRepository;
 
@@ -41,30 +45,44 @@ class JpaHelidonData implements HelidonData {
     }
 
     @Override
-    public <T> T transaction(Callable<T> transaction) throws Exception {
+    public <T> T transaction(Callable<T> task) {
         EntityTransaction et = jpaContext.entityManager().getTransaction();
         et.begin();
         try {
-            T result = transaction.call();
+            T result = task.call();
             et.commit();
             return result;
         } catch (Throwable t) {
             et.rollback();
-            throw t;
+            throw new DataException("Helidon Data transaction failed", t);
         }
     }
 
     @Override
-    public void transaction(VoidCallable transaction) throws Exception {
+    public void transaction(VoidCallable task) {
         EntityTransaction et = jpaContext.entityManager().getTransaction();
         et.begin();
         try {
-            transaction.call();
+            task.call();
             et.commit();
         } catch (Throwable t) {
             et.rollback();
-            throw t;
+            throw new DataException("Helidon Data transaction failed", t);
         }
+    }
+
+    @Override
+    public <T> T transaction(Function<DataTransaction, T> task) {
+        JpaTransaction t = new JpaTransaction(jpaContext.entityManager().getTransaction());
+        t.begin();
+        return task.apply(t);
+    }
+
+    @Override
+    public  void transaction(Consumer<DataTransaction> task) {
+        JpaTransaction t = new JpaTransaction(jpaContext.entityManager().getTransaction());
+        t.begin();
+        task.accept(t);
     }
 
 }

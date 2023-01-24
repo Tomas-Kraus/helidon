@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2022 Oracle and/or its affiliates.
+ * Copyright (c) 2022, 2023 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package io.helidon.examples.data.pokemons;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.helidon.common.http.Http;
@@ -25,16 +24,8 @@ import io.helidon.data.runtime.DynamicFinderOrder;
 import io.helidon.examples.data.pokemons.model.Pokemon;
 import io.helidon.examples.data.pokemons.repository.PokemonRepository;
 import io.helidon.examples.data.pokemons.repository.TypeRepository;
-import io.helidon.examples.data.pokemons.repository.generated.PokemonCriteria;
-import io.helidon.examples.data.pokemons.repository.generated.PokemonFilter;
-import io.helidon.examples.data.pokemons.repository.generated.PokemonOrder;
-import io.helidon.examples.data.pokemons.repository.generated.TypeCriteria;
-import io.helidon.examples.data.pokemons.repository.generated.TypeOrder;
-import io.helidon.nima.webserver.http.Handler;
-import io.helidon.nima.webserver.http.HttpRules;
-import io.helidon.nima.webserver.http.HttpService;
-import io.helidon.nima.webserver.http.ServerRequest;
-import io.helidon.nima.webserver.http.ServerResponse;
+import io.helidon.examples.data.pokemons.repository.generated.*;
+import io.helidon.nima.webserver.http.*;
 
 /**
  * Example Nima service using blocking CRUD data repoository.
@@ -165,15 +156,11 @@ public class PokemonService implements HttpService {
     private void getPokemonsByType(ServerRequest request, ServerResponse response) {
         String typeName = request.path().pathParameters().value("name");
         // List<Pokemon> findByTypeName(String typeName) is method defined as query by method name
-        try {
-            response.send(
-                    data.transaction(
-                            () -> pokemonRepository.findByTypeName(typeName)
-                    )
-            );
-        } catch (Exception e) {
-            response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
-        }
+        response.send(
+                data.transaction(
+                        () -> pokemonRepository.findByTypeName(typeName)
+                )
+        );
     }
 
     /**
@@ -187,16 +174,12 @@ public class PokemonService implements HttpService {
         String pokemonName = request.path().pathParameters().value("pokemonName");
         // Optional<Pokemon> pokemonsByTypeAndName(String typeName, String pokemonName)
         // is method defined by custom query annotation
-        try {
-            data.transaction(
-                    () -> pokemonRepository.pokemonByTypeAndName(typeName, pokemonName)
-            ).ifPresentOrElse(
-                    it -> response.send(it),
-                    () -> response.status(Http.Status.NOT_FOUND_404).send()
-            );
-        } catch (Exception e) {
-            response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
-        }
+        data.transaction(
+                () -> pokemonRepository.pokemonByTypeAndName(typeName, pokemonName)
+        ).ifPresentOrElse(
+                it -> response.send(it),
+                () -> response.status(Http.Status.NOT_FOUND_404).send()
+        );
     }
 
     /**
@@ -206,13 +189,9 @@ public class PokemonService implements HttpService {
      */
     private void insertPokemon(Pokemon pokemon, ServerResponse response) {
         // <T extends E> T save(T entity) is method added from CrudRepository interface
-        try {
-            response.send(
-                    data.transaction(
-                            () -> pokemonRepository.save(pokemon)));
-        } catch (Exception e) {
-            response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
-        }
+        response.send(
+                data.transaction(
+                        () -> pokemonRepository.save(pokemon)));
     }
 
     /**
@@ -227,6 +206,69 @@ public class PokemonService implements HttpService {
     }
 
     /**
+     * Increment HP of all pokemons owned by a trainer.
+     * Request parameter {@code trainer} contains name of the trainer.
+     * Request parameter {@code hp} contains HP increase of the pokemons.
+     *
+     * @param request the server request
+     * @param response the server response
+     */
+    private void incrementPokemonHp(ServerRequest request, ServerResponse response) {
+        String trainer = request.path().pathParameters().value("trainer");
+        int hp = Integer.parseInt(request.path().pathParameters().value("hp"));
+        data.transaction(
+                t -> {
+                    try {
+                        List<Pokemon> pokemons = pokemonRepository.pokemonsByTrainerName(trainer);
+                        pokemons.forEach(pokemon -> pokemon.setHp(pokemon.getHp() + hp));
+                        pokemonRepository.updateAll(pokemons);
+                        t.commit();
+                        response.send();
+                    } catch (Throwable th) {
+                        t.rollback();
+                        response.status(Http.Status.INTERNAL_SERVER_ERROR_500).send();
+                    }
+                });
+    }
+
+    /**
+     * Increment HP of all pokemons owned by a trainer.
+     * Request parameter {@code trainer} contains name of the trainer.
+     * Request parameter {@code hp} contains HP increase of the pokemons.
+     *
+     * @param request the server request
+     * @param response the server response
+     */
+    private void incrementPokemonHp2(ServerRequest request, ServerResponse response) {
+        String trainer = request.path().pathParameters().value("trainer");
+        int hp = Integer.parseInt(request.path().pathParameters().value("hp"));
+        data.transaction(
+                () -> {
+                        List<Pokemon> pokemons = pokemonRepository.pokemonsByTrainerName(trainer);
+                        pokemons.forEach(pokemon -> pokemon.setHp(pokemon.getHp() + hp));
+                        pokemonRepository.updateAll(pokemons);
+                });
+        response.send();
+    }
+
+    /**
+     * Decrement HP of all pokemons owned by a trainer.
+     * Request parameter {@code trainer} contains name of the trainer.
+     * Request parameter {@code hp} contains HP increase of the pokemons.
+     *
+     * @param request the server request
+     * @param response the server response
+     */
+    private void decrementPokemonHp(ServerRequest request, ServerResponse response) {
+        // This method is annotated with @Transactional
+        pokemonRepository.decrementPokemonHp(
+                request.path().pathParameters().value("trainer"),
+                Integer.parseInt(request.path().pathParameters().value("hp"))
+        );
+        response.send();
+    }
+
+    /**
      * Delete pokemon with specified id (key).
      *
      * @param request the server request
@@ -234,13 +276,9 @@ public class PokemonService implements HttpService {
     private void deletePokemonById(ServerRequest request, ServerResponse response) {
         int id = Integer.parseInt(request.path().pathParameters().value("id"));
         // void deleteById(ID id) is method added from CrudRepository interface
-        try {
-            data.transaction(
-                    () -> pokemonRepository.deleteById(id)
-            );
-        } catch (Exception e) {
-            response.status(Http.Status.INTERNAL_SERVER_ERROR_500);
-        }
+        data.transaction(
+                () -> pokemonRepository.deleteById(id)
+        );
         response.send();
     }
 
