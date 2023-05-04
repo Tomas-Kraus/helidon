@@ -1,11 +1,12 @@
 /*
- * Copyright 2017-2020 original authors
+ * Copyright (c) 2022, 2023 Oracle and/or its affiliates.
+ * Copyright (c) 2017-2020 original authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,11 +15,6 @@
  * limitations under the License.
  */
 package io.helidon.data.model;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -29,7 +25,6 @@ import java.util.List;
  * @author graemerocher
  * @since 1.0.0
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public interface Pageable extends Sort {
 
     /**
@@ -144,7 +139,6 @@ public interface Pageable extends Sort {
     }
 
     @Override
-    @JsonIgnore
     default List<Order> getOrderBy() {
         return getSort().getOrderBy();
     }
@@ -175,11 +169,7 @@ public interface Pageable extends Sort {
      * @param sort the sort
      * @return The pageable
      */
-    @JsonCreator
-    static Pageable from(
-            @JsonProperty("number") int page,
-            @JsonProperty("size") int size,
-            @JsonProperty("sort") Sort sort) {
+    static Pageable from(int page, int size, Sort sort) {
         return new DefaultPageable(page, size, sort);
     }
 

@@ -15,11 +15,6 @@
  */
 package io.helidon.data.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-//import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -36,8 +31,6 @@ import java.util.stream.Collectors;
  * @author graemerocher
  * @since 1.0.0
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-//@JsonDeserialize(as = DefaultPage.class)
 public interface Page<T> extends Slice<T> {
 
     Page<?> EMPTY = new DefaultPage<>(Collections.emptyList(), Pageable.unpaged(), 0);
@@ -76,11 +69,7 @@ public interface Page<T> extends Slice<T> {
      * @param <T> The generic type
      * @return The slice
      */
-    @JsonCreator
-    static <T> Page<T> of(
-            @JsonProperty("content") List<T> content,
-            @JsonProperty("pageable") Pageable pageable,
-            @JsonProperty("totalSize") long totalSize) {
+    static <T> Page<T> of(List<T> content, Pageable pageable, long totalSize) {
         return new DefaultPage<>(content, pageable, totalSize);
     }
 

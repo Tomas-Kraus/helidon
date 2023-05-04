@@ -15,8 +15,8 @@
  */
 package io.helidon.examples.data.pokemons.repository;
 
-import io.helidon.data.annotation.Repository;
-import io.helidon.data.repository.CrudRepository;
+import io.helidon.data.Repository;
+import io.helidon.data.CrudRepository;
 import io.helidon.examples.data.pokemons.model.Type;
 
 // Micronaut marks those interfaces/abstract classes with annotation. It may help with processing.

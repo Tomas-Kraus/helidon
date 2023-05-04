@@ -15,8 +15,8 @@
  */
 package io.helidon.data.test;
 
-import io.helidon.data.repository.CrudRepository;
-import io.helidon.data.annotation.Repository;
+import io.helidon.data.CrudRepository;
+import io.helidon.data.Repository;
 
 @Repository
 public interface PokemonRepository extends CrudRepository {

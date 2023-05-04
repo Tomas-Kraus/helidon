@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.data.annotation;
+package io.helidon.data;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Data repository class annotation.
+ * Annotation to define transaction boundaries on methods.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.TYPE, ElementType.FIELD})
-@Documented
-public @interface Repository {
-
-    /**
-     * Underlying datasource connection name.
-     *
-     * @return name of the connection
-     */
-    String value() default "";
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface Transactional {
 
 }

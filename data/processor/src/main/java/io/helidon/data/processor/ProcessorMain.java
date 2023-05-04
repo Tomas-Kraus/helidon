@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.lang.System.Logger.Level;
 
+import io.helidon.data.Repository;
+
 public class ProcessorMain {
     private static final System.Logger LOGGER = System.getLogger(ProcessorMain.class.getName());
 
@@ -28,7 +30,7 @@ public class ProcessorMain {
                     entityModelBuilder.entity(ec.type().getName(), ec);
                 }
                 // Need entity model before processing repository interfaces
-                if (cls.isAnnotationPresent(io.helidon.data.annotation.Repository.class)) {
+                if (cls.isAnnotationPresent(Repository.class)) {
                     repositories.add(cls);
                 }
             }

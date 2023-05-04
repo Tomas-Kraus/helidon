@@ -23,7 +23,7 @@ import java.util.function.Function;
 import io.helidon.data.DataException;
 import io.helidon.data.DataTransaction;
 import io.helidon.data.HelidonData;
-import io.helidon.data.repository.GenericRepository;
+import io.helidon.data.GenericRepository;
 
 import jakarta.persistence.EntityTransaction;
 

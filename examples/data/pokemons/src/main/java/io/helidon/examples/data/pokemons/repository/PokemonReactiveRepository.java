@@ -17,8 +17,8 @@ package io.helidon.examples.data.pokemons.repository;
 
 import io.helidon.common.reactive.Multi;
 import io.helidon.common.reactive.Single;
-import io.helidon.data.annotation.Query;
-import io.helidon.data.annotation.Repository;
+import io.helidon.data.Query;
+import io.helidon.data.Repository;
 import io.helidon.data.repository.reactive.ReactiveCrudRepository;
 import io.helidon.examples.data.pokemons.model.Pokemon;
 

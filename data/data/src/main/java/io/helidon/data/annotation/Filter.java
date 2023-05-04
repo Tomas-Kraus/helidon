@@ -15,7 +15,7 @@
  */
 package io.helidon.data.annotation;
 
-import io.helidon.data.repository.RepositoryFilter;
+import io.helidon.data.RepositoryFilter;
 
 import java.lang.annotation.*;
 
@@ -28,7 +28,7 @@ public @interface Filter {
     /**
      * Data repository finder method custom filter definition.
      *
-     * @return the custom filter claqss
+     * @return the custom filter class
      */
     Class<? extends RepositoryFilter> value();
 

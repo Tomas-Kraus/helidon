@@ -13,27 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.data.annotation;
-
-import java.lang.annotation.*;
+package io.helidon.data;
 
 /**
- * Defines abstract query string such as JPQL that should be executed.
+ * Data repository finder custom filter.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-@Documented
-@Inherited
-public @interface Query {
+public interface RepositoryFilter {
 
-    /**
-     * @return The query string configuration key.
-     */
-    String key() default "";
+    interface Criteria {
+    }
 
-    /**
-     * @return The raw query string.
-     */
-    String value() default "";
+    interface Order {
+    }
 
 }

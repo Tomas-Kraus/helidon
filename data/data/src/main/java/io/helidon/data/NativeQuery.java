@@ -15,28 +15,35 @@
  */
 package io.helidon.data;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
- * A {@link RuntimeException} used by Helidon Repository Data component.
+ * Defines database specific query string such as SQL that should be executed.
  */
-public class DataException extends RuntimeException {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Documented
+@Inherited
+public @interface NativeQuery {
 
     /**
-     * Create a new exception for a message.
-     *
-     * @param message descriptive message
+     * @return The query string configuration key.
      */
-    public DataException(String message) {
-        super(message);
-    }
+    String key() default "";
 
     /**
-     * Create a new exception for a message and a cause.
-     *
-     * @param message descriptive message
-     * @param cause original throwable causing this exception
+     * @return The raw query string.
      */
-    public DataException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    String value() default "";
+
+    /**
+     * @return JPA ResultSet mapping name.
+     */
+    String resultSetMapping() default "";
 
 }

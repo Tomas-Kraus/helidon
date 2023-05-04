@@ -1,11 +1,12 @@
 /*
- * Copyright 2017-2020 original authors
+ * Copyright (c) 2022, 2023 Oracle and/or its affiliates.
+ * Copyright (c) 2017-2020 original authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +16,13 @@
  */
 package io.helidon.data.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * An interface for objects that can be sorted. Sorted instances are immutable and all mutating operations on this interface return a new instance.
- *
- * @author graemerocher
- * @since 1.0
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public interface Sort {
 
     /**
@@ -86,9 +79,7 @@ public interface Sort {
      * @param orderList The order list
      * @return The sort
      */
-    @JsonCreator
-    static Sort of(
-            @JsonProperty("orderBy") List<Order> orderList) {
+    static Sort of(List<Order> orderList) {
         if (orderList == null || orderList.isEmpty()) {
             return UNSORTED;
         }
@@ -112,6 +103,7 @@ public interface Sort {
      * The ordering of results.
      */
     class Order {
+
         private final String property;
         private final Direction direction;
         private final boolean ignoreCase;
@@ -130,13 +122,9 @@ public interface Sort {
          * @param direction The direction
          * @param ignoreCase Whether to ignore case
          */
-        @JsonCreator
-        public Order(
-                @JsonProperty("property") String property,
-                @JsonProperty("direction") Direction direction,
-                @JsonProperty("ignoreCase") boolean ignoreCase) {
-//            ArgumentUtils.requireNonNull("direction", direction);
-//            ArgumentUtils.requireNonNull("property", property);
+        public Order(String property, Direction direction, boolean ignoreCase) {
+            Objects.requireNonNull(direction, "The direction is null");
+            Objects.requireNonNull(property, "The property is null");
             this.direction = direction;
             this.property = property;
             this.ignoreCase = ignoreCase;

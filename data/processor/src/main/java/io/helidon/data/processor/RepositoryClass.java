@@ -1,7 +1,5 @@
 package io.helidon.data.processor;
 
-import java.lang.annotation.Annotation;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,8 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import io.helidon.data.repository.CrudRepository;
-import io.helidon.data.repository.GenericRepository;
+import io.helidon.data.CrudRepository;
 
 public class RepositoryClass {
 

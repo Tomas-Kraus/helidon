@@ -15,12 +15,11 @@
  */
 package io.helidon.examples.data.pokemons.repository;
 
-import io.helidon.data.annotation.NativeQuery;
-import io.helidon.data.annotation.Query;
-import io.helidon.data.annotation.Repository;
-import io.helidon.data.annotation.Transactional;
-import io.helidon.data.repository.CrudRepository;
-import io.helidon.data.repository.RepositoryFilter;
+import io.helidon.data.NativeQuery;
+import io.helidon.data.Query;
+import io.helidon.data.Repository;
+import io.helidon.data.Transactional;
+import io.helidon.data.CrudRepository;
 import io.helidon.examples.data.pokemons.model.Pokemon;
 import io.helidon.examples.data.pokemons.repository.generated.PokemonCriteria;
 import io.helidon.examples.data.pokemons.repository.generated.PokemonFilter;

@@ -32,7 +32,6 @@ module io.helidon.data {
     exports io.helidon.data;
     exports io.helidon.data.annotation;
     exports io.helidon.data.model;
-    exports io.helidon.data.repository;
     exports io.helidon.data.spi;
 
     uses HelidonDataProvider;

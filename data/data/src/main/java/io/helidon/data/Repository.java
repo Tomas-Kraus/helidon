@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2023 Oracle and/or its affiliates.
+ * Copyright (c) 2023 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.data.annotation;
+package io.helidon.data;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Defines database specific query string such as SQL that should be executed.
+ * Data repository class annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.TYPE, ElementType.FIELD})
 @Documented
-@Inherited
-public @interface NativeQuery {
+public @interface Repository {
 
     /**
-     * @return The query string configuration key.
-     */
-    String key() default "";
-
-    /**
-     * @return The raw query string.
+     * Underlying datasource connection name.
+     *
+     * @return name of the connection
      */
     String value() default "";
-
-    /**
-     * @return JPA ResultSet mapping name.
-     */
-    String resultSetMapping() default "";
 
 }
