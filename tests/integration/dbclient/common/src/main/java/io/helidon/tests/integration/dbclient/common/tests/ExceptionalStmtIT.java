@@ -21,7 +21,6 @@ import io.helidon.dbclient.DbClient;
 import io.helidon.dbclient.DbClientException;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Pokemon.POKEMONS;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -29,14 +28,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Test exceptional states.
  */
-@ExtendWith(DbClientParameterResolver.class)
-class ExceptionalStmtIT {
+public abstract class ExceptionalStmtIT {
 
     private static final System.Logger LOGGER = System.getLogger(ExceptionalStmtIT.class.getName());
 
     private final DbClient dbClient;
 
-    ExceptionalStmtIT(DbClient dbClient) {
+    public ExceptionalStmtIT(DbClient dbClient) {
         this.dbClient = dbClient;
     }
 

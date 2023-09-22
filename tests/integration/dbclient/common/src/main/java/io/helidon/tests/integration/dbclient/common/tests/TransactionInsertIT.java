@@ -22,7 +22,6 @@ import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.dbclient.common.utils.TestConfig;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
 import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.verifyInsertPokemon;
@@ -31,8 +30,7 @@ import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.veri
  * Test set of basic JDBC inserts in transaction.
  */
 @SuppressWarnings("SpellCheckingInspection")
-@ExtendWith(DbClientParameterResolver.class)
-public class TransactionInsertIT {
+public abstract class TransactionInsertIT {
 
     private static final int BASE_ID = TestConfig.LAST_POKEMON_ID + 210;
 

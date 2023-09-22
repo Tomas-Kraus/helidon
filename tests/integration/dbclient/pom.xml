@@ -55,6 +55,7 @@
             <id>testcontainers</id>
             <modules>
 <!--                <module>mongodb</module>-->
+                <module>mysql</module>
             </modules>
         </profile>
     </profiles>

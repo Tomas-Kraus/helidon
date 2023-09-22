@@ -18,12 +18,12 @@ package io.helidon.tests.integration.dbclient.app.tests;
 import java.lang.System.Logger.Level;
 import java.util.Map;
 
-import io.helidon.http.NotFoundException;
 import io.helidon.dbclient.DbClient;
+import io.helidon.http.NotFoundException;
+import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
 import io.helidon.webserver.http.HttpRules;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
-import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
 
 import jakarta.json.Json;
 

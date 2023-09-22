@@ -24,7 +24,6 @@ import io.helidon.dbclient.DbRow;
 import io.helidon.tests.integration.dbclient.common.model.Type;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,14 +35,13 @@ import static org.hamcrest.Matchers.notNullValue;
 /**
  * Verify proper flow control handling in query processing.
  */
-@ExtendWith(DbClientParameterResolver.class)
-public class FlowControlIT {
+public abstract class FlowControlIT {
 
     private static final System.Logger LOGGER = System.getLogger(FlowControlIT.class.getName());
 
     private final DbClient dbClient;
 
-    FlowControlIT(DbClient dbClient) {
+    public FlowControlIT(DbClient dbClient) {
         this.dbClient = dbClient;
     }
 

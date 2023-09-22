@@ -33,14 +33,13 @@ module io.helidon.tests.integration.dbclient.common {
     requires io.helidon.dbclient.health;
     requires io.helidon.health;
     requires io.helidon.webserver.observe.health;
+    requires java.sql;
 
-    exports io.helidon.tests.integration.dbclient.common.spi;
     exports io.helidon.tests.integration.dbclient.common.tests;
     exports io.helidon.tests.integration.dbclient.common.utils;
     exports io.helidon.tests.integration.dbclient.common.model;
 
-    uses io.helidon.tests.integration.dbclient.common.spi.SetupProvider;
-
     provides io.helidon.dbclient.spi.DbMapperProvider
             with io.helidon.tests.integration.dbclient.common.utils.MapperProvider;
+
 }

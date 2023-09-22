@@ -19,16 +19,16 @@ import java.lang.System.Logger.Level;
 import java.util.Map;
 
 import io.helidon.config.Config;
-import io.helidon.health.HealthCheck;
-import io.helidon.health.HealthCheckResponse;
 import io.helidon.dbclient.DbClient;
 import io.helidon.dbclient.health.DbClientHealthCheck;
-import io.helidon.webserver.http.HttpRules;
-import io.helidon.webserver.http.ServerRequest;
-import io.helidon.webserver.http.ServerResponse;
+import io.helidon.health.HealthCheck;
+import io.helidon.health.HealthCheckResponse;
 import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
 import io.helidon.tests.integration.harness.AppResponse;
 import io.helidon.tests.integration.harness.RemoteTestException;
+import io.helidon.webserver.http.HttpRules;
+import io.helidon.webserver.http.ServerRequest;
+import io.helidon.webserver.http.ServerResponse;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObjectBuilder;

@@ -26,7 +26,6 @@ import io.helidon.tests.integration.dbclient.common.utils.TestConfig;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
 import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.verifyDeletePokemon;
@@ -36,8 +35,7 @@ import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.veri
  * Test set of basic JDBC delete calls.
  */
 @SuppressWarnings("SpellCheckingInspection")
-@ExtendWith(DbClientParameterResolver.class)
-public class SimpleDeleteIT {
+public abstract class SimpleDeleteIT {
 
     private static final System.Logger LOGGER = System.getLogger(SimpleDeleteIT.class.getName());
     private static final int BASE_ID = TestConfig.LAST_POKEMON_ID + 30;

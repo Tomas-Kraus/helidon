@@ -25,8 +25,6 @@ import java.net.http.HttpResponse;
 
 import io.helidon.config.Config;
 import io.helidon.dbclient.DbClient;
-import io.helidon.dbclient.DbStatementType;
-import io.helidon.dbclient.metrics.DbClientMetrics;
 import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.dbclient.common.utils.TestConfig;
 import io.helidon.webserver.WebServer;
@@ -40,7 +38,6 @@ import jakarta.json.stream.JsonParsingException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,31 +50,22 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Verify metrics check in web server environment.
  */
 @SuppressWarnings("SpellCheckingInspection")
-@ExtendWith(DbClientParameterResolver.class)
-public class ServerMetricsCheckIT {
+public abstract class ServerMetricsCheckIT {
 
     private static final System.Logger LOGGER = System.getLogger(ServerMetricsCheckIT.class.getName());
     private static final int BASE_ID = TestConfig.LAST_POKEMON_ID + 300;
 
-    private static DbClient DB_CLIENT;
     private static WebServer SERVER;
     private static String URL;
 
-    private static DbClient initDbClient(Config config) {
-        Config dbConfig = config.get("db");
-        return DbClient.builder(dbConfig)
-                // add an interceptor to named statement(s)
-                .addService(DbClientMetrics.counter()
-                        .statementNames("select-pokemons", "insert-pokemon"))
-                // add an interceptor to statement type(s)
-                .addService(DbClientMetrics.timer()
-                        .statementTypes(DbStatementType.INSERT))
-                .build();
+    private final DbClient dbClient;
+
+    public ServerMetricsCheckIT(DbClient dbClient) {
+        this.dbClient = dbClient;
     }
 
     @BeforeAll
     public static void startup(Config config) {
-        DB_CLIENT = initDbClient(config);
         SERVER = WebServer.builder()
                 .routing(routing -> routing.addFeature(ObserveFeature.create()))
                 .config(config.get("server"))
@@ -123,14 +111,14 @@ public class ServerMetricsCheckIT {
     public void testHttpMetrics() throws IOException, InterruptedException {
         // Call select-pokemons to trigger it
 
-        DB_CLIENT.execute()
+        dbClient.execute()
                 .namedQuery("select-pokemons")
                 .forEach(p -> {
                 });
 
         // Call insert-pokemon to trigger it
         Pokemon pokemon = new Pokemon(BASE_ID + 1, "Lickitung", TYPES.get(1));
-        DB_CLIENT.execute()
+        dbClient.execute()
                 .namedInsert("insert-pokemon", pokemon.getId(), pokemon.getName());
         // Read and process metrics response
         String response = get(URL + "/observe/metrics/application");
@@ -149,15 +137,15 @@ public class ServerMetricsCheckIT {
         assertThat(application.containsKey("db.counter.insert-pokemon"), equalTo(true));
         int selectPokemons = application.getInt("db.counter.select-pokemons");
         int insertPokemons = application.getInt("db.counter.insert-pokemon");
-        assertThat(selectPokemons, equalTo(1));
-        assertThat(insertPokemons, equalTo(1));
+        assertThat(selectPokemons, greaterThan(0));
+        assertThat(insertPokemons, greaterThan(0));
         assertThat(application.containsKey("db.timer.insert-pokemon"), equalTo(true));
         JsonObject insertTimer = application.getJsonObject("db.timer.insert-pokemon");
         assertThat(insertTimer.containsKey("count"), equalTo(true));
         assertThat(insertTimer.containsKey("mean"), equalTo(true));
         assertThat(insertTimer.containsKey("max"), equalTo(true));
         int timerCount = insertTimer.getInt("count");
-        assertThat(timerCount, equalTo(1));
+        assertThat(timerCount, greaterThan(0));
     }
 
 }

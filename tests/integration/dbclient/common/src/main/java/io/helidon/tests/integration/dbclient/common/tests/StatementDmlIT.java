@@ -27,7 +27,6 @@ import io.helidon.tests.integration.dbclient.common.utils.TestConfig;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
 import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.verifyInsertPokemon;
@@ -37,8 +36,7 @@ import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.veri
  * Test DbStatementDml methods.
  */
 @SuppressWarnings("SpellCheckingInspection")
-@ExtendWith(DbClientParameterResolver.class)
-public class StatementDmlIT {
+public abstract class StatementDmlIT {
 
     private static final System.Logger LOGGER = System.getLogger(StatementDmlIT.class.getName());
     private static final int BASE_ID = TestConfig.LAST_POKEMON_ID + 100;

@@ -28,7 +28,6 @@ import io.helidon.tests.integration.dbclient.common.utils.TestConfig;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Pokemon.POKEMONS;
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
@@ -42,15 +41,14 @@ import static org.hamcrest.Matchers.equalTo;
  * Verify mapping interface.
  */
 @SuppressWarnings("SpellCheckingInspection")
-@ExtendWith(DbClientParameterResolver.class)
-public class MapperIT {
+public abstract class MapperIT {
 
     private static final System.Logger LOGGER = System.getLogger(MapperIT.class.getName());
     private static final int BASE_ID = TestConfig.LAST_POKEMON_ID + 400;
 
     private final DbClient dbClient;
 
-    MapperIT(DbClient dbClient) {
+    public MapperIT(DbClient dbClient) {
         this.dbClient = dbClient;
     }
 

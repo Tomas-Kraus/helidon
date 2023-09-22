@@ -16,6 +16,7 @@
 package io.helidon.tests.integration.dbclient.common.utils;
 
 import java.lang.System.Logger.Level;
+import java.net.URI;
 
 /**
  * Configuration utilities.
@@ -40,6 +41,46 @@ public class TestConfig {
         String configFile = System.getProperty(CONFIG_PROPERTY_NAME, DEFAULT_CONFIG_FILE);
         LOGGER.log(Level.DEBUG, () -> String.format("Configuration file: %s", configFile));
         return configFile;
+    }
+
+    /**
+     * Create {@link URI} from database URL.
+     * JDBC URL like {@code "jdbc:mysql://127.0.0.1:3306/database"} is not valid URI {@code String}.
+     * {@code "jdbc:"} prefix must be removed before passing this URL {@code String} to URI factory method.
+     * Configuration values processing utility.
+     *
+     * @param url JDBC database URL
+     * @return {@link URI} from database URL
+     */
+    public static URI uriFromDbUrl(String url) {
+        int separator = url.indexOf(':'); // 4
+        if (separator == -1) {
+            throw new IllegalArgumentException("Missing ':' character to separate leading jdbc prefix in database URL");
+        }
+        if (url.length() < separator + 2) {
+            throw new IllegalArgumentException("Missing characters after \"jdbc:\"prefix");
+        }
+        return URI.create(url.substring(separator + 1));
+    }
+
+    /**
+     * Retrieve database name from database {@link URI}.
+     * {@link URI} path element contains leading {@code '/'} character which must be removed before returning
+     * the database name.
+     *
+     * @param dbUri database {@link URI}
+     * @return database name from database {@link URI}
+     */
+    public static String dbNameFromUri(URI dbUri) {
+        String dbPath =  dbUri.getPath();
+        if (dbPath.length() == 0) {
+            throw new IllegalArgumentException("Database name is empty");
+        }
+        String dbName = dbPath.charAt(0) == '/' ? dbPath.substring(1, dbPath.length()) : dbPath;
+        if (dbName.length() == 0) {
+            throw new IllegalArgumentException("Database name is empty");
+        }
+        return dbName;
     }
 
 }

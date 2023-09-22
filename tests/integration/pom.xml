@@ -39,8 +39,9 @@
 
     <modules>
         <module>config</module>
-        <module>dbclient</module>
+        <module>junit5</module>
         <module>harness</module>
+        <module>dbclient</module>
         <module>health</module>
         <module>jep290</module>
         <module>jms</module>

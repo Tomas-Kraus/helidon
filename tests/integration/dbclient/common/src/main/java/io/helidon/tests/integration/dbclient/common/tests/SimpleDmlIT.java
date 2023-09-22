@@ -26,7 +26,6 @@ import io.helidon.tests.integration.dbclient.common.utils.TestConfig;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.helidon.tests.integration.dbclient.common.model.Type.TYPES;
 import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.verifyDeletePokemon;
@@ -37,8 +36,7 @@ import static io.helidon.tests.integration.dbclient.common.utils.VerifyData.veri
  * Test set of basic JDBC DML statement calls.
  */
 @SuppressWarnings("SpellCheckingInspection")
-@ExtendWith(DbClientParameterResolver.class)
-public class SimpleDmlIT {
+public abstract class SimpleDmlIT {
 
     private static final System.Logger LOGGER = System.getLogger(SimpleDmlIT.class.getName());
     private static final int BASE_ID = TestConfig.LAST_POKEMON_ID + 40;

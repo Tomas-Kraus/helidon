@@ -15,8 +15,8 @@
  */
 package io.helidon.tests.integration.dbclient.app;
 
-import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
+import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.harness.TestClient;
 
 import jakarta.json.JsonObject;

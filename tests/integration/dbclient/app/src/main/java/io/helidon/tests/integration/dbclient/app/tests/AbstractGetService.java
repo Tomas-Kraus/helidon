@@ -15,19 +15,19 @@
  */
 package io.helidon.tests.integration.dbclient.app.tests;
 
-import io.helidon.http.NotFoundException;
-import io.helidon.dbclient.DbClient;
-import io.helidon.dbclient.DbRow;
-import io.helidon.webserver.http.HttpRules;
-import io.helidon.webserver.http.ServerRequest;
-import io.helidon.webserver.http.ServerResponse;
-import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
-
-import jakarta.json.JsonObject;
-
 import java.lang.System.Logger.Level;
 import java.util.Map;
 import java.util.Optional;
+
+import io.helidon.dbclient.DbClient;
+import io.helidon.dbclient.DbRow;
+import io.helidon.http.NotFoundException;
+import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
+import io.helidon.webserver.http.HttpRules;
+import io.helidon.webserver.http.ServerRequest;
+import io.helidon.webserver.http.ServerResponse;
+
+import jakarta.json.JsonObject;
 
 import static io.helidon.tests.integration.harness.AppResponse.okStatus;
 

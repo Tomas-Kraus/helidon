@@ -21,13 +21,13 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import io.helidon.logging.common.LogConfig;
-import io.helidon.webclient.http1.Http1Client;
-import io.helidon.webclient.http1.Http1ClientResponse;
-import io.helidon.webserver.WebServer;
 import io.helidon.tests.integration.harness.AfterSuite;
 import io.helidon.tests.integration.harness.BeforeSuite;
 import io.helidon.tests.integration.harness.HelidonProcessRunner;
 import io.helidon.tests.integration.harness.HelidonProcessRunner.ExecType;
+import io.helidon.webclient.http1.Http1Client;
+import io.helidon.webclient.http1.Http1ClientResponse;
+import io.helidon.webserver.WebServer;
 
 import org.junit.platform.suite.api.IncludeClassNamePatterns;
 import org.junit.platform.suite.api.SelectPackages;

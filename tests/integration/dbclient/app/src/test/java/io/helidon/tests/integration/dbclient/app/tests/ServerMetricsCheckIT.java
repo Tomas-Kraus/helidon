@@ -15,11 +15,11 @@
  */
 package io.helidon.tests.integration.dbclient.app.tests;
 
-import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
+import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.harness.TestClient;
-
 import io.helidon.tests.integration.harness.TestServiceClient;
+
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
 import org.junit.jupiter.api.Test;

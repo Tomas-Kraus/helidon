@@ -1,0 +1,3 @@
+io.helidon.tests.integration.junit5.SimpleSuite
+io.helidon.tests.integration.junit5.ConfigSuite
+io.helidon.tests.integration.junit5.ContainerSuite

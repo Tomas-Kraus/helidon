@@ -24,7 +24,6 @@ import io.helidon.health.HealthCheck;
 import io.helidon.health.HealthCheckResponse;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -34,8 +33,7 @@ import static org.hamcrest.Matchers.equalTo;
 /**
  * Verify that health check works.
  */
-@ExtendWith(DbClientParameterResolver.class)
-public class HealthCheckIT {
+public abstract class HealthCheckIT {
 
     private static final System.Logger LOGGER = System.getLogger(HealthCheckIT.class.getName());
 
@@ -43,7 +41,7 @@ public class HealthCheckIT {
     private final Config config;
     private final boolean pingDml;
 
-    HealthCheckIT(DbClient dbClient, Config config) {
+    public HealthCheckIT(DbClient dbClient, Config config) {
         this.dbClient = dbClient;
         this.config = config;
         Config cfgPingDml = config.get("test.ping-dml");

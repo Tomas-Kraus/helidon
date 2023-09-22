@@ -40,7 +40,6 @@ import jakarta.json.stream.JsonParsingException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -50,8 +49,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Verify health check in web server environment.
  */
-@ExtendWith(DbClientParameterResolver.class)
-public class ServerHealthCheckIT {
+public abstract class ServerHealthCheckIT {
 
     private static final System.Logger LOGGER = System.getLogger(ServerHealthCheckIT.class.getName());
 

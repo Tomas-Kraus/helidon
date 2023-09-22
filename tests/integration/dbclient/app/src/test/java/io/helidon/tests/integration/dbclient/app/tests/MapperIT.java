@@ -19,8 +19,8 @@ import java.lang.System.Logger.Level;
 
 import io.helidon.tests.integration.dbclient.app.LogData;
 import io.helidon.tests.integration.dbclient.app.VerifyData;
-import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.dbclient.app.tools.QueryParams;
+import io.helidon.tests.integration.dbclient.common.model.Pokemon;
 import io.helidon.tests.integration.harness.JsonValues;
 import io.helidon.tests.integration.harness.TestClient;
 import io.helidon.tests.integration.harness.TestServiceClient;
