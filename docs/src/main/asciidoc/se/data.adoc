@@ -28,27 +28,153 @@ include::{rootdir}/includes/se.adoc[]
 
 -  <<Overview, Overview>>
 -  <<Maven Coordinates, Maven Coordinates>>
--  <<Additional Dependencies, Additional Dependencies>>
 -  <<Annotation Processor, Annotation Processor>>
 -  <<Usage, Usage>>
 -  <<Helidon Config, Helidon Config>>
 -  <<SE Application, SE Application>>
+-  <<Repository Interface, Repository Interface>>
+-  <<Pagination, Pagination>>
+-  <<Dynamic Sorting, Dynamic Sorting>>
+-  <<Persistence Session Access, Persistence Session Access>>
 
-include::{rootdir}/includes/data/data-shared.adoc[tag=overview]
-include::{rootdir}/includes/data/data-shared.adoc[tag=dependencies]
-include::{rootdir}/includes/data/data-shared.adoc[tag=annotation_processor]
-include::{rootdir}/includes/data/data-shared.adoc[tag=usage]
-include::{rootdir}/includes/data/data-shared.adoc[tag=config]
+== Overview
+
+The Helidon SE Data Repository provides a unified API for working with database queries.
+Data repository queries are an abstraction on top of Object–relational mapping (ORM). This
+allows compile time translation of interfaces with query definitions into implementing classes.
+
+Supported ORM is Jakarta Persistence 3.1 and EclipseLink or Hibernate providers.
+
+include::{rootdir}/includes/dependencies.adoc[]
+
+[source,xml]
+----
+        <dependency>
+            <groupId>io.helidon.data</groupId>
+            <artifactId>helidon-data</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.data.jakarta.persistence</groupId>
+            <artifactId>helidon-data-jakarta-persistence-gapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.data.jakarta.persistence</groupId>
+            <artifactId>helidon-data-jakarta-persistence</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+----
+
+Data Repository GAPI module depends on Jakarta Persistence 3.1.
+
+Jakarta Persistence provider (EclipseLink) and Database (MySQL) JDBC driver runtime dependencies:
+[source,xml]
+----
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+----
+
+== Annotation Processor
+
+Both ORM entity model and data repository interfaces require specific annotation processor configuration:
+
+[source,xml]
+----
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.helidon.codegen</groupId>
+                            <artifactId>helidon-codegen-apt</artifactId>
+                            <version>${helidon.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.helidon.service</groupId>
+                            <artifactId>helidon-service-codegen</artifactId>
+                            <version>${helidon.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.helidon.data.codegen</groupId>
+                            <artifactId>helidon-data-codegen</artifactId>
+                            <version>${project.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.helidon.data.jakarta.persistence</groupId>
+                            <artifactId>helidon-data-jakarta-persistence-codegen</artifactId>
+                            <version>${project.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+----
+
+== Usage
+
+The Data Repository provides API and tools to implement database queries using interface method prototypes.
+There are two ways how such a query may be defined:
+
+* using method annotated with `@Data.Query`
+
+[source,java]
+----
+    @Data.Query("SELECT p FROM Pet p WHERE p.category.name = :categoryName")
+    List<Pet> listPetsByCategory(String categoryName);
+----
+
+* using method name as query definition
+
+[source,java]
+----
+    Optional<Pet> findByName(String name);
+----
+
+== Helidon Config
+
+The data repository must be configured before you begin. In the example below we'll use Helidon Config to set up data repository
+with EclipseLink and MySQL database:
+[source,yaml]
+----
+data:
+  provider.jakarta:
+    username: "user"
+    password: "password"
+    connection-string: "jdbc:mysql://localhost:3306/pets"
+    jdbc-driver: "com.mysql.cj.jdbc.Driver"
+    # EclipseLink properties
+    properties:
+      eclipselink.target-database: "MySQL"
+      eclipselink.target-server: "None"
+      eclipselink.weaving: false
+      eclipselink.logging.level.weaver: "OFF"
+      eclipselink.logging.parameters: true
+      jakarta.persistence.schema-generation.database.action: none
+----
 
 == SE Application
 
 Data repository must be initialized using programmatic API in Java SE application:
+
 [source,java]
 ----
 DataRegistry helidonData = DataRegistry.create(config.get("data"));
 ----
 
 `DataRegistry` instance can be used now to create repository interface instances:
+
 [source,java]
 ----
 PetRepository pets = helidonData.repository(PetRepository.class);
