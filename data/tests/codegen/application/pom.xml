@@ -31,9 +31,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.helidon.data.tests.codegen</groupId>
-            <artifactId>helidon-data-tests-codegen-repository</artifactId>
-            <version>${helidon.version}</version>
+            <groupId>io.helidon.data</groupId>
+            <artifactId>helidon-data</artifactId>
         </dependency>
     </dependencies>
 
