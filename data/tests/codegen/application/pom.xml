@@ -33,6 +33,7 @@
         <dependency>
             <groupId>io.helidon.data.tests.codegen</groupId>
             <artifactId>helidon-data-tests-codegen-repository</artifactId>
+            <version>${helidon.version}</version>
         </dependency>
     </dependencies>
 
