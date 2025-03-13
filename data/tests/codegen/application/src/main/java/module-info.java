@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 /**
- * Helidon Data Codegen Tests Application.
+ * Helidon Data Tests Application.
  */
-module io.helidon.data.tests.codegen.application {
+module io.helidon.data.tests.application {
 
     requires io.helidon.data;
     requires io.helidon.common.config;
 
-    exports io.helidon.data.tests.codegen.application;
+    exports io.helidon.data.tests.application;
 
 }

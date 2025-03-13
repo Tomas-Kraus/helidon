@@ -21,12 +21,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.helidon.data.tests.codegen.hiernate</groupId>
-        <artifactId>helidon-data-tests-codegen-hiernate-project</artifactId>
+        <groupId>io.helidon.data.tests.hiernate</groupId>
+        <artifactId>helidon-data-tests-hiernate-project</artifactId>
         <version>4.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>helidon-data-tests-codegen-hibernate-mysql</artifactId>
+    <artifactId>helidon-data-tests-hibernate-mysql</artifactId>
     <name>Helidon Data Codegen Tests Hibernate with MySQL</name>
 
     <dependencies>
@@ -86,20 +86,20 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.helidon.data.tests.codegen</groupId>
-            <artifactId>helidon-data-tests-codegen-model</artifactId>
+            <groupId>io.helidon.data.tests</groupId>
+            <artifactId>helidon-data-tests-model</artifactId>
             <version>${helidon.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.helidon.data.tests.codegen</groupId>
-            <artifactId>helidon-data-tests-codegen-repository</artifactId>
+            <groupId>io.helidon.data.tests</groupId>
+            <artifactId>helidon-data-tests-repository</artifactId>
             <version>${helidon.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.helidon.data.tests.codegen</groupId>
-            <artifactId>helidon-data-tests-codegen-common</artifactId>
+            <groupId>io.helidon.data.tests</groupId>
+            <artifactId>helidon-data-tests-common</artifactId>
             <version>${helidon.version}</version>
             <scope>test</scope>
         </dependency>
@@ -164,7 +164,7 @@
                         <exclude/>
                     </excludes>
                     <includes>
-                        <include>io.helidon.data.tests.codegen.hibernate.mysql.MySqlSuite$Test*</include>
+                        <include>io.helidon.data.tests.hibernate.mysql.MySqlSuite$Test*</include>
                     </includes>
                 </configuration>
             </plugin>

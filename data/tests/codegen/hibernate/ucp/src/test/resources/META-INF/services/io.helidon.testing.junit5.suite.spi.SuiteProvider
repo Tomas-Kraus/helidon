@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-io.helidon.data.tests.codegen.hibernate.ucp.OraDbSuite
+io.helidon.data.tests.hibernate.ucp.OraDbSuite

@@ -15,15 +15,15 @@
  */
 
 /**
- * Helidon Data Codegen Tests Model.
+ * Helidon Data Tests Model.
  */
-module io.helidon.data.tests.codegen.model {
+module io.helidon.data.tests.model {
 
     requires java.compiler;
     requires jakarta.persistence;
     requires io.helidon.data.jakarta.persistence.gapi;
     requires io.helidon.service.registry;
 
-    exports io.helidon.data.tests.codegen.model;
+    exports io.helidon.data.tests.model;
 
 }

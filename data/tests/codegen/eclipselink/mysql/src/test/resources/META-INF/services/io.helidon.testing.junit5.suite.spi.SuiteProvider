@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-io.helidon.data.tests.codegen.eclipselink.mysql.MySqlSuite
+io.helidon.data.tests.eclipselink.mysql.MySqlSuite

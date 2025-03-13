@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-io.helidon.data.tests.codegen.hibernate.mysql.MySqlSuite
+io.helidon.data.tests.hibernate.mysql.MySqlSuite

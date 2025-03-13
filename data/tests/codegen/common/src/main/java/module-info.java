@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 /**
- * Helidon Data Codegen Common Tests.
+ * Helidon Data Common Tests.
  */
-module io.helidon.data.tests.tests {
+module io.helidon.data.tests.common {
 
     requires org.junit.jupiter.api;
     requires hamcrest.all;
 
     requires io.helidon.data;
-    requires io.helidon.data.tests.codegen.model;
-    requires io.helidon.data.tests.codegen.repository;
-    requires io.helidon.data.tests.codegen.application;
+    requires io.helidon.data.tests.model;
+    requires io.helidon.data.tests.repository;
+    requires io.helidon.data.tests.application;
     requires io.helidon.data.jakarta.persistence;
+
+    exports io.helidon.data.tests.common;
 
 }

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 /**
- * Helidon Data Codegen Tests Repository.
+ * Helidon Data Tests Repository.
  */
-module io.helidon.data.tests.codegen.repository {
-
-    exports io.helidon.data.tests.codegen.repository;
+module io.helidon.data.tests.repository {
 
     requires jakarta.persistence;
 
     requires io.helidon.data;
     requires io.helidon.data.jakarta.persistence.gapi;
-    requires io.helidon.data.tests.codegen.model;
+    requires io.helidon.data.tests.model;
+
+    exports io.helidon.data.tests.repository;
 
 }
