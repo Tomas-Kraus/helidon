@@ -35,17 +35,9 @@
         <module>repository</module>
         <module>application</module>
         <module>common</module>
+        <module>eclipselink</module>
+        <module>hibernate</module>
+        <!--module>tests-mysql-scripts</module-->
     </modules>
-
-    <profiles>
-        <profile>
-            <id>testcontainers</id>
-            <modules>
-                <module>eclipselink</module>
-                <module>hibernate</module>
-                <!--module>tests-mysql-scripts</module-->
-            </modules>
-        </profile>
-    </profiles>
 
 </project>
