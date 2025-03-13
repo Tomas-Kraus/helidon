@@ -41,11 +41,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.helidon.testing</groupId>
-            <artifactId>helidon-testing-junit5</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.helidon.config</groupId>
             <artifactId>helidon-config-yaml</artifactId>
             <scope>test</scope>
@@ -56,8 +51,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.helidon.service</groupId>
+            <artifactId>helidon-service-registry</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.helidon.data</groupId>
             <artifactId>helidon-data</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.testing</groupId>
+            <artifactId>helidon-testing-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
