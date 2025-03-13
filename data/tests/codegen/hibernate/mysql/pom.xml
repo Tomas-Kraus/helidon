@@ -152,14 +152,6 @@
 
     <build>
         <plugins>
-            <!-- Module testcontainers added junit:junit dependency which is ignored. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <ignoredUsedUndeclaredDependencies>junit:junit</ignoredUsedUndeclaredDependencies>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
