@@ -26,7 +26,7 @@ class TxInterceptor {
 
     private static final System.Logger LOGGER = System.getLogger(TxInterceptor.class.getName());
 
-    static abstract class AbstractInterceptor implements Interception.Interceptor {
+    abstract static class AbstractInterceptor implements Interception.Interceptor {
 
         private final Optional<JtaProvider> provider;
 
@@ -42,10 +42,21 @@ class TxInterceptor {
                                          Thread.currentThread().hashCode()));
             }
             if (provider.isPresent()) {
-
+                if (LOGGER.isLoggable(System.Logger.Level.DEBUG)) {
+                    LOGGER.log(System.Logger.Level.DEBUG,
+                               String.format("Begin of %s transaction in thread [%x]",
+                                             type.name(),
+                                             Thread.currentThread().hashCode()));
+                }
             }
             V result = chain.proceed(args);
             if (provider.isPresent()) {
+                if (LOGGER.isLoggable(System.Logger.Level.DEBUG)) {
+                    LOGGER.log(System.Logger.Level.DEBUG,
+                               String.format("Commit/rollback %s transaction in thread [%x]",
+                                             type.name(),
+                                             Thread.currentThread().hashCode()));
+                }
 
             }
             if (LOGGER.isLoggable(System.Logger.Level.DEBUG)) {

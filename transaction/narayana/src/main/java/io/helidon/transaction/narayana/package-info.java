@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Oracle and/or its affiliates.
+ * Copyright (c) 2024, 2025 Oracle and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.helidon.transaction.jta;
 
-import io.helidon.service.registry.Services;
-
-import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
-public class TestLookup {
-
-    // JtaProvider.exists() shall return false with no provider available
-    @Test
-    void testExistsWithNoProvider() {
-        assertThat(Services.first(JtaProvider.class), is(false));
-    }
-
-}
+/**
+ * Narayana Jakarta Transaction Provider.
+ */
+package io.helidon.transaction.narayana;

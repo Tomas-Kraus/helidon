@@ -15,20 +15,6 @@
  */
 package io.helidon.transaction.narayana;
 
-import io.helidon.service.registry.Services;
-import io.helidon.transaction.jta.JtaProvider;
-
-import jakarta.transaction.TransactionManager;
-import jakarta.transaction.TransactionSynchronizationRegistry;
-import jakarta.transaction.UserTransaction;
-import org.junit.jupiter.api.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-
 public class TestLookup {
 /*
     // JtaProvider.get() shall return NarayanaProvider instance
