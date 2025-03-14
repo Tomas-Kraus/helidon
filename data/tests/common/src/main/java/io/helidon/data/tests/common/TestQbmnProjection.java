@@ -28,7 +28,6 @@ import io.helidon.data.Sort;
 import io.helidon.data.tests.model.Pokemon;
 import io.helidon.data.tests.repository.PokemonRepository;
 
-import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import static io.helidon.data.tests.common.InitialData.POKEMONS;
 import static io.helidon.data.tests.common.TestUtils.checkSortedPokemonsListByName;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -137,7 +135,7 @@ public class TestQbmnProjection {
     @Test
     public void testListFind() {
         List<Pokemon> pokemons = pokemonRepository.find();
-        MatcherAssert.assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     // Simple (JPQL) Stream<Entity> stream all projection
@@ -145,13 +143,13 @@ public class TestQbmnProjection {
     @Test
     public void testStreamFind() {
         Stream<Pokemon> pokemons = pokemonRepository.streamFindAll();
-        MatcherAssert.assertThat(pokemons.toList(), Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons.toList(), Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     @Test
     public void testCollectionFind() {
         Collection<Pokemon> pokemons = pokemonRepository.collectonFindAll();
-        MatcherAssert.assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     // Simple (JPQL) List<Entity> list all projection
@@ -159,13 +157,13 @@ public class TestQbmnProjection {
     @Test
     public void testStream() {
         Stream<Pokemon> pokemons = pokemonRepository.stream();
-        MatcherAssert.assertThat(pokemons.toList(), Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons.toList(), Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     @Test
     public void testStreamAll() {
         Stream<Pokemon> pokemons = pokemonRepository.streamAll();
-        MatcherAssert.assertThat(pokemons.toList(), Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons.toList(), Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     // Dynamic (criteria API) List<Entity> find projection
@@ -173,7 +171,7 @@ public class TestQbmnProjection {
     @Test
     public void testList() {
         List<Pokemon> pokemons = pokemonRepository.list();
-        MatcherAssert.assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     // Dynamic (criteria API) Stream<Entity> find projection
@@ -181,7 +179,7 @@ public class TestQbmnProjection {
     @Test
     public void testListAll() {
         List<Pokemon> pokemons = pokemonRepository.listAll();
-        MatcherAssert.assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
+        assertThat(pokemons, Matchers.hasSize(TestUtils.POKEMONS_LIST.size()));
     }
 
     // Dynamic (criteria API) Collection<Entity> find projection
@@ -189,7 +187,7 @@ public class TestQbmnProjection {
     @Test
     public void testDynamicListFind() {
         List<Pokemon> pokemons = pokemonRepository.find(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons);
+        checkSortedPokemonsListByName(pokemons);
     }
 
     // Dynamic (criteria API) Stream<Entity> stream all projection
@@ -197,13 +195,13 @@ public class TestQbmnProjection {
     @Test
     public void testDynamicStreamFind() {
         Stream<Pokemon> pokemons = pokemonRepository.streamFindAll(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons);
+        checkSortedPokemonsListByName(pokemons);
     }
 
     @Test
     public void testDynamicCollectionFind() {
         Collection<Pokemon> pokemons = pokemonRepository.collectonFindAll(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons.stream().toList());
+        checkSortedPokemonsListByName(pokemons.stream().toList());
     }
 
     // Dynamic (criteria API) List<Entity> list all projection
@@ -211,13 +209,13 @@ public class TestQbmnProjection {
     @Test
     public void testDynamicStream() {
         Stream<Pokemon> pokemons = pokemonRepository.stream(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons);
+        checkSortedPokemonsListByName(pokemons);
     }
 
     @Test
     public void testDynamicStreamAll() {
         Stream<Pokemon> pokemons = pokemonRepository.streamAll(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons);
+        checkSortedPokemonsListByName(pokemons);
     }
 
     // Simple (JPQL) exists projection
@@ -225,13 +223,13 @@ public class TestQbmnProjection {
     @Test
     public void testDynamicList() {
         List<Pokemon> pokemons = pokemonRepository.list(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons);
+        checkSortedPokemonsListByName(pokemons);
     }
 
     @Test
     public void testDynamicListAll() {
         List<Pokemon> pokemons = pokemonRepository.listAll(Sort.create(Order.create("name")));
-        TestUtils.checkSortedPokemonsListByName(pokemons);
+        checkSortedPokemonsListByName(pokemons);
     }
 
     @Test
