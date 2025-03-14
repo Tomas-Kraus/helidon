@@ -20,25 +20,19 @@ data:
     connection-string: "jdbc:mysql://localhost:3306/testdb"
     jdbc-driver-class-name: "com.mysql.cj.jdbc.Driver"
     init-script: "init.sql"
-    managed-classes:
-      - "io.helidon.data.tests.codegen.model.Critter"
-      - "io.helidon.data.tests.codegen.model.Keeper"
-      - "io.helidon.data.tests.codegen.model.Kind"
-      - "io.helidon.data.tests.codegen.model.Team"
     # EclipseLink properties
     properties:
       eclipselink.target-database: "MySQL"
       eclipselink.target-server: "None"
       eclipselink.weaving: false
-      # Broken, this property is missing in PU properties
       eclipselink.logging.level: "FINEST"
       eclipselink.logging.level.weaver: "OFF"
       eclipselink.logging.level.sql: "INFO"
       eclipselink.logging.parameters: true
 # Uncomment to let EclipseLink generate example DDL scripts
-#    jakarta.persistence.schema-generation.create-script-source: "init.sql"
-#    jakarta.persistence.schema-generation.create-source: "metadata"
-#    jakarta.persistence.schema-generation.scripts.action: "drop-and-create"
-#    jakarta.persistence.schema-generation.scripts.create-target: "init-ddl.sql"
-#    jakarta.persistence.schema-generation.scripts.drop-target: "drop-ddl.sql"
-#    jakarta.persistence.schema-generation.database.action: "drop-and-create"
+#      jakarta.persistence.schema-generation.create-script-source: "init-script.sql"
+#      jakarta.persistence.schema-generation.create-source: "metadata"
+#      jakarta.persistence.schema-generation.scripts.action: "drop-and-create"
+#      jakarta.persistence.schema-generation.scripts.create-target: "init-ddl.sql"
+#      jakarta.persistence.schema-generation.scripts.drop-target: "drop-ddl.sql"
+#      jakarta.persistence.schema-generation.database.action: "drop-and-create"

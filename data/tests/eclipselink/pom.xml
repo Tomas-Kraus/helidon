@@ -35,6 +35,7 @@
         <module>mysql</module>
         <module>mysql-ds</module>
         <module>ucp</module>
+        <module>mysql-scripts</module>
     </modules>
 
     <build>

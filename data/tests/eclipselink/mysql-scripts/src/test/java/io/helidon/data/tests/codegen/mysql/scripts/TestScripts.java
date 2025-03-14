@@ -17,12 +17,12 @@ package io.helidon.data.tests.codegen.mysql.scripts;
 
 import java.util.List;
 
-import io.helidon.config.Config;
-import io.helidon.data.api.Data;
-import io.helidon.data.tests.codegen.application.ApplicationData;
-import io.helidon.data.tests.codegen.model.Type;
-import io.helidon.data.tests.codegen.repository.TypeRepository;
-import io.helidon.tests.integration.junit5.Suite;
+import io.helidon.data.DataConfig;
+import io.helidon.data.DataRegistry;
+import io.helidon.data.tests.application.ApplicationData;
+import io.helidon.data.tests.model.Type;
+import io.helidon.data.tests.repository.TypeRepository;
+import io.helidon.testing.junit5.suite.Suite;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,16 +33,20 @@ import static org.hamcrest.Matchers.notNullValue;
 @Suite(MySqlSuite.class)
 public class TestScripts {
 
+    private static final System.Logger LOGGER = System.getLogger(MySqlSuite.class.getName());
+
     // Database shall be created and populated with data from create script.
     @Test
-    void testScripts(Config config) {
+    void testScripts(DataConfig config) {
+        LOGGER.log(System.Logger.Level.DEBUG, "Running testScripts");
         ApplicationData applicationData = new ApplicationData(config);
         assertThat(applicationData.data(), notNullValue());
-        Data data = applicationData.data();
+        DataRegistry data = applicationData.data();
         TypeRepository kindRepository = data.repository(TypeRepository.class);
         List<Type> kinds = kindRepository.findAll().toList();
         // KIND content initialized from script
         assertThat(kinds, hasSize(18));
+        LOGGER.log(System.Logger.Level.DEBUG, "Finished testScripts");
     }
 
 }
