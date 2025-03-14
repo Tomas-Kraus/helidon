@@ -36,6 +36,7 @@
     <properties>
         <!-- the plugin is confused, trying to get common into test scope -->
         <dependency-plugin-check-dependencies.skip>true</dependency-plugin-check-dependencies.skip>
+        <spotbugs.exclude>etc/spotbugs/exclude.xml</spotbugs.exclude>
     </properties>
 
     <dependencies>
