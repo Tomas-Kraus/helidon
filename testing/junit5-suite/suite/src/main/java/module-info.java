@@ -22,9 +22,11 @@ module io.helidon.testing.junit5.suite {
     requires transitive org.junit.jupiter.api;
     requires io.helidon.common;
     requires io.helidon.logging.common;
+    requires io.helidon.service.registry;
 
     uses io.helidon.testing.junit5.suite.spi.SuiteProvider;
 
     exports io.helidon.testing.junit5.suite;
     exports io.helidon.testing.junit5.suite.spi;
+
 }

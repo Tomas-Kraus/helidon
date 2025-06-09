@@ -71,8 +71,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.helidon.testing</groupId>
+            <groupId>io.helidon.testing.junit5.suite</groupId>
             <artifactId>helidon-testing-junit5-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.testing.junit5.suite</groupId>
+            <artifactId>helidon-testing-junit5-suite-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.testing.junit5.suite</groupId>
+            <artifactId>helidon-testing-junit5-suite-container-mysql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

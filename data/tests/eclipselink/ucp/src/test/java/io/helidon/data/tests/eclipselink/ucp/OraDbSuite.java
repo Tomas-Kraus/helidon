@@ -23,31 +23,34 @@ import io.helidon.data.sql.testing.TestContainerHandler;
 import io.helidon.data.tests.common.InitialData;
 import io.helidon.data.tests.repository.PokemonRepository;
 import io.helidon.service.registry.Services;
-import io.helidon.testing.junit5.suite.AfterSuite;
 import io.helidon.testing.junit5.suite.BeforeSuite;
 import io.helidon.testing.junit5.suite.Suite;
+import io.helidon.testing.junit5.suite.container.BeforeContainerStart;
+import io.helidon.testing.junit5.suite.container.Container;
 import io.helidon.testing.junit5.suite.spi.SuiteProvider;
 
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Oracle DB suite.
  */
+@Container(containerClass = GenericContainer.class, image = "container-registry.oracle.com/database/free")
 public class OraDbSuite implements SuiteProvider {
-    private static final System.Logger LOGGER = System.getLogger(OraDbSuite.class.getName());
-    private static final DockerImageName IMAGE = DockerImageName.parse(
-            "container-registry.oracle.com/database/free");
 
-    private final TestContainerHandler containerHandler;
+    private static final System.Logger LOGGER = System.getLogger(OraDbSuite.class.getName());
+
+    private TestContainerHandler containerHandler = null;
 
     public OraDbSuite() {
-        GenericContainer<?> container = new GenericContainer<>(IMAGE);
+    }
+
+    @BeforeContainerStart
+    public void beforeContainerStart(GenericContainer<?> container) {
         this.containerHandler = SqlTestContainerConfig.configureContainer(container,
                                                                           ConfigSources.classpath("application.yaml"));
 
@@ -63,17 +66,11 @@ public class OraDbSuite implements SuiteProvider {
 
     @BeforeSuite
     public void beforeSuite() {
-        this.containerHandler.startContainer();
         this.containerHandler.setConfig();
 
         PokemonRepository pokemonRepository = Services.get(PokemonRepository.class);
         // Initialize database content
         pokemonRepository.run(InitialData::init);
-    }
-
-    @AfterSuite
-    public void afterSuite() {
-        containerHandler.stopContainer();
     }
 
     @Suite(OraDbSuite.class)
