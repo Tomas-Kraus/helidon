@@ -25,6 +25,7 @@ import io.helidon.testing.junit5.Testing;
 import io.helidon.testing.junit5.suite.AfterSuite;
 import io.helidon.testing.junit5.suite.BeforeSuite;
 import io.helidon.testing.junit5.suite.Suite;
+import io.helidon.testing.junit5.suite.container.Container;
 import io.helidon.testing.junit5.suite.spi.SuiteProvider;
 
 import org.testcontainers.containers.MySQLContainer;
@@ -34,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * MySQL suite.
  */
+@Container(containerClass = MySQLContainer.class, image = "mysql:8.0")
 public class MySqlSuite implements SuiteProvider {
 
     private final TestContainerHandler containerHandler;

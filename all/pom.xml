@@ -460,8 +460,16 @@
             <artifactId>helidon-testing-junit5</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.helidon.testing</groupId>
+            <groupId>io.helidon.testing.junit5.suite</groupId>
             <artifactId>helidon-testing-junit5-suite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.testing.junit5.suite</groupId>
+            <artifactId>helidon-testing-junit5-suite-container</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.helidon.testing.junit5.suite</groupId>
+            <artifactId>helidon-testing-junit5-suite-container-mysql</artifactId>
         </dependency>
         <dependency>
             <groupId>io.helidon.common.testing</groupId>

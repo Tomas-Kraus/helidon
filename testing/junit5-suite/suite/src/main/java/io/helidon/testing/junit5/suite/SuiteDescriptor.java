@@ -20,15 +20,21 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import io.helidon.common.HelidonServiceLoader;
+import io.helidon.service.registry.Services;
 import io.helidon.testing.junit5.suite.spi.SuiteProvider;
+import io.helidon.testing.junit5.suite.spi.SuiteSupport;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 // Suite descriptor
 class SuiteDescriptor {
+
+    // Suite extensions
+    private static final List<SuiteSupport> MODULES = Services.all(SuiteSupport.class);
 
     private final SuiteProvider provider;
     // Shared storage mapped to jUnit 5 global storage
@@ -72,8 +78,16 @@ class SuiteDescriptor {
     }
 
     boolean supportsParameter(Type type) {
-        return (provider instanceof SuiteResolver resolver && resolver.supportsParameter(type))
-                || (provider instanceof SuiteStorage && Storage.class.isAssignableFrom((Class<?>) type));
+        if ((provider instanceof SuiteResolver resolver && resolver.supportsParameter(type))
+                || (provider instanceof SuiteStorage && Storage.class.isAssignableFrom((Class<?>) type))){
+            return true;
+        }
+        for (SuiteSupport module : MODULES) {
+            if (module.supportsParameter(provider, type)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     Object resolveParameter(Type type) {
@@ -84,27 +98,44 @@ class SuiteDescriptor {
         } else if (provider instanceof SuiteStorage && Storage.class.isAssignableFrom((Class<?>) type)) {
             return storage;
         }
+        for (SuiteSupport module : MODULES) {
+            if (module.supportsParameter(provider, type)) {
+                return module.resolveParameter(provider, type);
+            }
+        }
         throw new IllegalArgumentException(String.format("Cannot resolve parameter Type %s", type.getTypeName()));
     }
 
     // Run suite initialization
     void init() {
+        // Fire extension modules init event
+        MODULES.forEach(m -> m.init(provider,
+                                    storage,
+                                    new CallSupport(this::supportsParameter,
+                                                    this::resolveParameter,
+                                                    this::invoke)));
         // Run @BeforeSuite annotated methods
         for (Method method : provider.getClass().getMethods()) {
             if (method.isAnnotationPresent(BeforeSuite.class)) {
                 callMethod(method);
             }
         }
+        // Fire extension modules beforeTests event
+        MODULES.forEach(m -> m.beforeTests(provider));
     }
 
     // Run suite cleanup
     void close() {
+        // Fire extension modules afterTests event
+        MODULES.forEach(m -> m.afterTests(provider));
         // Run @AfterSuite annotated methods
         for (Method method : provider.getClass().getMethods()) {
             if (method.isAnnotationPresent(AfterSuite.class)) {
                 callMethod(method);
             }
         }
+        // Fire extension modules close event
+        MODULES.forEach(m -> m.close(provider));
     }
 
     SuiteProvider provider() {
@@ -149,6 +180,12 @@ class SuiteDescriptor {
                                   method.getName()),
                     e);
         }
+    }
+
+    private record CallSupport(Function<Type, Boolean> supports,
+                               Function<Type, Object> resolve,
+                               BiConsumer<Method, Object[]> invoke)
+            implements SuiteSupport.SuiteCallSupport {
     }
 
 }

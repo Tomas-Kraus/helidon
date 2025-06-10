@@ -22,42 +22,40 @@ import io.helidon.data.tests.common.InitialData;
 import io.helidon.data.tests.repository.PokemonRepository;
 import io.helidon.service.registry.Services;
 import io.helidon.testing.junit5.Testing;
-import io.helidon.testing.junit5.suite.AfterSuite;
 import io.helidon.testing.junit5.suite.BeforeSuite;
 import io.helidon.testing.junit5.suite.Suite;
+import io.helidon.testing.junit5.suite.container.BeforeContainerStart;
+import io.helidon.testing.junit5.suite.container.Container;
 import io.helidon.testing.junit5.suite.spi.SuiteProvider;
 
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 /**
  * MySQL suite.
  */
+@Container(containerClass = MySQLContainer.class, image = "mysql:8.0")
 public class MySqlSuite implements SuiteProvider {
 
-    private final TestContainerHandler containerHandler;
+    private TestContainerHandler containerHandler = null;
 
     public MySqlSuite() {
-        MySQLContainer<?> container = new MySQLContainer<>(DockerImageName.parse("mysql:8.0"));
+    }
+
+    @BeforeContainerStart
+    public void beforeContainerStart(MySQLContainer<?> container) {
         this.containerHandler = SqlTestContainerConfig.configureContainer(container,
                                                                           ConfigSources.classpath("application.yaml"));
     }
 
     @BeforeSuite
     public void beforeSuite() {
-        this.containerHandler.startContainer();
         this.containerHandler.setConfig();
 
         PokemonRepository pokemonRepository = Services.get(PokemonRepository.class);
         // Initialize database content
         pokemonRepository.run(InitialData::init);
         pokemonRepository.run(InitialData::verify);
-    }
-
-    @AfterSuite
-    public void afterSuite() {
-        containerHandler.stopContainer();
     }
 
     @Testing.Test
